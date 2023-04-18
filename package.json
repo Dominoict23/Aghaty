@@ -1,0 +1,23 @@
+{
+  "name": "aghaty",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dominoict23/Aghaty.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dominoict23/Aghaty/issues"
+  },
+  "homepage": "https://github.com/Dominoict23/Aghaty#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sequelize": "^6.31.0"
+  }
+}
