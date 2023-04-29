@@ -9,11 +9,11 @@ const Cart = sequelize.define("Cart", {
   },
   count: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   totalPrice: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
 });
 

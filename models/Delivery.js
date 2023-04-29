@@ -34,7 +34,7 @@ const Delivery = sequelize.define("Delivery", {
   },
   status: {
     type: DataTypes.STRING,
-    default: "free",
+    defaultValue: "free",
   },
   // NOTE:location change based on firebase
   location: {

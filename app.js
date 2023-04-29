@@ -5,8 +5,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const multer = require("multer");
 const cors = require("cors");
-const models = require("./models");
-const { clientError, serverError } = require("./middlewares");
+const { clientError, serverError } = require("./middleware");
 
 dotenv.config();
 const app = express();
@@ -40,7 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use("/api/v1", router);
+app.use("/api/v1", router);
 
 app.use(clientError);
 app.use(serverError);

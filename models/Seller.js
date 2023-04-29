@@ -12,7 +12,7 @@ const Seller = sequelize.define("Seller", {
     allowNull: false,
     unique: true,
   },
-  firsName: {
+  firstName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -34,7 +34,7 @@ const Seller = sequelize.define("Seller", {
   },
   status: {
     type: DataTypes.STRING,
-    default: "free",
+    defaultValue: "free",
   },
   role: {
     type: DataTypes.STRING,

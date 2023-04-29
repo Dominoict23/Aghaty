@@ -13,7 +13,7 @@ const Post = sequelize.define("Post", {
   },
   count: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
 });
 

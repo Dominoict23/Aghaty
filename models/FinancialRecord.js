@@ -9,15 +9,15 @@ const FinancialRecord = sequelize.define("FinancialRecord", {
   },
   orderPrice: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   deliveryPrice: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   totalPrice: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
 });
 

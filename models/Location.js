@@ -23,7 +23,7 @@ const Location = sequelize.define("Location", {
   buildNumber: {
     type: DataTypes.STRING,
     allowNull: false,
-    default: "",
+    defaultValue: "",
   },
   image: {
     type: DataTypes.STRING,
