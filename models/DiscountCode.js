@@ -21,6 +21,9 @@ const DiscountCode = sequelize.define("DiscountCode", {
   endDate: {
     type: DataTypes.DATE,
   },
+  isEnable: {
+    type: DataTypes.BOOLEAN,
+  },
 });
 
 module.exports = DiscountCode;

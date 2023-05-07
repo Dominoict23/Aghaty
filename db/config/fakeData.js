@@ -3,7 +3,7 @@ const seller = [
     mobile: "097592185263",
     firstName: "Ahmed",
     lastName: "Ezz",
-    password: "$2a$10$OKs2RNqMLeyh7dMc7JkGhOmyuiY5nA/mkgEr1HqM/7DBQdB/73sv6", // 1234
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
     avatar:
       "https://www.cdtfa.ca.gov/images/industry/guy_with_open_sign_172870112.png",
     cover:
@@ -17,7 +17,7 @@ const seller = [
     mobile: "097599188104",
     firstName: "Ali",
     lastName: "Nemer",
-    password: "$2a$10$OKs2RNqMLeyh7dMc7JkGhOmyuiY5nA/mkgEr1HqM/7DBQdB/73sv6", // 1234
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
     avatar:
       "https://www.cdtfa.ca.gov/images/industry/guy_with_open_sign_172870112.png",
     cover:
@@ -34,6 +34,7 @@ const category = [
     name: "restaurants",
     image:
       "https://media.cnn.com/api/v1/images/stellar/prod/190710135245-12-waterfront-restaurants.jpg?q=w_3498,h_2296,x_0,y_0,c_fill/w_1280",
+    role: "productSeller",
   },
 ];
 
@@ -48,7 +49,9 @@ const subCategory = [
 
 const products = [
   {
-    name: "cake",
+    nameAR: "كيك",
+    nameEN: "cake",
+    nameKUR: "paste",
     description: "chocolate cake",
     price: 25,
     availableAmount: 3,
@@ -60,7 +63,9 @@ const products = [
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjFE0FIQWgwxlEzd7Svn50tZk1J_ir7BPiHg&usqp=CAU",
   },
   {
-    name: "ice cream",
+    nameAR: "بوظة",
+    nameEN: "ice cream",
+    nameKUR: "bestenî",
     description: "ice cream",
     price: 15,
     availableAmount: 5,

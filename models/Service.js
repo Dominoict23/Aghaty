@@ -7,6 +7,7 @@ const Service = sequelize.define("Service", {
     autoIncrement: true,
     primaryKey: true,
   },
+  //ASK: name in 3 languages ?
   name: {
     type: DataTypes.STRING,
     allowNull: false,

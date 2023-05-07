@@ -27,12 +27,6 @@ const addService = async (req, res) => {
   if (!name || !description || !image)
     throw serverErrs.BAD_REQUEST("Please all service data");
 
-  //TODO: should the name of service not unique??
-
-  // const serviceWithName = await Service.findOne({ where: { name } });
-  // if (serviceWithName)
-  //   throw serverErrs.BAD_REQUEST("Service name should be unique");
-
   const newService = await Service.create(
     {
       name,

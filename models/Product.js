@@ -7,10 +7,17 @@ const Product = sequelize.define("Product", {
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
+  nameAR: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+  },
+  nameEN: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  nameKUR: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   description: {
     type: DataTypes.STRING,
@@ -40,6 +47,11 @@ const Product = sequelize.define("Product", {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  // ASK: why language in product is it nesseray???
+  // language: {
+  //   type: DataTypes.STRING,
+  //   defaultValue: "EN",
+  // },
 });
 
 module.exports = Product;
