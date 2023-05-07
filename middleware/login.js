@@ -34,8 +34,6 @@ const login = async (req, res) => {
 
   const data = user ? user : delivery ? delivery : seller;
 
-  // TODO: delete one of the roles (in token, in seller) from token
-  // NOTE: role used to check the user in the one in token
   const token = await generateToken({ userId: data.id, name: data.name, role });
 
   res.send({

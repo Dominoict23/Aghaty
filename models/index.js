@@ -23,6 +23,7 @@ const Delivery = require("./Delivery");
 const OrderDelivery = require("./OrderDelivery");
 const OrderFromTo = require("./OrderFromTo");
 const FinancialRecord = require("./FinancialRecord");
+const Message = require("./Message");
 
 User.hasOne(Cart);
 Cart.belongsTo(User);
@@ -138,6 +139,9 @@ FinancialRecord.belongsTo(Delivery);
 Order.hasOne(FinancialRecord);
 FinancialRecord.belongsTo(Order);
 
+User.hasMany(Message);
+Message.belongsTo(User);
+
 module.exports = {
   User,
   Cart,
@@ -164,4 +168,5 @@ module.exports = {
   OrderDelivery,
   OrderFromTo,
   FinancialRecord,
+  Message,
 };

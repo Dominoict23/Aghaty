@@ -37,7 +37,9 @@ const insertDB = async () => {
   );
   products.forEach(async (product, ind) => {
     const {
-      name,
+      nameAR,
+      nameEN,
+      nameKUR,
       description,
       price,
       availableAmount,
@@ -49,7 +51,9 @@ const insertDB = async () => {
     } = product;
     await Product.bulkCreate([
       {
-        name,
+        nameAR,
+        nameEN,
+        nameKUR,
         description,
         price,
         availableAmount,

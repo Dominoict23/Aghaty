@@ -1,36 +1,104 @@
 const yup = require("yup");
 
 const loginValidation = yup.object().shape({
-  mobile: yup.string().required(), // TODO: set length  15
-  password: yup.string().required().length(4), //TODO: max 16 min 8
+  mobile: yup.string().required().min(12).max(15),
+  password: yup.string().required().min(8).max(16),
 });
 
-// const validateTeacher = yup.object().shape({
-//   email: yup.string().required().email(),
-// });
+const validateCreateProduct = yup.object().shape({
+  nameAR: yup.string().required(),
+  nameEN: yup.string().required(),
+  nameKUR: yup.string().required(),
+  description: yup.string().required(),
+  price: yup.number().required(),
+  availableAmount: yup.number().required(),
+  limitAmount: yup.number().required(),
+  discountPrice: yup.number().required(),
+  image: yup.string().required(),
+  SubCategoryId: yup.number().required(),
+});
 
-// const validateStudent = yup.object().shape({
-//   email: yup.string().required().email(),
-//   name: yup.string().required(),
-//   location: yup.string().required(),
-// });
+const validateEditProduct = yup.object().shape({
+  nameAR: yup.string().optional(),
+  nameEN: yup.string().optional(),
+  nameKUR: yup.string().optional(),
+  description: yup.string().optional(),
+  price: yup.number().optional(),
+  availableAmount: yup.number().optional(),
+  limitAmount: yup.number().optional(),
+  discountPrice: yup.number().optional(),
+  image: yup.string().optional(),
+  SubCategoryId: yup.number().optional(),
+  ProductId: yup.number().required(),
+});
 
-// const validateAdminSignUp = yup.object().shape({
-//   name: yup.string().required(),
-//   email: yup.string().required().email(),
-//   password: yup.string().required().length(4),
-// });
+const validateDeleteProduct = yup.object().shape({
+  ProductId: yup.number().required(),
+});
 
-// const validateParentSignUp = yup.object().shape({
-//   name: yup.string().required(),
-//   email: yup.string().required().email(),
-//   password: yup.string().required().length(4),
-// });
+const validateCreateStory = yup.object().shape({
+  image: yup.string().required(),
+});
+
+const validateEditStory = yup.object().shape({
+  image: yup.string().required(),
+  StoryId: yup.number().required(),
+});
+
+const validateDeleteStory = yup.object().shape({
+  StoryId: yup.number().required(),
+});
+
+const validateCreatePost = yup.object().shape({
+  text: yup.string().required(),
+  image: yup.string().required(),
+});
+
+const validateEditPost = yup.object().shape({
+  text: yup.string().optional(),
+  count: yup.number().optional(),
+  image: yup.string().optional(),
+  PostId: yup.number().required(),
+});
+
+const validateDeletePost = yup.object().shape({
+  PostId: yup.number().required(),
+});
+
+const validateCreateLike = yup.object().shape({
+  PostId: yup.number().required(),
+  SellerId: yup.number().required(),
+});
+
+const validateDeleteLike = yup.object().shape({
+  PostId: yup.number().required(),
+  SellerId: yup.number().required(),
+});
+
+const validateCreateComment = yup.object().shape({
+  text: yup.string().min(1).required(),
+  PostId: yup.number().required(),
+  SellerId: yup.number().required(),
+});
+
+const validateEditComment = yup.object().shape({
+  text: yup.string().min(1).required(),
+  CommentId: yup.number().required(),
+});
 
 module.exports = {
   loginValidation,
-  //   validateTeacher,
-  //   validateAdminSignUp,
-  //   validateParentSignUp,
-  //   validateStudent,
+  validateCreateProduct,
+  validateEditProduct,
+  validateDeleteProduct,
+  validateCreateStory,
+  validateEditStory,
+  validateDeleteStory,
+  validateCreatePost,
+  validateEditPost,
+  validateDeletePost,
+  validateCreateLike,
+  validateDeleteLike,
+  validateCreateComment,
+  validateEditComment,
 };

@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/config/connection");
 
-const Category = sequelize.define("Category", {
+const Message = sequelize.define("Message", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -11,15 +11,14 @@ const Category = sequelize.define("Category", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  image: {
+  phone: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  // NOTE: productSeller || serviceSeller
-  role: {
+  msgBody: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 });
 
-module.exports = Category;
+module.exports = Message;
