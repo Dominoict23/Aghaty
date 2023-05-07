@@ -17,11 +17,11 @@ const Service = sequelize.define("Service", {
   },
   priceFrom: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   priceTo: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
 });
 

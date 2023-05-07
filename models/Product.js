@@ -18,27 +18,27 @@ const Product = sequelize.define("Product", {
   },
   price: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   availableAmount: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   limitAmount: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   discountPrice: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   orderCount: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   rate: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
 });
 

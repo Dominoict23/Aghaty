@@ -13,11 +13,11 @@ const Feedback = sequelize.define("Feedback", {
   },
   count: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
   rate: {
     type: DataTypes.INTEGER,
-    default: 0,
+    defaultValue: 0,
   },
 });
 
