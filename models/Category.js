@@ -8,6 +8,7 @@ const Category = sequelize.define("Category", {
     primaryKey: true,
   },
   name: {
+    //ASK: 3 langs ?? i guess no from admin
     type: DataTypes.STRING,
     allowNull: false,
   },

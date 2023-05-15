@@ -12,6 +12,15 @@ const {
   editCover,
   editService,
   deleteService,
+  editStory,
+  editPost,
+  editComment,
+  deleteStory,
+  deletePost,
+  deleteLike,
+  getSellerServices,
+  getAllStories,
+  getAllPosts,
 } = require("../controllers/serviceSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -66,11 +75,64 @@ sellerRouter.put(
   errorCatcher(editService)
 );
 
+sellerRouter.put(
+  "/editStory/:ServiceSellerId",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(editStory)
+);
+
+sellerRouter.put(
+  "/editPost/:ServiceSellerId",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(editPost)
+);
+
+sellerRouter.put("/editComment", errorCatcher(editComment));
+
 sellerRouter.delete(
   "/deleteService/:ServiceSellerId",
   verifyToken,
   checkUserAuth("serviceSeller"),
   errorCatcher(deleteService)
+);
+
+sellerRouter.delete(
+  "/deleteStory/:ServiceSellerId",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(deleteStory)
+);
+
+sellerRouter.delete(
+  "/deletePost/:ServiceSellerId",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(deletePost)
+);
+
+sellerRouter.delete("/deleteLike", errorCatcher(deleteLike));
+
+sellerRouter.get(
+  "/allSellerServices/:ServiceSellerId",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(getSellerServices)
+);
+
+sellerRouter.get(
+  "/allStories",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(getAllStories)
+);
+
+sellerRouter.get(
+  "/allPosts",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(getAllPosts)
 );
 
 module.exports = sellerRouter;

@@ -47,11 +47,6 @@ const Product = sequelize.define("Product", {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
-  // ASK: why language in product is it nesseray???
-  // language: {
-  //   type: DataTypes.STRING,
-  //   defaultValue: "EN",
-  // },
 });
 
 module.exports = Product;

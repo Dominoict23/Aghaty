@@ -8,6 +8,21 @@ const {
   Comment,
   Service,
 } = require("../models");
+const {
+  validateCreateService,
+  validateCreateLike,
+  validateCreatePost,
+  validateCreateStory,
+  validateCreateComment,
+  validateEditService,
+  validateDeleteService,
+  validateEditStory,
+  validateDeleteStory,
+  validateEditPost,
+  validateDeletePost,
+  validateDeleteLike,
+  validateEditComment,
+} = require("../validation");
 
 const addService = async (req, res) => {
   const { ServiceSellerId } = req.params;
@@ -22,14 +37,23 @@ const addService = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { name, description, priceFrom, priceTo, image } = req.body;
+  const { nameAR, nameEN, nameKUR, description, priceFrom, priceTo, image } =
+    req.body;
 
-  if (!name || !description || !image)
-    throw serverErrs.BAD_REQUEST("Please all service data");
-
+  await validateCreateService.validate({
+    nameAR,
+    nameEN,
+    nameKUR,
+    description,
+    priceFrom,
+    priceTo,
+    image,
+  });
   const newService = await Service.create(
     {
-      name,
+      nameAR,
+      nameEN,
+      nameKUR,
       description,
       priceFrom,
       priceTo,
@@ -40,8 +64,6 @@ const addService = async (req, res) => {
     }
   );
 
-  await newService.save();
-
   const newImage = await Image.create(
     {
       image,
@@ -51,6 +73,8 @@ const addService = async (req, res) => {
       returning: true,
     }
   );
+
+  await newService.save();
 
   await newImage.save();
 
@@ -75,8 +99,7 @@ const addStory = async (req, res) => {
 
   const { image } = req.body;
 
-  if (!image)
-    throw serverErrs.BAD_REQUEST("Please provide image for the story");
+  await validateCreateStory.validate(req.body);
 
   const newStory = await Story.create(
     {
@@ -110,10 +133,9 @@ const addPost = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { text, image } = req.body;
+  await validateCreatePost.validate(req.body);
 
-  if (!image || !text)
-    throw serverErrs.BAD_REQUEST("Please provide image and text for the post");
+  const { text, image } = req.body;
 
   const newPost = await Post.create(
     {
@@ -146,10 +168,9 @@ const addPost = async (req, res) => {
 };
 
 const addLike = async (req, res) => {
-  const { PostId, SellerId } = req.body;
+  await validateCreateLike.validate(req.body);
 
-  if (!PostId || !SellerId)
-    throw serverErrs.BAD_REQUEST("Please provide post and seller Ids");
+  const { PostId, SellerId } = req.body;
 
   const seller = await Seller.findOne({
     where: { id: SellerId },
@@ -184,12 +205,9 @@ const addLike = async (req, res) => {
 };
 
 const addComment = async (req, res) => {
-  const { PostId, SellerId, text } = req.body;
+  await validateCreateComment.validate(req.body);
 
-  if (!text?.length > 0 || !PostId || !SellerId)
-    throw serverErrs.BAD_REQUEST(
-      "Please enter comment text and seller, post Ids"
-    );
+  const { PostId, SellerId, text } = req.body;
 
   const seller = await Seller.findOne({
     where: { id: SellerId },
@@ -287,6 +305,11 @@ const editService = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
+  await validateEditService.validate(req.body);
+  // TODO: put strict in validate
+  if (Object.keys(req.body).length <= 1)
+    throw serverErrs.BAD_REQUEST("body is empty nothing");
+
   const { image, ServiceId, ...others } = req.body;
 
   if (!ServiceId) throw serverErrs.BAD_REQUEST("Please provide ServiceId");
@@ -295,16 +318,13 @@ const editService = async (req, res) => {
 
   if (!service) throw serverErrs.BAD_REQUEST("Service not found!");
 
-  if (Object.keys(req.body).length <= 1)
-    throw serverErrs.BAD_REQUEST("body is empty nothing");
-
   await service.update({ ...others });
 
   if (image) {
     const imageFound = await Image.findOne({ where: { ServiceId } });
 
     if (!imageFound)
-      throw serverErrs.BAD_REQUEST("image for this product not found! ");
+      throw serverErrs.BAD_REQUEST("image for this service not found! ");
 
     await imageFound.update({ image });
   }
@@ -328,9 +348,9 @@ const deleteService = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { ServiceId } = req.body;
+  await validateDeleteService.validate(req.body);
 
-  if (!ServiceId) throw serverErrs.BAD_REQUEST("Please provide ServiceId");
+  const { ServiceId } = req.body;
 
   const service = await Service.findOne({ where: { id: ServiceId } });
 
@@ -351,6 +371,230 @@ const deleteService = async (req, res) => {
   });
 };
 
+const getSellerServices = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid serviceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  const services = await Service.findAll({
+    where: { SellerId: ServiceSellerId },
+    include: { model: Image },
+  });
+
+  res.send({
+    status: 200,
+    services,
+    msg: "successful get seller all products",
+  });
+};
+
+const editStory = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid serviceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  await validateEditStory.validate(req.body);
+  // TODO: put strict in validate
+  if (Object.keys(req.body).length <= 1)
+    throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
+
+  const { image, StoryId } = req.body;
+
+  const story = await Story.findOne({ where: { id: StoryId } });
+
+  if (!story) throw serverErrs.BAD_REQUEST("Story not found!");
+
+  await story.update({ image });
+
+  res.send({
+    status: 201,
+    data: story,
+    msg: "successful edit Story",
+  });
+};
+
+const deleteStory = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid serviceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  await validateDeleteStory.validate(req.body);
+
+  const { StoryId } = req.body;
+
+  const story = await Story.findOne({ where: { id: StoryId } });
+
+  if (!story) throw serverErrs.BAD_REQUEST("Story not found! ");
+
+  await story.destroy();
+
+  res.send({
+    status: 201,
+    msg: "successful delete story",
+  });
+};
+
+const editPost = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid serviceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  await validateEditPost.validate(req.body);
+  // TODO: put strict in validate
+  if (Object.keys(req.body).length <= 1)
+    throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
+
+  const { image, PostId, ...others } = req.body;
+
+  const post = await Post.findOne({ where: { id: PostId } });
+
+  if (!post) throw serverErrs.BAD_REQUEST("Post not found!");
+
+  await post.update({ ...others });
+
+  if (image) {
+    const imageFound = await Image.findOne({ where: { PostId } });
+
+    if (!imageFound)
+      throw serverErrs.BAD_REQUEST("image for this post not found! ");
+
+    await imageFound.update({ image });
+  }
+
+  res.send({
+    status: 201,
+    data: post,
+    msg: "successful edit post",
+  });
+};
+
+const deletePost = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  await validateDeletePost.validate(req.body);
+
+  const { PostId } = req.body;
+
+  const post = await Post.findOne({ where: { id: PostId } });
+
+  if (!post) throw serverErrs.BAD_REQUEST("Post not found! ");
+
+  const imageFound = await Image.findOne({ where: { PostId } });
+
+  if (!imageFound)
+    throw serverErrs.BAD_REQUEST("image for this post not found! ");
+
+  await post.destroy();
+
+  await imageFound.destroy();
+
+  res.send({
+    status: 201,
+    msg: "successful delete post",
+  });
+};
+
+const getAllPosts = async (req, res) => {
+  const posts = await Post.findAll({
+    include: [{ model: Image }, { model: Like }, { model: Comment }],
+  });
+
+  res.send({
+    status: 200,
+    posts,
+    msg: "successful get all posts",
+  });
+};
+
+const getAllStories = async (req, res) => {
+  const stories = await Story.findAll();
+
+  res.send({
+    status: 200,
+    stories,
+    msg: "successful get all stories",
+  });
+};
+
+const deleteLike = async (req, res) => {
+  await validateDeleteLike.validate(req.body);
+
+  const { PostId, SellerId } = req.body;
+
+  const post = await Post.findOne({ where: { id: PostId } });
+
+  if (!post) throw serverErrs.BAD_REQUEST("Post not found! ");
+
+  const like = await Like.findOne({ PostId, SellerId });
+  await like.destroy();
+
+  await post.decrement("count", { by: 1 });
+
+  res.send({
+    status: 201,
+    msg: "successful delete like from Post",
+  });
+};
+
+const editComment = async (req, res) => {
+  await validateEditComment.validate(req.body);
+
+  const { CommentId, text } = req.body;
+
+  const comment = await Comment.findOne({
+    where: { id: CommentId },
+  });
+
+  await comment.update({ text });
+
+  res.send({
+    status: 201,
+    msg: "successful edit comment",
+  });
+};
+
 module.exports = {
   addService,
   addStory,
@@ -361,4 +605,13 @@ module.exports = {
   editCover,
   editService,
   deleteService,
+  getSellerServices,
+  editStory,
+  deleteStory,
+  editPost,
+  deletePost,
+  getAllPosts,
+  getAllStories,
+  deleteLike,
+  editComment,
 };

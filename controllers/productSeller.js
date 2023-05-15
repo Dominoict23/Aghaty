@@ -24,8 +24,6 @@ const {
   validateEditComment,
 } = require("../validation");
 
-// TODO: edit and delete posts, likes, comments??
-
 // TODO Later: get product orders (4 filters)??
 // TODO Later: get product order specific??
 
@@ -79,7 +77,7 @@ const editStory = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   await validateEditStory.validate(req.body);
-
+  // TODO: put strict in validate
   if (Object.keys(req.body).length <= 1)
     throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
 
@@ -127,20 +125,7 @@ const deleteStory = async (req, res) => {
   });
 };
 
-//ASK: all posts for all sellers or oneType of seller ??
 const getAllStories = async (req, res) => {
-  // const { ProductSellerId } = req.params;
-
-  // const productSeller = await Seller.findOne({
-  //   where: { id: ProductSellerId },
-  // });
-
-  // if (!productSeller) throw serverErrs.BAD_REQUEST("Invalid ProductSellerId! ");
-
-  // if (productSeller.id != req.user.userId)
-  //   //NOTE: The id of the seller provided not the one that has permission
-  //   throw serverErrs.BAD_REQUEST("No Auth");
-
   const stories = await Story.findAll();
 
   res.send({
@@ -211,7 +196,7 @@ const editPost = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   await validateEditPost.validate(req.body);
-
+  // TODO: put strict in validate
   if (Object.keys(req.body).length <= 1)
     throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
 
@@ -275,20 +260,7 @@ const deletePost = async (req, res) => {
   });
 };
 
-//ASK: all posts for all sellers or oneType of seller ??
 const getAllPosts = async (req, res) => {
-  // const { ProductSellerId } = req.params;
-
-  // const productSeller = await Seller.findOne({
-  //   where: { id: ProductSellerId },
-  // });
-
-  // if (!productSeller) throw serverErrs.BAD_REQUEST("Invalid ProductSellerId! ");
-
-  // if (productSeller.id != req.user.userId)
-  //   //NOTE: The id of the seller provided not the one that has permission
-  //   throw serverErrs.BAD_REQUEST("No Auth");
-
   const posts = await Post.findAll({
     include: [{ model: Image }, { model: Like }, { model: Comment }],
   });
@@ -553,7 +525,7 @@ const editProduct = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   await validateEditProduct.validate(req.body);
-
+  // TODO: put strict in validate
   if (Object.keys(req.body).length <= 1)
     throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
 

@@ -122,14 +122,14 @@ sellerRouter.get(
 );
 
 sellerRouter.get(
-  "/allStories/:ProductSellerId",
+  "/allStories",
   verifyToken,
   checkUserAuth("productSeller"),
   errorCatcher(getAllStories)
 );
 
 sellerRouter.get(
-  "/allPosts/:ProductSellerId",
+  "/allPosts",
   verifyToken,
   checkUserAuth("productSeller"),
   errorCatcher(getAllPosts)

@@ -108,7 +108,9 @@ const stories = [
 
 const services = [
   {
-    name: "Furniture",
+    nameEN: "Furniture",
+    nameAR: "أثاث",
+    nameKUR: "Navmalî",
     description: "Home furniture like beds",
     priceFrom: 50,
     priceTo: 70,

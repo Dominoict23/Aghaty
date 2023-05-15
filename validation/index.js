@@ -86,6 +86,31 @@ const validateEditComment = yup.object().shape({
   CommentId: yup.number().required(),
 });
 
+const validateCreateService = yup.object().shape({
+  nameAR: yup.string().required(),
+  nameEN: yup.string().required(),
+  nameKUR: yup.string().required(),
+  description: yup.string().required(),
+  priceFrom: yup.number().required(),
+  priceTo: yup.number().required(),
+  image: yup.string().required(),
+});
+
+const validateEditService = yup.object().shape({
+  nameAR: yup.string().optional(),
+  nameEN: yup.string().optional(),
+  nameKUR: yup.string().optional(),
+  description: yup.string().optional(),
+  priceFrom: yup.number().optional(),
+  priceTo: yup.number().optional(),
+  image: yup.string().optional(),
+  ServiceId: yup.number().required(),
+});
+
+const validateDeleteService = yup.object().shape({
+  ServiceId: yup.number().required(),
+});
+
 module.exports = {
   loginValidation,
   validateCreateProduct,
@@ -101,4 +126,7 @@ module.exports = {
   validateDeleteLike,
   validateCreateComment,
   validateEditComment,
+  validateCreateService,
+  validateEditService,
+  validateDeleteService,
 };

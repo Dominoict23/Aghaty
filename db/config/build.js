@@ -82,10 +82,21 @@ const insertDB = async () => {
   });
 
   services.forEach(async (service, ind) => {
-    const { name, description, priceFrom, priceTo, image, SellerId } = service;
+    const {
+      nameAR,
+      nameEN,
+      nameKUR,
+      description,
+      priceFrom,
+      priceTo,
+      image,
+      SellerId,
+    } = service;
     await Service.bulkCreate([
       {
-        name,
+        nameAR,
+        nameEN,
+        nameKUR,
         description,
         priceFrom,
         priceTo,

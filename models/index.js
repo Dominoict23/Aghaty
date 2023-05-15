@@ -94,11 +94,8 @@ Order.belongsTo(Location);
 User.hasMany(Feedback);
 Feedback.belongsTo(User);
 
-Service.hasMany(Feedback);
-Feedback.belongsTo(Service);
-
-Product.hasMany(Feedback);
-Feedback.belongsTo(Product);
+Seller.hasMany(Feedback);
+Feedback.belongsTo(Seller);
 
 User.hasMany(UserLocation);
 UserLocation.belongsTo(User);
