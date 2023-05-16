@@ -23,6 +23,7 @@ const DiscountCode = sequelize.define("DiscountCode", {
   },
   isEnable: {
     type: DataTypes.BOOLEAN,
+    defaultValue: true,
   },
 });
 

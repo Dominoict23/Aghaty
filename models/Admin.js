@@ -1,28 +1,21 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/config/connection");
 
-const SubCategory = sequelize.define("SubCategory", {
+const Admin = sequelize.define("Admin", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  nameEN: {
+  mobile: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
-  nameAR: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  nameKUR: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  image: {
+  password: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 });
 
-module.exports = SubCategory;
+module.exports = Admin;

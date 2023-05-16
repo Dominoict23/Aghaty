@@ -111,6 +111,99 @@ const validateDeleteService = yup.object().shape({
   ServiceId: yup.number().required(),
 });
 
+const validateAddSeller = yup.object().shape({
+  mobile: yup.string().required().min(12).max(15),
+  firstName: yup.string().required(),
+  lastName: yup.string().required(),
+  password: yup.string().required().min(8).max(16),
+  avatar: yup.string().required(),
+  cover: yup.string().required(),
+  role: yup.string().required(),
+  serviceType: yup.string().optional(),
+  location: yup.string().required(),
+  CategoryId: yup.number().required(),
+});
+
+const validateEditSeller = yup.object().shape({
+  mobile: yup.string().optional().min(12).max(15),
+  firstName: yup.string().optional(),
+  lastName: yup.string().optional(),
+  password: yup.string().optional().min(8).max(16),
+  avatar: yup.string().optional(),
+  cover: yup.string().optional(),
+  role: yup.string().optional(),
+  serviceType: yup.string().optional(),
+  location: yup.string().optional(),
+  CategoryId: yup.number().optional(),
+  SellerId: yup.number().required(),
+});
+
+const validateDeleteSeller = yup.object().shape({
+  SellerId: yup.number().required(),
+});
+
+const validateAddCategory = yup.object().shape({
+  nameAR: yup.string().required(),
+  nameEN: yup.string().required(),
+  nameKUR: yup.string().required(),
+  image: yup.string().required(),
+  role: yup.string().required().oneOf(["productSeller", "serviceSeller"]),
+});
+
+const validateAddSubCategory = yup.object().shape({
+  nameAR: yup.string().required(),
+  nameEN: yup.string().required(),
+  nameKUR: yup.string().required(),
+  image: yup.string().required(),
+  CategoryId: yup.number().required(),
+});
+
+const validateAddDiscountCode = yup.object().shape({
+  code: yup.string().required().length(4),
+  discount: yup.string().required(),
+  startDate: yup.string().required(),
+  endDate: yup.string().required(),
+});
+
+const validateEditCategory = yup.object().shape({
+  nameAR: yup.string().optional(),
+  nameEN: yup.string().optional(),
+  nameKUR: yup.string().optional(),
+  image: yup.string().optional(),
+  role: yup.string().optional().oneOf(["productSeller", "serviceSeller"]),
+  CategoryId: yup.number().required(),
+});
+
+const validateEditSubCategory = yup.object().shape({
+  nameAR: yup.string().optional(),
+  nameEN: yup.string().optional(),
+  nameKUR: yup.string().optional(),
+  image: yup.string().optional(),
+  CategoryId: yup.number().required(),
+  SubCategoryId: yup.number().required(),
+});
+
+const validateEditDiscountCode = yup.object().shape({
+  code: yup.string().optional(),
+  discount: yup.string().optional(),
+  startDate: yup.string().optional(),
+  endDate: yup.string().optional(),
+  isEnable: yup.boolean().optional(),
+  DiscountCodeId: yup.number().required(),
+});
+
+const validateDeleteCategory = yup.object().shape({
+  CategoryId: yup.number().required(),
+});
+
+const validateDeleteSubCategory = yup.object().shape({
+  SubCategoryId: yup.number().required(),
+});
+
+const validateDeleteDiscountCode = yup.object().shape({
+  DiscountCodeId: yup.number().required(),
+});
+
 module.exports = {
   loginValidation,
   validateCreateProduct,
@@ -129,4 +222,16 @@ module.exports = {
   validateCreateService,
   validateEditService,
   validateDeleteService,
+  validateAddSeller,
+  validateAddCategory,
+  validateAddSubCategory,
+  validateEditSeller,
+  validateDeleteSeller,
+  validateEditCategory,
+  validateDeleteCategory,
+  validateEditSubCategory,
+  validateDeleteSubCategory,
+  validateAddDiscountCode,
+  validateEditDiscountCode,
+  validateDeleteDiscountCode,
 };

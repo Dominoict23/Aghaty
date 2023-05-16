@@ -47,7 +47,7 @@ const Seller = sequelize.define("Seller", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  //ASK: rate in seller and feedback ????
+  //ASK: rate in seller calculated from table feedback using seller id
   rate: {
     type: DataTypes.DOUBLE,
     defaultValue: 0,

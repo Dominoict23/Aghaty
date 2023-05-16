@@ -7,8 +7,15 @@ const Category = sequelize.define("Category", {
     autoIncrement: true,
     primaryKey: true,
   },
-  name: {
-    //ASK: 3 langs ?? i guess no from admin
+  nameEN: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  nameAR: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  nameKUR: {
     type: DataTypes.STRING,
     allowNull: false,
   },

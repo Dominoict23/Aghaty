@@ -8,6 +8,8 @@ const {
   posts,
   stories,
   services,
+  admin,
+  messages,
 } = require("./fakeData");
 
 const {
@@ -19,15 +21,23 @@ const {
   Story,
   Image,
   Service,
+  Admin,
+  Message,
 } = require("../../models");
 
 const insertDB = async () => {
   await sequelize.sync({ force: true });
-  await Seller.bulkCreate(seller).then(() =>
-    console.log("Seller data have been saved")
+  await Admin.bulkCreate(admin).then(() =>
+    console.log("Admin data have been saved")
+  );
+  await Message.bulkCreate(messages).then(() =>
+    console.log("Messages data have been saved")
   );
   await Category.bulkCreate(category).then(() =>
     console.log("Category data have been saved")
+  );
+  await Seller.bulkCreate(seller).then(() =>
+    console.log("Seller data have been saved")
   );
   await SubCategory.bulkCreate(subCategory).then(() =>
     console.log("SubCategory data have been saved")

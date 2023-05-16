@@ -1,3 +1,10 @@
+const admin = [
+  {
+    mobile: "097599111111",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
+  },
+];
+
 const seller = [
   {
     mobile: "097592185263",
@@ -11,6 +18,7 @@ const seller = [
     role: "productSeller",
     serviceType: "",
     location: "Amman",
+    CategoryId: 1,
     // verificationCode: ,
   },
   {
@@ -25,24 +33,37 @@ const seller = [
     role: "serviceSeller",
     serviceType: "Smith",
     location: "Amman",
+    // CategoryId: 2
     // verificationCode: ,
   },
 ];
 
 const category = [
   {
-    name: "restaurants",
+    nameEN: "Restaurants",
+    nameAR: "مطاعم",
+    nameKUR: "Restaurants",
     image:
-      "https://media.cnn.com/api/v1/images/stellar/prod/190710135245-12-waterfront-restaurants.jpg?q=w_3498,h_2296,x_0,y_0,c_fill/w_1280",
+      "https://lh3.googleusercontent.com/x42jIxb5hfFysMJHMKwRg_HQaIM1NfOjrpsV51RqglOYlONJzCIq2bF7rDxI-wucZ_ln3wd4_2ZkK9AaBrCkjnUKTU2t3iIdZYFDhwWj",
+    role: "productSeller",
+  },
+  {
+    nameEN: "phones",
+    nameAR: "جوالات",
+    nameKUR: "Mobiles",
+    image:
+      "https://lh3.googleusercontent.com/NqdIqcWSg4sFwpw0Ss97hD7uRNk9uTO51V_qVjrWRgtYX8SNwmQrl6Ge4ejKy3sqBqn61qxQphDRANcYNUwrcdtsiE-UuqEZReOOYRYp",
     role: "productSeller",
   },
 ];
 
 const subCategory = [
   {
-    name: "desserts",
+    nameEN: "desserts",
+    nameAR: "الحلويات",
+    nameKUR: "desserts",
     image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp3FNB_XkhndbsUqq9fkxmYKota5sD2pkokA&usqp=CAU",
+      "https://lh3.googleusercontent.com/vFRYJbm9A9XzLqW4y7R3dpQ5dldTFXN6Uv9YQJNqFzO7JknvguzaWghFKRIL4WJGPGen3HcVKiWgJ40DvRGMNl9Q1D6pw4AUR88oDIdW",
     CategoryId: 1,
   },
 ];
@@ -120,6 +141,22 @@ const services = [
   },
 ];
 
+//TODO: add user id
+const messages = [
+  {
+    name: "ibrahim",
+    phone: "11111111",
+    msgBody: "I want to contact you because etc....",
+    // UserId: 1,
+  },
+  {
+    name: "ahmed",
+    phone: "22222222",
+    msgBody: "I want to contact you because etc....",
+    // UserId: 1,
+  },
+];
+
 module.exports = {
   seller,
   category,
@@ -128,4 +165,6 @@ module.exports = {
   posts,
   stories,
   services,
+  admin,
+  messages,
 };

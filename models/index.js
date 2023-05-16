@@ -1,4 +1,5 @@
 const User = require("./User");
+const Admin = require("./Admin");
 const Seller = require("./Seller");
 const Cart = require("./Cart");
 const Product = require("./Product");
@@ -139,8 +140,12 @@ FinancialRecord.belongsTo(Order);
 User.hasMany(Message);
 Message.belongsTo(User);
 
+Category.hasMany(Seller);
+Seller.belongsTo(Category);
+
 module.exports = {
   User,
+  Admin,
   Cart,
   Seller,
   Product,
