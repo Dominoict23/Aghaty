@@ -12,7 +12,7 @@ const Delivery = sequelize.define("Delivery", {
     allowNull: false,
     unique: true,
   },
-  firsName: {
+  firstName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -37,9 +37,13 @@ const Delivery = sequelize.define("Delivery", {
     defaultValue: "free",
   },
   // NOTE:location change based on firebase
-  location: {
-    type: DataTypes.STRING,
-    allowNull: false,
+  long: {
+    type: DataTypes.DOUBLE,
+    defaultValue: 0,
+  },
+  lat: {
+    type: DataTypes.DOUBLE,
+    defaultValue: 0,
   },
   verificationCode: {
     type: DataTypes.INTEGER,

@@ -27,6 +27,10 @@ const {
   deleteDiscountCode,
   getAllDiscountCode,
   getAllMessages,
+  getAllDeliveries,
+  addDelivery,
+  editDelivery,
+  deleteDelivery,
 } = require("../controllers/admin");
 
 adminRouter.post("/login", errorCatcher(login));
@@ -141,6 +145,32 @@ adminRouter.get(
   verifyToken,
   checkUserAuth("admin"),
   errorCatcher(getAllMessages)
+);
+
+// Deliveries requests
+adminRouter.post(
+  "/addDelivery",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(addDelivery)
+);
+adminRouter.patch(
+  "/editDelivery",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(editDelivery)
+);
+adminRouter.delete(
+  "/deleteDelivery",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(deleteDelivery)
+);
+adminRouter.get(
+  "/allDeliveries",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(getAllDeliveries)
 );
 
 module.exports = adminRouter;

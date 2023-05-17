@@ -6,6 +6,7 @@ const {
   SubCategory,
   DiscountCode,
   Message,
+  Delivery,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -22,6 +23,9 @@ const {
   validateAddDiscountCode,
   validateEditDiscountCode,
   validateDeleteDiscountCode,
+  validateAddDelivery,
+  validateEditDelivery,
+  validateDeleteDelivery,
 } = require("../validation");
 
 // Auth requests
@@ -141,7 +145,82 @@ const getAllSellers = async (req, res) => {
 };
 
 // TODO: add delivery "taxi, fizba, and other types"
-const addDelivery = async (req, res) => {};
+const addDelivery = async (req, res) => {
+  await validateAddDelivery.validate(req.body);
+
+  const { mobile, firstName, lastName, password, avatar, cover } = req.body;
+
+  const deliveryFound = await Delivery.findOne({ where: { mobile } });
+
+  if (deliveryFound) throw serverErrs.BAD_REQUEST("mobile is already used");
+
+  const hashedPassword = await hash(password, 12);
+
+  // TODO: generate random code and then send it sms message
+  //   const code = generateRandomCode();
+
+  const newDelivery = await Delivery.create({
+    mobile,
+    firstName,
+    lastName,
+    password: hashedPassword,
+    avatar,
+    cover,
+  });
+
+  res.send({
+    status: 201,
+    newDelivery,
+    msg: "delivery added successfully",
+  });
+};
+const editDelivery = async (req, res) => {
+  await validateEditDelivery.validate(req.body);
+
+  const { DeliveryId, password, ...others } = req.body;
+
+  const deliveryFound = await Delivery.findOne({ where: { id: DeliveryId } });
+
+  if (!deliveryFound) throw serverErrs.BAD_REQUEST("Delivery not found");
+
+  if (password) {
+    password = await hash(password, 12);
+    await deliveryFound.update({ password, ...others });
+  } else {
+    await deliveryFound.update({ ...others });
+  }
+
+  res.send({
+    status: 201,
+    deliveryFound,
+    msg: "Delivery updated successfully",
+  });
+};
+const deleteDelivery = async (req, res) => {
+  await validateDeleteDelivery.validate(req.body);
+
+  const { DeliveryId } = req.body;
+
+  const deliveryFound = await Delivery.findOne({ where: { id: DeliveryId } });
+
+  if (!deliveryFound) throw serverErrs.BAD_REQUEST("Delivery not found");
+
+  await deliveryFound.destroy();
+
+  res.send({
+    status: 201,
+    msg: "Delivery deleted successfully",
+  });
+};
+const getAllDeliveries = async (req, res) => {
+  const deliveries = await Delivery.findAll({});
+
+  res.send({
+    status: 200,
+    deliveries,
+    msg: "get all deliveries successfully",
+  });
+};
 
 // Category requests
 const addCategory = async (req, res) => {
@@ -374,4 +453,8 @@ module.exports = {
   deleteDiscountCode,
   getAllDiscountCode,
   getAllMessages,
+  addDelivery,
+  editDelivery,
+  deleteDelivery,
+  getAllDeliveries,
 };

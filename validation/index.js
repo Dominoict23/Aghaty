@@ -5,6 +5,7 @@ const loginValidation = yup.object().shape({
   password: yup.string().required().min(8).max(16),
 });
 
+// Product validation
 const validateCreateProduct = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
@@ -17,7 +18,6 @@ const validateCreateProduct = yup.object().shape({
   image: yup.string().required(),
   SubCategoryId: yup.number().required(),
 });
-
 const validateEditProduct = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
@@ -31,61 +31,59 @@ const validateEditProduct = yup.object().shape({
   SubCategoryId: yup.number().optional(),
   ProductId: yup.number().required(),
 });
-
 const validateDeleteProduct = yup.object().shape({
   ProductId: yup.number().required(),
 });
 
+// Story validation
 const validateCreateStory = yup.object().shape({
   image: yup.string().required(),
 });
-
 const validateEditStory = yup.object().shape({
   image: yup.string().required(),
   StoryId: yup.number().required(),
 });
-
 const validateDeleteStory = yup.object().shape({
   StoryId: yup.number().required(),
 });
 
+// Post validation
 const validateCreatePost = yup.object().shape({
   text: yup.string().required(),
   image: yup.string().required(),
 });
-
 const validateEditPost = yup.object().shape({
   text: yup.string().optional(),
   count: yup.number().optional(),
   image: yup.string().optional(),
   PostId: yup.number().required(),
 });
-
 const validateDeletePost = yup.object().shape({
   PostId: yup.number().required(),
 });
 
+// Like validation
 const validateCreateLike = yup.object().shape({
   PostId: yup.number().required(),
   SellerId: yup.number().required(),
 });
-
 const validateDeleteLike = yup.object().shape({
   PostId: yup.number().required(),
   SellerId: yup.number().required(),
 });
 
+// Comment validation
 const validateCreateComment = yup.object().shape({
   text: yup.string().min(1).required(),
   PostId: yup.number().required(),
   SellerId: yup.number().required(),
 });
-
 const validateEditComment = yup.object().shape({
   text: yup.string().min(1).required(),
   CommentId: yup.number().required(),
 });
 
+// Service validation
 const validateCreateService = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
@@ -95,7 +93,6 @@ const validateCreateService = yup.object().shape({
   priceTo: yup.number().required(),
   image: yup.string().required(),
 });
-
 const validateEditService = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
@@ -106,11 +103,11 @@ const validateEditService = yup.object().shape({
   image: yup.string().optional(),
   ServiceId: yup.number().required(),
 });
-
 const validateDeleteService = yup.object().shape({
   ServiceId: yup.number().required(),
 });
 
+// Seller validation
 const validateAddSeller = yup.object().shape({
   mobile: yup.string().required().min(12).max(15),
   firstName: yup.string().required(),
@@ -123,7 +120,6 @@ const validateAddSeller = yup.object().shape({
   location: yup.string().required(),
   CategoryId: yup.number().required(),
 });
-
 const validateEditSeller = yup.object().shape({
   mobile: yup.string().optional().min(12).max(15),
   firstName: yup.string().optional(),
@@ -137,11 +133,11 @@ const validateEditSeller = yup.object().shape({
   CategoryId: yup.number().optional(),
   SellerId: yup.number().required(),
 });
-
 const validateDeleteSeller = yup.object().shape({
   SellerId: yup.number().required(),
 });
 
+// Category validation
 const validateAddCategory = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
@@ -149,22 +145,6 @@ const validateAddCategory = yup.object().shape({
   image: yup.string().required(),
   role: yup.string().required().oneOf(["productSeller", "serviceSeller"]),
 });
-
-const validateAddSubCategory = yup.object().shape({
-  nameAR: yup.string().required(),
-  nameEN: yup.string().required(),
-  nameKUR: yup.string().required(),
-  image: yup.string().required(),
-  CategoryId: yup.number().required(),
-});
-
-const validateAddDiscountCode = yup.object().shape({
-  code: yup.string().required().length(4),
-  discount: yup.string().required(),
-  startDate: yup.string().required(),
-  endDate: yup.string().required(),
-});
-
 const validateEditCategory = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
@@ -173,7 +153,18 @@ const validateEditCategory = yup.object().shape({
   role: yup.string().optional().oneOf(["productSeller", "serviceSeller"]),
   CategoryId: yup.number().required(),
 });
+const validateDeleteCategory = yup.object().shape({
+  CategoryId: yup.number().required(),
+});
 
+// SubCategory validation
+const validateAddSubCategory = yup.object().shape({
+  nameAR: yup.string().required(),
+  nameEN: yup.string().required(),
+  nameKUR: yup.string().required(),
+  image: yup.string().required(),
+  CategoryId: yup.number().required(),
+});
 const validateEditSubCategory = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
@@ -182,7 +173,17 @@ const validateEditSubCategory = yup.object().shape({
   CategoryId: yup.number().required(),
   SubCategoryId: yup.number().required(),
 });
+const validateDeleteSubCategory = yup.object().shape({
+  SubCategoryId: yup.number().required(),
+});
 
+// DiscoundCode
+const validateAddDiscountCode = yup.object().shape({
+  code: yup.string().required().length(4),
+  discount: yup.string().required(),
+  startDate: yup.string().required(),
+  endDate: yup.string().required(),
+});
 const validateEditDiscountCode = yup.object().shape({
   code: yup.string().optional(),
   discount: yup.string().optional(),
@@ -191,17 +192,31 @@ const validateEditDiscountCode = yup.object().shape({
   isEnable: yup.boolean().optional(),
   DiscountCodeId: yup.number().required(),
 });
-
-const validateDeleteCategory = yup.object().shape({
-  CategoryId: yup.number().required(),
-});
-
-const validateDeleteSubCategory = yup.object().shape({
-  SubCategoryId: yup.number().required(),
-});
-
 const validateDeleteDiscountCode = yup.object().shape({
   DiscountCodeId: yup.number().required(),
+});
+
+// Delivery validation
+const validateAddDelivery = yup.object().shape({
+  mobile: yup.string().required().min(12).max(15),
+  firstName: yup.string().required(),
+  lastName: yup.string().required(),
+  password: yup.string().required().min(8).max(16),
+  avatar: yup.string().required(),
+  cover: yup.string().required(),
+});
+
+const validateEditDelivery = yup.object().shape({
+  mobile: yup.string().optional().min(12).max(15),
+  firstName: yup.string().optional(),
+  lastName: yup.string().optional(),
+  password: yup.string().optional().min(8).max(16),
+  avatar: yup.string().optional(),
+  cover: yup.string().optional(),
+  DeliveryId: yup.number().required(),
+});
+const validateDeleteDelivery = yup.object().shape({
+  DeliveryId: yup.number().required(),
 });
 
 module.exports = {
@@ -234,4 +249,7 @@ module.exports = {
   validateAddDiscountCode,
   validateEditDiscountCode,
   validateDeleteDiscountCode,
+  validateAddDelivery,
+  validateEditDelivery,
+  validateDeleteDelivery,
 };
