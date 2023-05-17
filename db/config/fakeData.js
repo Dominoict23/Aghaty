@@ -7,7 +7,7 @@ const admin = [
 
 const seller = [
   {
-    mobile: "097592185263",
+    mobile: "097597774041",
     firstName: "Ahmed",
     lastName: "Ezz",
     password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
@@ -157,6 +157,20 @@ const messages = [
   },
 ];
 
+const deliveries = [
+  {
+    mobile: "097592185233",
+    firstName: "Abood",
+    lastName: "Abood",
+    password: "$2b$12$yayNjXNIO8sQdF/aaNPLcuGhdU68AlH0JaCOeSiLLpg9XtvwmD.xy",
+    avatar:
+      "https://www.cdtfa.ca.gov/images/industry/guy_with_open_sign_172870112.png",
+    cover:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2urnpJtbyzVbDQb4hbogaPhtLvtea_nQ8lA&usqp=CAU",
+    // verificationCode: ,
+  },
+];
+
 module.exports = {
   seller,
   category,
@@ -167,4 +181,5 @@ module.exports = {
   services,
   admin,
   messages,
+  deliveries,
 };
