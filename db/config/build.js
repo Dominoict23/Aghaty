@@ -1,30 +1,30 @@
 const sequelize = require("./connection");
 
 const {
-  seller,
-  category,
-  subCategory,
+  // seller,
+  // category,
+  // subCategory,
   // products,
-  posts,
+  // posts,
   // stories,
   // services,
   admin,
   messages,
-  deliveries,
+  // deliveries,
 } = require("./fakeData");
 
 const {
-  Seller,
-  Category,
-  SubCategory,
+  // Seller,
+  // Category,
+  // SubCategory,
   // Product,
-  Post,
+  // Post,
   // Story,
   Image,
   // Service,
   Admin,
   Message,
-  Delivery,
+  // Delivery,
 } = require("../../models");
 
 const insertDB = async () => {
@@ -35,18 +35,18 @@ const insertDB = async () => {
   await Message.bulkCreate(messages).then(() =>
     console.log("Messages data have been saved")
   );
-  await Category.bulkCreate(category).then(() =>
-    console.log("Category data have been saved")
-  );
-  await Seller.bulkCreate(seller).then(() =>
-    console.log("Seller data have been saved")
-  );
-  await Delivery.bulkCreate(deliveries).then(() =>
-    console.log("Delivery data have been saved")
-  );
-  await SubCategory.bulkCreate(subCategory).then(() =>
-    console.log("SubCategory data have been saved")
-  );
+  // await Category.bulkCreate(category).then(() =>
+  //   console.log("Category data have been saved")
+  // );
+  // await Seller.bulkCreate(seller).then(() =>
+  //   console.log("Seller data have been saved")
+  // );
+  // await Delivery.bulkCreate(deliveries).then(() =>
+  //   console.log("Delivery data have been saved")
+  // );
+  // await SubCategory.bulkCreate(subCategory).then(() =>
+  //   console.log("SubCategory data have been saved")
+  // );
   // await Story.bulkCreate(stories).then(() =>
   //   console.log("Story data have been saved")
   // );
@@ -83,18 +83,18 @@ const insertDB = async () => {
   //   );
   // });
 
-  posts.forEach(async (post, ind) => {
-    const { text, image, SellerId } = post;
-    await Post.bulkCreate([
-      {
-        text,
-        SellerId,
-      },
-    ]).then(() => console.log("Post data have been saved"));
-    await Image.bulkCreate([{ image, PostId: ind + 1 }]).then(() =>
-      console.log("Post image data have been saved")
-    );
-  });
+  // posts.forEach(async (post, ind) => {
+  //   const { text, image, SellerId } = post;
+  //   await Post.bulkCreate([
+  //     {
+  //       text,
+  //       SellerId,
+  //     },
+  //   ]).then(() => console.log("Post data have been saved"));
+  //   await Image.bulkCreate([{ image, PostId: ind + 1 }]).then(() =>
+  //     console.log("Post image data have been saved")
+  //   );
+  // });
 
   // services.forEach(async (service, ind) => {
   //   const {

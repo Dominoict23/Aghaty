@@ -37,12 +37,7 @@ const validateDeleteProduct = yup.object().shape({
   ProductId: yup.number().required(),
 });
 
-// Story validation
-// const validateCreateStory = yup.object().shape({
-//   image: yup.string().required(),
-// });
 const validateEditStory = yup.object().shape({
-  image: yup.string().required(),
   StoryId: yup.number().required(),
 });
 const validateDeleteStory = yup.object().shape({
@@ -52,12 +47,10 @@ const validateDeleteStory = yup.object().shape({
 // Post validation
 const validateCreatePost = yup.object().shape({
   text: yup.string().required(),
-  image: yup.string().required(),
 });
 const validateEditPost = yup.object().shape({
   text: yup.string().optional(),
   count: yup.number().optional(),
-  image: yup.string().optional(),
   PostId: yup.number().required(),
 });
 const validateDeletePost = yup.object().shape({
@@ -117,8 +110,6 @@ const validateAddSeller = yup.object().shape({
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   password: yup.string().required().min(8).max(16),
-  avatar: yup.string().required(),
-  cover: yup.string().required(),
   role: yup.string().required(),
   serviceType: yup.string().optional(),
   location: yup.string().required(),
@@ -129,8 +120,6 @@ const validateEditSeller = yup.object().shape({
   firstName: yup.string().optional(),
   lastName: yup.string().optional(),
   password: yup.string().optional().min(8).max(16),
-  avatar: yup.string().optional(),
-  cover: yup.string().optional(),
   role: yup.string().optional(),
   serviceType: yup.string().optional(),
   location: yup.string().optional(),
@@ -146,14 +135,12 @@ const validateAddCategory = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
   nameKUR: yup.string().required(),
-  image: yup.string().required(),
   role: yup.string().required().oneOf(["productSeller", "serviceSeller"]),
 });
 const validateEditCategory = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
   nameKUR: yup.string().optional(),
-  image: yup.string().optional(),
   role: yup.string().optional().oneOf(["productSeller", "serviceSeller"]),
   CategoryId: yup.number().required(),
 });
@@ -166,14 +153,12 @@ const validateAddSubCategory = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
   nameKUR: yup.string().required(),
-  image: yup.string().required(),
   CategoryId: yup.number().required(),
 });
 const validateEditSubCategory = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
   nameKUR: yup.string().optional(),
-  image: yup.string().optional(),
   CategoryId: yup.number().required(),
   SubCategoryId: yup.number().required(),
 });
@@ -206,8 +191,6 @@ const validateAddDelivery = yup.object().shape({
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   password: yup.string().required().min(8).max(16),
-  avatar: yup.string().required(),
-  cover: yup.string().required(),
 });
 
 const validateEditDelivery = yup.object().shape({
@@ -215,8 +198,7 @@ const validateEditDelivery = yup.object().shape({
   firstName: yup.string().optional(),
   lastName: yup.string().optional(),
   password: yup.string().optional().min(8).max(16),
-  avatar: yup.string().optional(),
-  cover: yup.string().optional(),
+
   DeliveryId: yup.number().required(),
 });
 const validateDeleteDelivery = yup.object().shape({

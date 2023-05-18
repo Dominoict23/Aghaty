@@ -182,7 +182,11 @@ const addPost = async (req, res) => {
 
   await validateCreatePost.validate(req.body);
 
-  const { text, image } = req.body;
+  const { text } = req.body;
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
 
   const newPost = await Post.create(
     {
@@ -196,7 +200,7 @@ const addPost = async (req, res) => {
 
   const newImage = await Image.create(
     {
-      image,
+      image: req.file.filename,
       PostId: newPost.id,
     },
     {
@@ -300,12 +304,11 @@ const editAvatar = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { avatar } = req.body;
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("avatar not found");
+  }
 
-  if (!avatar?.length > 0)
-    throw serverErrs.BAD_REQUEST("please provide avatar image");
-
-  await serviceSeller.update({ avatar });
+  await serviceSeller.update({ avatar: req.file.filename });
 
   res.send({
     status: 201,
@@ -326,12 +329,11 @@ const editCover = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { cover } = req.body;
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("cover not found");
+  }
 
-  if (!cover?.length > 0)
-    throw serverErrs.BAD_REQUEST("please provide cover image");
-
-  await serviceSeller.update({ cover });
+  await serviceSeller.update({ cover: req.file.filename });
 
   res.send({
     status: 201,
@@ -353,11 +355,8 @@ const editService = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   await validateEditService.validate(req.body);
-  // TODO: put strict in validate
-  if (Object.keys(req.body).length <= 1)
-    throw serverErrs.BAD_REQUEST("body is empty nothing");
 
-  const { image, ServiceId, ...others } = req.body;
+  const { ServiceId, ...others } = req.body;
 
   if (!ServiceId) throw serverErrs.BAD_REQUEST("Please provide ServiceId");
 
@@ -367,13 +366,13 @@ const editService = async (req, res) => {
 
   await service.update({ ...others });
 
-  if (image) {
+  if (req.file) {
     const imageFound = await Image.findOne({ where: { ServiceId } });
 
     if (!imageFound)
       throw serverErrs.BAD_REQUEST("image for this service not found! ");
 
-    await imageFound.update({ image });
+    await imageFound.update({ image: req.file.filename });
   }
 
   res.send({
@@ -457,17 +456,18 @@ const editStory = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   await validateEditStory.validate(req.body);
-  // TODO: put strict in validate
-  if (Object.keys(req.body).length <= 1)
-    throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
 
-  const { image, StoryId } = req.body;
+  const { StoryId } = req.body;
 
   const story = await Story.findOne({ where: { id: StoryId } });
 
   if (!story) throw serverErrs.BAD_REQUEST("Story not found!");
 
-  await story.update({ image });
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
+
+  await story.update({ image: req.file.filename });
 
   res.send({
     status: 201,
@@ -519,11 +519,8 @@ const editPost = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   await validateEditPost.validate(req.body);
-  // TODO: put strict in validate
-  if (Object.keys(req.body).length <= 1)
-    throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
 
-  const { image, PostId, ...others } = req.body;
+  const { PostId, ...others } = req.body;
 
   const post = await Post.findOne({ where: { id: PostId } });
 
@@ -531,13 +528,13 @@ const editPost = async (req, res) => {
 
   await post.update({ ...others });
 
-  if (image) {
+  if (req.file) {
     const imageFound = await Image.findOne({ where: { PostId } });
 
     if (!imageFound)
       throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
-    await imageFound.update({ image });
+    await imageFound.update({ image: req.file.filename });
   }
 
   res.send({
@@ -611,7 +608,7 @@ const getAllPosts = async (req, res) => {
 };
 
 const getAllStories = async (req, res) => {
-  const stories = await Story.findAll();
+  const stories = await Story.findAll({ include: { model: Seller } });
 
   res.send({
     status: 200,
