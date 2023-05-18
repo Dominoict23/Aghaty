@@ -60,8 +60,6 @@ const addSeller = async (req, res) => {
     firstName,
     lastName,
     password,
-    avatar,
-    cover,
     role,
     serviceType,
     location,
@@ -81,8 +79,6 @@ const addSeller = async (req, res) => {
     firstName,
     lastName,
     password: hashedPassword,
-    avatar,
-    cover,
     role,
     serviceType,
     location,
@@ -226,13 +222,17 @@ const getAllDeliveries = async (req, res) => {
 const addCategory = async (req, res) => {
   await validateAddCategory.validate(req.body);
 
-  const { nameEN, nameAR, nameKUR, image, role } = req.body;
+  const { nameEN, nameAR, nameKUR, role } = req.body;
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
 
   const newCategory = await Category.create({
     nameEN,
     nameAR,
     nameKUR,
-    image,
+    image: req.file.filename,
     role,
   });
 
