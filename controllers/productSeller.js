@@ -1,3 +1,4 @@
+const clearImage = require("../middleware/clearImage");
 const { serverErrs } = require("../middleware/customError");
 const {
   Seller,
@@ -7,12 +8,12 @@ const {
   Image,
   Like,
   Comment,
+  SubCategory,
 } = require("../models");
 const {
   validateCreateProduct,
   validateEditProduct,
   validateDeleteProduct,
-  validateCreateStory,
   validateEditStory,
   validateDeleteStory,
   validateCreatePost,
@@ -40,27 +41,57 @@ const addStory = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { image } = req.body;
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
 
-  await validateCreateStory.validate(req.body);
-
-  const newStory = await Story.create(
-    {
-      image,
-      SellerId: productSeller.id,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  await newStory.save();
-
-  res.send({
-    status: 201,
-    data: newStory,
-    msg: "successful create new Story",
+  const storyFound = await Story.findOne({
+    where: { SellerId: productSeller.id },
   });
+
+  if (storyFound?.image) {
+    clearImage(storyFound.image);
+    await storyFound.update({ image: req.file.filename });
+    // Set the deletion time to 24 hours from now
+    const deletionTime = new Date();
+    deletionTime.setHours(deletionTime.getHours() + 24);
+
+    // Schedule the story deletion
+    setTimeout(async () => {
+      await Story.destroy({ where: { id: storyFound.id } });
+    }, deletionTime - new Date());
+
+    return res.send({
+      status: 201,
+      data: storyFound,
+      msg: "successful create new Story",
+    });
+  } else {
+    const newStory = await Story.create(
+      {
+        image: req.file.filename,
+        SellerId: productSeller.id,
+      },
+      {
+        returning: true,
+      }
+    );
+    await newStory.save();
+    // Set the deletion time to 24 hours from now
+    const deletionTime = new Date();
+    deletionTime.setHours(deletionTime.getHours() + 24);
+
+    // Schedule the story deletion
+    setTimeout(async () => {
+      await Story.destroy({ where: { id: newStory.id } });
+    }, deletionTime - new Date());
+
+    return res.send({
+      status: 201,
+      data: newStory,
+      msg: "successful create new Story",
+    });
+  }
 };
 
 const editStory = async (req, res) => {
@@ -261,6 +292,7 @@ const deletePost = async (req, res) => {
 };
 
 const getAllPosts = async (req, res) => {
+  const { SellerId } = req.params;
   const posts = await Post.findAll({
     include: [
       { model: Image },
@@ -269,6 +301,15 @@ const getAllPosts = async (req, res) => {
       { model: Seller },
     ],
   });
+
+  await Promise.all(
+    posts.map(async (post) => {
+      const likes = await post.getLikes();
+      const hasLike = likes.some((like) => like.SellerId === +SellerId);
+      console.log({ hasLike });
+      await post.update({ isLike: hasLike });
+    })
+  );
 
   res.send({
     status: 200,
@@ -456,12 +497,13 @@ const addProduct = async (req, res) => {
     nameAR,
     nameEN,
     nameKUR,
-    description,
+    descriptionEN,
+    descriptionAR,
+    descriptionKUR,
     price,
     availableAmount,
     limitAmount,
     discountPrice,
-    image,
     SubCategoryId,
   } = req.body;
 
@@ -469,21 +511,28 @@ const addProduct = async (req, res) => {
     nameAR,
     nameEN,
     nameKUR,
-    description,
+    descriptionEN,
+    descriptionAR,
+    descriptionKUR,
     price,
     availableAmount,
     limitAmount,
     discountPrice,
-    image,
     SubCategoryId,
   });
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
 
   const newProduct = await Product.create(
     {
       nameAR,
       nameEN,
       nameKUR,
-      description,
+      descriptionEN,
+      descriptionAR,
+      descriptionKUR,
       price,
       availableAmount,
       limitAmount,
@@ -498,7 +547,7 @@ const addProduct = async (req, res) => {
 
   const newImage = await Image.create(
     {
-      image,
+      image: req.file.filename,
       ProductId: newProduct.id,
     },
     {
@@ -534,7 +583,7 @@ const editProduct = async (req, res) => {
   if (Object.keys(req.body).length <= 1)
     throw serverErrs.BAD_REQUEST("body is empty nothing to edit");
 
-  const { image, ProductId, ...others } = req.body;
+  const { ProductId, ...others } = req.body;
 
   const product = await Product.findOne({ where: { id: ProductId } });
 
@@ -542,13 +591,13 @@ const editProduct = async (req, res) => {
 
   await product.update({ ...others });
 
-  if (image) {
+  if (req.file) {
     const imageFound = await Image.findOne({ where: { ProductId } });
 
     if (!imageFound)
       throw serverErrs.BAD_REQUEST("image for this product not found! ");
 
-    await imageFound.update({ image });
+    await imageFound.update({ image: req.file.filename });
   }
 
   res.send({
@@ -618,6 +667,18 @@ const getSellerProducts = async (req, res) => {
   });
 };
 
+const getAllSubCategory = async (req, res) => {
+  const subCategories = await SubCategory.findAll({
+    attributes: ["id", "nameEN", "nameAR", "nameKUR"],
+  });
+
+  res.send({
+    status: 200,
+    subCategories,
+    msg: "get all subCategories successfully",
+  });
+};
+
 module.exports = {
   addProduct,
   addStory,
@@ -637,4 +698,5 @@ module.exports = {
   getAllStories,
   deleteLike,
   editComment,
+  getAllSubCategory,
 };

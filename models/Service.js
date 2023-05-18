@@ -19,7 +19,15 @@ const Service = sequelize.define("Service", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  description: {
+  descriptionEN: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  descriptionAR: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  descriptionKUR: {
     type: DataTypes.STRING,
     allowNull: false,
   },

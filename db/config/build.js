@@ -4,10 +4,10 @@ const {
   seller,
   category,
   subCategory,
-  products,
+  // products,
   posts,
-  stories,
-  services,
+  // stories,
+  // services,
   admin,
   messages,
   deliveries,
@@ -17,11 +17,11 @@ const {
   Seller,
   Category,
   SubCategory,
-  Product,
+  // Product,
   Post,
-  Story,
+  // Story,
   Image,
-  Service,
+  // Service,
   Admin,
   Message,
   Delivery,
@@ -47,41 +47,41 @@ const insertDB = async () => {
   await SubCategory.bulkCreate(subCategory).then(() =>
     console.log("SubCategory data have been saved")
   );
-  await Story.bulkCreate(stories).then(() =>
-    console.log("Story data have been saved")
-  );
-  products.forEach(async (product, ind) => {
-    const {
-      nameAR,
-      nameEN,
-      nameKUR,
-      description,
-      price,
-      availableAmount,
-      limitAmount,
-      discountPrice,
-      image,
-      SubCategoryId,
-      SellerId,
-    } = product;
-    await Product.bulkCreate([
-      {
-        nameAR,
-        nameEN,
-        nameKUR,
-        description,
-        price,
-        availableAmount,
-        limitAmount,
-        discountPrice,
-        SubCategoryId,
-        SellerId,
-      },
-    ]).then(() => console.log("Product data have been saved"));
-    await Image.bulkCreate([{ image, ProductId: ind + 1 }]).then(() =>
-      console.log("Product image data have been saved")
-    );
-  });
+  // await Story.bulkCreate(stories).then(() =>
+  //   console.log("Story data have been saved")
+  // );
+  // products.forEach(async (product, ind) => {
+  //   const {
+  //     nameAR,
+  //     nameEN,
+  //     nameKUR,
+  //     description,
+  //     price,
+  //     availableAmount,
+  //     limitAmount,
+  //     discountPrice,
+  //     image,
+  //     SubCategoryId,
+  //     SellerId,
+  //   } = product;
+  //   await Product.bulkCreate([
+  //     {
+  //       nameAR,
+  //       nameEN,
+  //       nameKUR,
+  //       description,
+  //       price,
+  //       availableAmount,
+  //       limitAmount,
+  //       discountPrice,
+  //       SubCategoryId,
+  //       SellerId,
+  //     },
+  //   ]).then(() => console.log("Product data have been saved"));
+  //   await Image.bulkCreate([{ image, ProductId: ind + 1 }]).then(() =>
+  //     console.log("Product image data have been saved")
+  //   );
+  // });
 
   posts.forEach(async (post, ind) => {
     const { text, image, SellerId } = post;
@@ -96,32 +96,32 @@ const insertDB = async () => {
     );
   });
 
-  services.forEach(async (service, ind) => {
-    const {
-      nameAR,
-      nameEN,
-      nameKUR,
-      description,
-      priceFrom,
-      priceTo,
-      image,
-      SellerId,
-    } = service;
-    await Service.bulkCreate([
-      {
-        nameAR,
-        nameEN,
-        nameKUR,
-        description,
-        priceFrom,
-        priceTo,
-        SellerId,
-      },
-    ]).then(() => console.log("Service data have been saved"));
-    await Image.bulkCreate([{ image, ServiceId: ind + 1 }]).then(() =>
-      console.log("Service image data have been saved")
-    );
-  });
+  // services.forEach(async (service, ind) => {
+  //   const {
+  //     nameAR,
+  //     nameEN,
+  //     nameKUR,
+  //     description,
+  //     priceFrom,
+  //     priceTo,
+  //     image,
+  //     SellerId,
+  //   } = service;
+  //   await Service.bulkCreate([
+  //     {
+  //       nameAR,
+  //       nameEN,
+  //       nameKUR,
+  //       description,
+  //       priceFrom,
+  //       priceTo,
+  //       SellerId,
+  //     },
+  //   ]).then(() => console.log("Service data have been saved"));
+  //   await Image.bulkCreate([{ image, ServiceId: ind + 1 }]).then(() =>
+  //     console.log("Service image data have been saved")
+  //   );
+  // });
 };
 
 if (process.env.SEED) {

@@ -21,6 +21,7 @@ const {
   getAllStories,
   deleteLike,
   editComment,
+  getAllSubCategory,
 } = require("../controllers/productSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -129,10 +130,17 @@ sellerRouter.get(
 );
 
 sellerRouter.get(
-  "/allPosts",
+  "/allPosts/:SellerId",
   verifyToken,
   checkUserAuth("productSeller"),
   errorCatcher(getAllPosts)
+);
+
+sellerRouter.get(
+  "/AllSubCategory",
+  verifyToken,
+  checkUserAuth("productSeller"),
+  errorCatcher(getAllSubCategory)
 );
 
 module.exports = sellerRouter;

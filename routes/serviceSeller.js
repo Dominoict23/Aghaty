@@ -21,6 +21,7 @@ const {
   getSellerServices,
   getAllStories,
   getAllPosts,
+  getAllSubCategory,
 } = require("../controllers/serviceSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -129,10 +130,17 @@ sellerRouter.get(
 );
 
 sellerRouter.get(
-  "/allPosts",
+  "/allPosts/:SellerId",
   verifyToken,
   checkUserAuth("serviceSeller"),
   errorCatcher(getAllPosts)
+);
+
+sellerRouter.get(
+  "/AllSubCategory",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(getAllSubCategory)
 );
 
 module.exports = sellerRouter;

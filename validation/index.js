@@ -10,24 +10,26 @@ const validateCreateProduct = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
   nameKUR: yup.string().required(),
-  description: yup.string().required(),
+  descriptionEN: yup.string().required(),
+  descriptionAR: yup.string().required(),
+  descriptionKUR: yup.string().required(),
   price: yup.number().required(),
   availableAmount: yup.number().required(),
   limitAmount: yup.number().required(),
   discountPrice: yup.number().required(),
-  image: yup.string().required(),
   SubCategoryId: yup.number().required(),
 });
 const validateEditProduct = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
   nameKUR: yup.string().optional(),
-  description: yup.string().optional(),
+  descriptionEN: yup.string().optional(),
+  descriptionAR: yup.string().optional(),
+  descriptionKUR: yup.string().optional(),
   price: yup.number().optional(),
   availableAmount: yup.number().optional(),
   limitAmount: yup.number().optional(),
   discountPrice: yup.number().optional(),
-  image: yup.string().optional(),
   SubCategoryId: yup.number().optional(),
   ProductId: yup.number().required(),
 });
@@ -36,9 +38,9 @@ const validateDeleteProduct = yup.object().shape({
 });
 
 // Story validation
-const validateCreateStory = yup.object().shape({
-  image: yup.string().required(),
-});
+// const validateCreateStory = yup.object().shape({
+//   image: yup.string().required(),
+// });
 const validateEditStory = yup.object().shape({
   image: yup.string().required(),
   StoryId: yup.number().required(),
@@ -88,19 +90,21 @@ const validateCreateService = yup.object().shape({
   nameAR: yup.string().required(),
   nameEN: yup.string().required(),
   nameKUR: yup.string().required(),
-  description: yup.string().required(),
+  descriptionEN: yup.string().required(),
+  descriptionAR: yup.string().required(),
+  descriptionKUR: yup.string().required(),
   priceFrom: yup.number().required(),
   priceTo: yup.number().required(),
-  image: yup.string().required(),
 });
 const validateEditService = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
   nameKUR: yup.string().optional(),
-  description: yup.string().optional(),
+  descriptionEN: yup.string().optional(),
+  descriptionAR: yup.string().optional(),
+  descriptionKUR: yup.string().optional(),
   priceFrom: yup.number().optional(),
   priceTo: yup.number().optional(),
-  image: yup.string().optional(),
   ServiceId: yup.number().required(),
 });
 const validateDeleteService = yup.object().shape({
@@ -177,7 +181,7 @@ const validateDeleteSubCategory = yup.object().shape({
   SubCategoryId: yup.number().required(),
 });
 
-// DiscoundCode
+// DiscountCode
 const validateAddDiscountCode = yup.object().shape({
   code: yup.string().required().length(4),
   discount: yup.string().required(),
@@ -224,7 +228,6 @@ module.exports = {
   validateCreateProduct,
   validateEditProduct,
   validateDeleteProduct,
-  validateCreateStory,
   validateEditStory,
   validateDeleteStory,
   validateCreatePost,

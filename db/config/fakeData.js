@@ -68,36 +68,36 @@ const subCategory = [
   },
 ];
 
-const products = [
-  {
-    nameAR: "كيك",
-    nameEN: "cake",
-    nameKUR: "paste",
-    description: "chocolate cake",
-    price: 25,
-    availableAmount: 3,
-    limitAmount: 1,
-    discountPrice: 25,
-    SubCategoryId: 1,
-    SellerId: 1,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjFE0FIQWgwxlEzd7Svn50tZk1J_ir7BPiHg&usqp=CAU",
-  },
-  {
-    nameAR: "بوظة",
-    nameEN: "ice cream",
-    nameKUR: "bestenî",
-    description: "ice cream",
-    price: 15,
-    availableAmount: 5,
-    limitAmount: 3,
-    discountPrice: 15,
-    SubCategoryId: 1,
-    SellerId: 1,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtjFAn-yztAERWBibFhC_koJVnNqXEAg190w&usqp=CAU",
-  },
-];
+// const products = [
+//   {
+//     nameAR: "كيك",
+//     nameEN: "cake",
+//     nameKUR: "paste",
+//     description: "chocolate cake",
+//     price: 25,
+//     availableAmount: 3,
+//     limitAmount: 1,
+//     discountPrice: 25,
+//     SubCategoryId: 1,
+//     SellerId: 1,
+//     image:
+//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjFE0FIQWgwxlEzd7Svn50tZk1J_ir7BPiHg&usqp=CAU",
+//   },
+//   {
+//     nameAR: "بوظة",
+//     nameEN: "ice cream",
+//     nameKUR: "bestenî",
+//     description: "ice cream",
+//     price: 15,
+//     availableAmount: 5,
+//     limitAmount: 3,
+//     discountPrice: 15,
+//     SubCategoryId: 1,
+//     SellerId: 1,
+//     image:
+//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtjFAn-yztAERWBibFhC_koJVnNqXEAg190w&usqp=CAU",
+//   },
+// ];
 
 const posts = [
   {
@@ -114,32 +114,32 @@ const posts = [
   },
 ];
 
-const stories = [
-  {
-    SellerId: 1,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT15viHhyfkmuldUg_JqRym9LiHvcwi2aCeYQ&usqp=CAU",
-  },
-  {
-    SellerId: 2,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfIRFXWKWkBzeCrTCVcvy3h8vLRJ0PYdjNeA&usqp=CAU",
-  },
-];
+// const stories = [
+//   {
+//     SellerId: 1,
+//     image:
+//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT15viHhyfkmuldUg_JqRym9LiHvcwi2aCeYQ&usqp=CAU",
+//   },
+//   {
+//     SellerId: 2,
+//     image:
+//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfIRFXWKWkBzeCrTCVcvy3h8vLRJ0PYdjNeA&usqp=CAU",
+//   },
+// ];
 
-const services = [
-  {
-    nameEN: "Furniture",
-    nameAR: "أثاث",
-    nameKUR: "Navmalî",
-    description: "Home furniture like beds",
-    priceFrom: 50,
-    priceTo: 70,
-    SellerId: 2,
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfIRFXWKWkBzeCrTCVcvy3h8vLRJ0PYdjNeA&usqp=CAU",
-  },
-];
+// const services = [
+//   {
+//     nameEN: "Furniture",
+//     nameAR: "أثاث",
+//     nameKUR: "Navmalî",
+//     description: "Home furniture like beds",
+//     priceFrom: 50,
+//     priceTo: 70,
+//     SellerId: 2,
+//     image:
+//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfIRFXWKWkBzeCrTCVcvy3h8vLRJ0PYdjNeA&usqp=CAU",
+//   },
+// ];
 
 //TODO: add user id
 const messages = [
@@ -175,10 +175,10 @@ module.exports = {
   seller,
   category,
   subCategory,
-  products,
+  // products,
   posts,
-  stories,
-  services,
+  // stories,
+  // services,
   admin,
   messages,
   deliveries,

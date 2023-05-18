@@ -15,6 +15,10 @@ const Post = sequelize.define("Post", {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  isLike: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 });
 
 module.exports = Post;

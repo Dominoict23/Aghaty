@@ -1,3 +1,4 @@
+const clearImage = require("../middleware/clearImage");
 const { serverErrs } = require("../middleware/customError");
 const {
   Seller,
@@ -7,12 +8,12 @@ const {
   Like,
   Comment,
   Service,
+  SubCategory,
 } = require("../models");
 const {
   validateCreateService,
   validateCreateLike,
   validateCreatePost,
-  validateCreateStory,
   validateCreateComment,
   validateEditService,
   validateDeleteService,
@@ -37,24 +38,40 @@ const addService = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { nameAR, nameEN, nameKUR, description, priceFrom, priceTo, image } =
-    req.body;
+  const {
+    nameAR,
+    nameEN,
+    nameKUR,
+    descriptionEN,
+    descriptionAR,
+    descriptionKUR,
+    priceFrom,
+    priceTo,
+  } = req.body;
 
   await validateCreateService.validate({
     nameAR,
     nameEN,
     nameKUR,
-    description,
+    descriptionEN,
+    descriptionAR,
+    descriptionKUR,
     priceFrom,
     priceTo,
-    image,
   });
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
+
   const newService = await Service.create(
     {
       nameAR,
       nameEN,
       nameKUR,
-      description,
+      descriptionEN,
+      descriptionAR,
+      descriptionKUR,
       priceFrom,
       priceTo,
       SellerId: serviceSeller.id,
@@ -66,7 +83,7 @@ const addService = async (req, res) => {
 
   const newImage = await Image.create(
     {
-      image,
+      image: req.file.filename,
       ServiceId: newService.id,
     },
     {
@@ -97,27 +114,57 @@ const addStory = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { image } = req.body;
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
 
-  await validateCreateStory.validate(req.body);
-
-  const newStory = await Story.create(
-    {
-      image,
-      SellerId: serviceSeller.id,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  await newStory.save();
-
-  res.send({
-    status: 201,
-    data: newStory,
-    msg: "successful create new Story",
+  const storyFound = await Story.findOne({
+    where: { SellerId: serviceSeller.id },
   });
+
+  if (storyFound?.image) {
+    clearImage(storyFound.image);
+    await storyFound.update({ image: req.file.filename });
+    // Set the deletion time to 24 hours from now
+    const deletionTime = new Date();
+    deletionTime.setHours(deletionTime.getHours() + 24);
+
+    // Schedule the story deletion
+    setTimeout(async () => {
+      await Story.destroy({ where: { id: storyFound.id } });
+    }, deletionTime - new Date());
+
+    return res.send({
+      status: 201,
+      data: storyFound,
+      msg: "successful create new Story",
+    });
+  } else {
+    const newStory = await Story.create(
+      {
+        image: req.file.filename,
+        SellerId: serviceSeller.id,
+      },
+      {
+        returning: true,
+      }
+    );
+    await newStory.save();
+    // Set the deletion time to 24 hours from now
+    const deletionTime = new Date();
+    deletionTime.setHours(deletionTime.getHours() + 24);
+
+    // Schedule the story deletion
+    setTimeout(async () => {
+      await Story.destroy({ where: { id: newStory.id } });
+    }, deletionTime - new Date());
+
+    return res.send({
+      status: 201,
+      data: newStory,
+      msg: "successful create new Story",
+    });
+  }
 };
 
 const addPost = async (req, res) => {
@@ -537,9 +584,24 @@ const deletePost = async (req, res) => {
 };
 
 const getAllPosts = async (req, res) => {
+  const { SellerId } = req.params;
   const posts = await Post.findAll({
-    include: [{ model: Image }, { model: Like }, { model: Comment }],
+    include: [
+      { model: Image },
+      { model: Like },
+      { model: Comment },
+      { model: Seller },
+    ],
   });
+
+  await Promise.all(
+    posts.map(async (post) => {
+      const likes = await post.getLikes();
+      const hasLike = likes.some((like) => like.SellerId === +SellerId);
+      console.log({ hasLike });
+      await post.update({ isLike: hasLike });
+    })
+  );
 
   res.send({
     status: 200,
@@ -595,6 +657,18 @@ const editComment = async (req, res) => {
   });
 };
 
+const getAllSubCategory = async (req, res) => {
+  const subCategories = await SubCategory.findAll({
+    attributes: ["id", "nameEN", "nameAR", "nameKUR"],
+  });
+
+  res.send({
+    status: 200,
+    subCategories,
+    msg: "get all subCategories successfully",
+  });
+};
+
 module.exports = {
   addService,
   addStory,
@@ -614,4 +688,5 @@ module.exports = {
   getAllStories,
   deleteLike,
   editComment,
+  getAllSubCategory,
 };
