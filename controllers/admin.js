@@ -251,7 +251,11 @@ const editCategory = async (req, res) => {
 
   if (!category) throw serverErrs.BAD_REQUEST("category not found");
 
-  await category.update({ ...others });
+  if (req.file) {
+    await category.update({ ...others, image: req.file.filename });
+  } else {
+    await category.update({ ...others });
+  }
 
   res.send({
     status: 201,
@@ -289,13 +293,17 @@ const getAllCategory = async (req, res) => {
 const addSubCategory = async (req, res) => {
   await validateAddSubCategory.validate(req.body);
 
-  const { nameEN, nameAR, nameKUR, image, CategoryId } = req.body;
+  const { nameEN, nameAR, nameKUR, CategoryId } = req.body;
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
 
   const newSubCategory = await SubCategory.create({
     nameEN,
     nameAR,
     nameKUR,
-    image,
+    image: req.file.filename,
     CategoryId,
   });
 
@@ -312,15 +320,25 @@ const editSubCategory = async (req, res) => {
 
   const subCategory = await SubCategory.findOne({
     where: { id: SubCategoryId },
+    include: { model: Category },
   });
 
   if (!subCategory) throw serverErrs.BAD_REQUEST("subCategory not found");
 
-  await subCategory.update({ ...others });
+  if (req.file) {
+    await subCategory.update({ ...others, image: req.file.filename });
+  } else {
+    await subCategory.update({ ...others });
+  }
+
+  const result = await SubCategory.findOne({
+    where: { id: subCategory.id },
+    include: { model: Category },
+  });
 
   res.send({
     status: 201,
-    subCategory,
+    data: result,
     msg: "SubCategory updated successfully",
   });
 };
