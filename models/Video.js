@@ -7,7 +7,7 @@ const Video = sequelize.define("Video", {
     autoIncrement: true,
     primaryKey: true,
   },
-  videoLink: {
+  video: {
     type: DataTypes.STRING,
     allowNull: false,
   },

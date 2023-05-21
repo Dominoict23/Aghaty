@@ -12,17 +12,26 @@ const app = express();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "images");
+    // Specify the destination folder based on the file type
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, "images");
+    } else if (file.mimetype.startsWith("video/")) {
+      cb(null, "videos");
+    } else {
+      cb(new Error("Invalid file type"));
+    }
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
   },
 });
-
 app.use(cors());
 // save image
-app.use(multer({ storage: fileStorage }).single("image"));
+app.use(
+  multer({ storage: fileStorage }).single("media") // Use "media" as the field name for both image and video uploads
+);
 app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/videos", express.static(path.join(__dirname, "videos")));
 
 app.set("port", process.env.PORT || 3500);
 

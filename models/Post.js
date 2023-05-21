@@ -9,7 +9,7 @@ const Post = sequelize.define("Post", {
   },
   text: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "",
   },
   count: {
     type: DataTypes.INTEGER,
