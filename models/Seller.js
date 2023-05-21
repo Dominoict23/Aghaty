@@ -26,11 +26,11 @@ const Seller = sequelize.define("Seller", {
   },
   avatar: {
     type: DataTypes.STRING,
-    defaultValue: "",
+    defaultValue: "avatar.png",
   },
   cover: {
     type: DataTypes.STRING,
-    defaultValue: "",
+    defaultValue: "cover.jpg",
   },
   status: {
     type: DataTypes.STRING,
