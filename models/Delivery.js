@@ -26,11 +26,11 @@ const Delivery = sequelize.define("Delivery", {
   },
   avatar: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "",
   },
   cover: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "",
   },
   status: {
     type: DataTypes.STRING,
