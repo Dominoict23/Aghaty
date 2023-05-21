@@ -82,6 +82,8 @@ const addSeller = async (req, res) => {
     role,
     serviceType,
     location,
+    avatar: "avatar.png",
+    cover: "cover.jpg",
     CategoryId,
     //TODO: verificationCode: code
   });
