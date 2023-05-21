@@ -312,7 +312,6 @@ const editAvatar = async (req, res) => {
 
   res.send({
     status: 201,
-    avatar: req.file.filename,
     msg: "successful update avatar in seller",
   });
 };
@@ -338,7 +337,6 @@ const editCover = async (req, res) => {
 
   res.send({
     status: 201,
-    cover: req.file.filename,
     msg: "successful update cover in seller",
   });
 };

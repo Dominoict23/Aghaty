@@ -26,9 +26,11 @@ const Seller = sequelize.define("Seller", {
   },
   avatar: {
     type: DataTypes.STRING,
+    defaultValue: "",
   },
   cover: {
     type: DataTypes.STRING,
+    defaultValue: "",
   },
   status: {
     type: DataTypes.STRING,
@@ -41,7 +43,6 @@ const Seller = sequelize.define("Seller", {
   serviceType: {
     type: DataTypes.STRING,
   },
-  //ASK: is it location or long and lat
   location: {
     type: DataTypes.STRING,
     allowNull: false,

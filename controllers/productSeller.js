@@ -9,7 +9,6 @@ const {
   Like,
   Comment,
   SubCategory,
-  Video,
 } = require("../models");
 const {
   validateCreateProduct,
@@ -17,6 +16,7 @@ const {
   validateDeleteProduct,
   validateEditStory,
   validateDeleteStory,
+  validateCreatePost,
   validateEditPost,
   validateDeletePost,
   validateCreateLike,
@@ -28,7 +28,6 @@ const {
 // TODO Later: get product orders (4 filters)??
 // TODO Later: get product order specific??
 
-// Story requests
 const addStory = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -48,7 +47,6 @@ const addStory = async (req, res) => {
 
   const storyFound = await Story.findOne({
     where: { SellerId: productSeller.id },
-    include: { model: Seller },
   });
 
   if (storyFound?.image) {
@@ -76,7 +74,6 @@ const addStory = async (req, res) => {
       },
       {
         returning: true,
-        include: { model: Seller },
       }
     );
     await newStory.save();
@@ -96,6 +93,7 @@ const addStory = async (req, res) => {
     });
   }
 };
+
 const editStory = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -137,6 +135,7 @@ const editStory = async (req, res) => {
     msg: "successful edit Story",
   });
 };
+
 const deleteStory = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -165,6 +164,7 @@ const deleteStory = async (req, res) => {
     msg: "successful delete story",
   });
 };
+
 const getAllStories = async (req, res) => {
   const stories = await Story.findAll({ include: { model: Seller } });
 
@@ -175,7 +175,6 @@ const getAllStories = async (req, res) => {
   });
 };
 
-// Post requests
 const addPost = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -189,57 +188,44 @@ const addPost = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
+  await validateCreatePost.validate(req.body);
+
   const { text } = req.body;
-  //ASK: Can seller send post with text only
+
   if (!req.file) {
-    throw serverErrs.BAD_REQUEST("Please send image or video");
+    throw serverErrs.BAD_REQUEST("Image not found");
   }
-  let newPost;
-  if (text) {
-    newPost = await Post.create(
-      {
-        text,
-        SellerId: productSeller.id,
-      },
-      {
-        returning: true,
-      }
-    );
-  } else {
-    newPost = await Post.create(
-      {
-        SellerId: productSeller.id,
-      },
-      {
-        returning: true,
-      }
-    );
-  }
-  await newPost.save();
-  if (req.file.destination === "images") {
-    const newImage = await Image.create(
-      {
-        image: req.file.filename,
-        PostId: newPost.id,
-      },
-      {
-        returning: true,
-      }
-    );
-    await newImage.save();
-  } else {
-    const newVideo = await Video.create({
-      video: req.file.filename,
+
+  const newPost = await Post.create(
+    {
+      text,
+      SellerId: productSeller.id,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  const newImage = await Image.create(
+    {
+      image: req.file.filename,
       PostId: newPost.id,
-    });
-    await newVideo.save();
-  }
+    },
+    {
+      returning: true,
+    }
+  );
+
+  await newPost.save();
+
+  await newImage.save();
 
   res.send({
     status: 201,
     msg: "successful create new Post",
   });
 };
+
 const editPost = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -264,21 +250,12 @@ const editPost = async (req, res) => {
   await post.update({ ...others });
 
   if (req.file) {
-    if (req.file.destination === "images") {
-      const imageFound = await Image.findOne({ where: { PostId } });
+    const imageFound = await Image.findOne({ where: { PostId } });
 
-      if (!imageFound)
-        throw serverErrs.BAD_REQUEST("image for this post not found! ");
+    if (!imageFound)
+      throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
-      await imageFound.update({ image: req.file.filename });
-    } else {
-      const videoFound = await Video.findOne({ where: { PostId } });
-
-      if (!videoFound)
-        throw serverErrs.BAD_REQUEST("video for this post not found! ");
-
-      await videoFound.update({ video: req.file.filename });
-    }
+    await imageFound.update({ image: req.file.filename });
   }
 
   res.send({
@@ -287,6 +264,7 @@ const editPost = async (req, res) => {
     msg: "successful edit post",
   });
 };
+
 const deletePost = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -322,6 +300,7 @@ const deletePost = async (req, res) => {
     msg: "successful delete post",
   });
 };
+
 const getAllPosts = async (req, res) => {
   const { SellerId } = req.params;
   const posts = await Post.findAll({
@@ -349,7 +328,6 @@ const getAllPosts = async (req, res) => {
   });
 };
 
-// Like requests
 const addLike = async (req, res) => {
   await validateCreateLike.validate(req.body);
 
@@ -386,6 +364,7 @@ const addLike = async (req, res) => {
     msg: "successful add like to Post",
   });
 };
+
 const deleteLike = async (req, res) => {
   await validateDeleteLike.validate(req.body);
 
@@ -406,7 +385,6 @@ const deleteLike = async (req, res) => {
   });
 };
 
-// Comment requests
 const addComment = async (req, res) => {
   await validateCreateComment.validate(req.body);
 
@@ -442,6 +420,7 @@ const addComment = async (req, res) => {
     msg: "successful add comment to Post",
   });
 };
+
 const editComment = async (req, res) => {
   await validateEditComment.validate(req.body);
 
@@ -459,7 +438,6 @@ const editComment = async (req, res) => {
   });
 };
 
-// Seller requests
 const editAvatar = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -481,10 +459,10 @@ const editAvatar = async (req, res) => {
 
   res.send({
     status: 201,
-    avatar: req.file.filename,
     msg: "successful update avatar in seller",
   });
 };
+
 const editCover = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -506,23 +484,10 @@ const editCover = async (req, res) => {
 
   res.send({
     status: 201,
-    cover: req.file.filename,
     msg: "successful update cover in seller",
   });
 };
-const getAllSubCategory = async (req, res) => {
-  const subCategories = await SubCategory.findAll({
-    attributes: ["id", "nameEN", "nameAR", "nameKUR"],
-  });
 
-  res.send({
-    status: 200,
-    subCategories,
-    msg: "get all subCategories successfully",
-  });
-};
-
-// Product requests
 const addProduct = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -607,6 +572,7 @@ const addProduct = async (req, res) => {
     msg: "successful create new product",
   });
 };
+
 const editProduct = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -644,6 +610,7 @@ const editProduct = async (req, res) => {
     msg: "successful update product",
   });
 };
+
 const deleteProduct = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -679,6 +646,7 @@ const deleteProduct = async (req, res) => {
     msg: "successful delete product",
   });
 };
+
 const getSellerProducts = async (req, res) => {
   const { ProductSellerId } = req.params;
 
@@ -701,6 +669,18 @@ const getSellerProducts = async (req, res) => {
     status: 200,
     products,
     msg: "successful get seller all products",
+  });
+};
+
+const getAllSubCategory = async (req, res) => {
+  const subCategories = await SubCategory.findAll({
+    attributes: ["id", "nameEN", "nameAR", "nameKUR"],
+  });
+
+  res.send({
+    status: 200,
+    subCategories,
+    msg: "get all subCategories successfully",
   });
 };
 

@@ -45,6 +45,9 @@ const validateDeleteStory = yup.object().shape({
 });
 
 // Post validation
+const validateCreatePost = yup.object().shape({
+  text: yup.string().required(),
+});
 const validateEditPost = yup.object().shape({
   text: yup.string().optional(),
   count: yup.number().optional(),
@@ -209,6 +212,7 @@ module.exports = {
   validateDeleteProduct,
   validateEditStory,
   validateDeleteStory,
+  validateCreatePost,
   validateEditPost,
   validateDeletePost,
   validateCreateLike,

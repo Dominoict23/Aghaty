@@ -82,8 +82,6 @@ const addSeller = async (req, res) => {
     role,
     serviceType,
     location,
-    avatar: "avatar.png",
-    cover: "cover.jpg",
     CategoryId,
     //TODO: verificationCode: code
   });
@@ -146,7 +144,7 @@ const getAllSellers = async (req, res) => {
 const addDelivery = async (req, res) => {
   await validateAddDelivery.validate(req.body);
 
-  const { mobile, firstName, lastName, password } = req.body;
+  const { mobile, firstName, lastName, password, avatar, cover } = req.body;
 
   const deliveryFound = await Delivery.findOne({ where: { mobile } });
 
@@ -162,6 +160,8 @@ const addDelivery = async (req, res) => {
     firstName,
     lastName,
     password: hashedPassword,
+    avatar,
+    cover,
   });
 
   res.send({
@@ -251,11 +251,7 @@ const editCategory = async (req, res) => {
 
   if (!category) throw serverErrs.BAD_REQUEST("category not found");
 
-  if (req.file) {
-    await category.update({ ...others, image: req.file.filename });
-  } else {
-    await category.update({ ...others });
-  }
+  await category.update({ ...others });
 
   res.send({
     status: 201,
@@ -293,17 +289,13 @@ const getAllCategory = async (req, res) => {
 const addSubCategory = async (req, res) => {
   await validateAddSubCategory.validate(req.body);
 
-  const { nameEN, nameAR, nameKUR, CategoryId } = req.body;
-
-  if (!req.file) {
-    throw serverErrs.BAD_REQUEST("Image not found");
-  }
+  const { nameEN, nameAR, nameKUR, image, CategoryId } = req.body;
 
   const newSubCategory = await SubCategory.create({
     nameEN,
     nameAR,
     nameKUR,
-    image: req.file.filename,
+    image,
     CategoryId,
   });
 
@@ -324,11 +316,7 @@ const editSubCategory = async (req, res) => {
 
   if (!subCategory) throw serverErrs.BAD_REQUEST("subCategory not found");
 
-  if (req.file) {
-    await subCategory.update({ ...others, image: req.file.filename });
-  } else {
-    await subCategory.update({ ...others });
-  }
+  await subCategory.update({ ...others });
 
   res.send({
     status: 201,
@@ -371,7 +359,7 @@ const addDiscountCode = async (req, res) => {
   await validateAddDiscountCode.validate(req.body);
 
   let { code, discount, startDate, endDate } = req.body;
-  //TODO: check what flutter send
+
   startDate = startDate.split("/");
   endDate = endDate.split("/");
 
