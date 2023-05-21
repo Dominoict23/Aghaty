@@ -43,6 +43,7 @@ const Seller = sequelize.define("Seller", {
   serviceType: {
     type: DataTypes.STRING,
   },
+  //ASK: is it location or long and lat
   location: {
     type: DataTypes.STRING,
     allowNull: false,
