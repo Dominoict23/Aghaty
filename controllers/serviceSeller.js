@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const clearImage = require("../middleware/clearImage");
 const { serverErrs } = require("../middleware/customError");
 const {

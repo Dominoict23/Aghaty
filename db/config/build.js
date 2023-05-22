@@ -20,7 +20,7 @@ const {
   // Product,
   // Post,
   // Story,
-  Image,
+  // Image,
   // Service,
   Admin,
   Message,
