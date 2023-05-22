@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const clearImage = require("../middleware/clearImage");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -48,7 +49,12 @@ const addStory = async (req, res) => {
 
   const storyFound = await Story.findOne({
     where: { SellerId: productSeller.id },
-    include: { model: Seller },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
   });
 
   if (storyFound?.image) {
@@ -84,7 +90,12 @@ const addStory = async (req, res) => {
     }, deletionTime - new Date());
     const result = await Story.findOne({
       where: { SellerId: productSeller.id },
-      include: { model: Seller },
+      include: {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
     });
     return res.send({
       status: 201,
@@ -130,7 +141,12 @@ const editStory = async (req, res) => {
 
   const result = await Story.findOne({
     where: { id: story.id },
-    include: { model: Seller },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
   });
   res.send({
     status: 201,
@@ -167,7 +183,36 @@ const deleteStory = async (req, res) => {
   });
 };
 const getAllStories = async (req, res) => {
-  const stories = await Story.findAll({ include: { model: Seller } });
+  const stories = await Story.findAll({
+    where: {
+      SellerId: {
+        [Op.not]: req.user.userId,
+      },
+    },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
+  res.send({
+    status: 200,
+    stories,
+    msg: "successful get all stories",
+  });
+};
+const getSellerStories = async (req, res) => {
+  const stories = await Story.findAll({
+    where: { SellerId: req.user.userId },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
 
   res.send({
     status: 200,
@@ -242,7 +287,12 @@ const addPost = async (req, res) => {
       { model: Image },
       { model: Like },
       { model: Comment },
-      { model: Seller },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
     ],
   });
   res.send({
@@ -297,7 +347,12 @@ const editPost = async (req, res) => {
       { model: Image },
       { model: Like },
       { model: Comment },
-      { model: Seller },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
     ],
   });
 
@@ -349,7 +404,12 @@ const getAllPosts = async (req, res) => {
       { model: Image },
       { model: Like },
       { model: Comment },
-      { model: Seller },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
     ],
   });
 
@@ -726,22 +786,23 @@ const getSellerProducts = async (req, res) => {
 
 module.exports = {
   addProduct,
-  addStory,
-  addPost,
-  addLike,
-  addComment,
-  editAvatar,
-  editCover,
   editProduct,
   deleteProduct,
   getSellerProducts,
+  addStory,
   editStory,
   deleteStory,
-  editPost,
-  deletePost,
-  getAllPosts,
   getAllStories,
+  getSellerStories,
+  addPost,
+  deletePost,
+  editPost,
+  getAllPosts,
+  editAvatar,
+  editCover,
+  addLike,
   deleteLike,
+  addComment,
   editComment,
   getAllSubCategory,
 };
