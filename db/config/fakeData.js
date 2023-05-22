@@ -5,68 +5,95 @@ const admin = [
   },
 ];
 
-// const seller = [
-//   {
-//     mobile: "097597774041",
-//     firstName: "Ahmed",
-//     lastName: "Ezz",
-//     password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
-//     avatar:
-//       "https://www.cdtfa.ca.gov/images/industry/guy_with_open_sign_172870112.png",
-//     cover:
-//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2urnpJtbyzVbDQb4hbogaPhtLvtea_nQ8lA&usqp=CAU",
-//     role: "productSeller",
-//     serviceType: "",
-//     location: "Amman",
-//     CategoryId: 1,
-//     // verificationCode: ,
-//   },
-//   {
-//     mobile: "097599188104",
-//     firstName: "Ali",
-//     lastName: "Nemer",
-//     password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
-//     avatar:
-//       "https://www.cdtfa.ca.gov/images/industry/guy_with_open_sign_172870112.png",
-//     cover:
-//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2urnpJtbyzVbDQb4hbogaPhtLvtea_nQ8lA&usqp=CAU",
-//     role: "serviceSeller",
-//     serviceType: "Smith",
-//     location: "Amman",
-//     // CategoryId: 2
-//     // verificationCode: ,
-//   },
-// ];
+const seller = [
+  {
+    mobile: "097597774041",
+    firstName: "Muhammed",
+    lastName: "Mahjoub",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
+    avatar: "avatar.png",
+    cover: "cover.jpg",
+    role: "productSeller",
+    serviceType: "",
+    location: "Amman",
+    CategoryId: 1,
+  },
+  {
+    mobile: "097592414965",
+    firstName: "Muhammed",
+    lastName: "Abu Shawqi",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
+    avatar: "avatar.png",
+    cover: "cover.jpg",
+    role: "serviceSeller",
+    serviceType: "Carpenter",
+    location: "Amman",
+    CategoryId: 3,
+    // verificationCode: ,
+  },
+];
 
-// const category = [
-//   {
-//     nameEN: "Restaurants",
-//     nameAR: "مطاعم",
-//     nameKUR: "Restaurants",
-//     image:
-//       "https://lh3.googleusercontent.com/x42jIxb5hfFysMJHMKwRg_HQaIM1NfOjrpsV51RqglOYlONJzCIq2bF7rDxI-wucZ_ln3wd4_2ZkK9AaBrCkjnUKTU2t3iIdZYFDhwWj",
-//     role: "productSeller",
-//   },
-//   {
-//     nameEN: "phones",
-//     nameAR: "جوالات",
-//     nameKUR: "Mobiles",
-//     image:
-//       "https://lh3.googleusercontent.com/NqdIqcWSg4sFwpw0Ss97hD7uRNk9uTO51V_qVjrWRgtYX8SNwmQrl6Ge4ejKy3sqBqn61qxQphDRANcYNUwrcdtsiE-UuqEZReOOYRYp",
-//     role: "productSeller",
-//   },
-// ];
+const category = [
+  {
+    nameEN: "Restaurants",
+    nameAR: "مطاعم",
+    nameKUR: "Restaurants",
+    image: "productCategory1.png",
+    role: "productSeller",
+  },
+  {
+    nameEN: "grocery",
+    nameAR: "بقالة",
+    nameKUR: "grocery",
+    image: "productCategory2.png",
+    role: "productSeller",
+  },
+  {
+    nameEN: "Carpenter",
+    nameAR: "نجار",
+    nameKUR: "Necar",
+    image: "serviceCategory1.jpeg",
+    role: "serviceSeller",
+  },
+  {
+    nameEN: "tailor",
+    nameAR: "خياط",
+    nameKUR: "lebaskar",
+    image: "serviceCategory2.jpg",
+    role: "serviceSeller",
+  },
+];
 
-// const subCategory = [
-//   {
-//     nameEN: "desserts",
-//     nameAR: "الحلويات",
-//     nameKUR: "desserts",
-//     image:
-//       "https://lh3.googleusercontent.com/vFRYJbm9A9XzLqW4y7R3dpQ5dldTFXN6Uv9YQJNqFzO7JknvguzaWghFKRIL4WJGPGen3HcVKiWgJ40DvRGMNl9Q1D6pw4AUR88oDIdW",
-//     CategoryId: 1,
-//   },
-// ];
+const subCategory = [
+  {
+    nameEN: "desserts",
+    nameAR: "الحلويات",
+    nameKUR: "desserts",
+    image: "subcategory1.png",
+    CategoryId: 1,
+  },
+  {
+    nameEN: "Cafes",
+    nameAR: "كافيهات",
+    nameKUR: "Cafes",
+    image: "subcategory2.png",
+    CategoryId: 1,
+  },
+  // {
+  //   nameEN: "table",
+  //   nameAR: "طاولة",
+  //   nameKUR: "mêz",
+  //   image: "subService1.jpg",
+  //   CategoryId: 3,
+  // },
+  // {
+  //   nameEN: "clothes",
+  //   nameAR: "ملابس",
+  //   nameKUR: "cilan",
+  //   image: "subService2.png",
+  //   CategoryId: 4,
+  // },
+];
 
 // const products = [
 //   {
@@ -172,9 +199,9 @@ const messages = [
 // ];
 
 module.exports = {
-  // seller,
-  // category,
-  // subCategory,
+  seller,
+  category,
+  subCategory,
   // products,
   // posts,
   // stories,

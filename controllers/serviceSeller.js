@@ -9,11 +9,11 @@ const {
   Comment,
   Service,
   SubCategory,
+  Video,
 } = require("../models");
 const {
   validateCreateService,
   validateCreateLike,
-  validateCreatePost,
   validateCreateComment,
   validateEditService,
   validateDeleteService,
@@ -25,6 +25,7 @@ const {
   validateEditComment,
 } = require("../validation");
 
+// Service requests
 const addService = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -100,247 +101,6 @@ const addService = async (req, res) => {
     msg: "successful create new service",
   });
 };
-
-const addStory = async (req, res) => {
-  const { ServiceSellerId } = req.params;
-
-  const serviceSeller = await Seller.findOne({
-    where: { id: ServiceSellerId },
-  });
-
-  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
-
-  if (serviceSeller.id != req.user.userId)
-    //NOTE: The id of the seller provided not the one that has permission
-    throw serverErrs.BAD_REQUEST("No Auth");
-
-  if (!req.file) {
-    throw serverErrs.BAD_REQUEST("Image not found");
-  }
-
-  const storyFound = await Story.findOne({
-    where: { SellerId: serviceSeller.id },
-  });
-
-  if (storyFound?.image) {
-    clearImage(storyFound.image);
-    await storyFound.update({ image: req.file.filename });
-    // Set the deletion time to 24 hours from now
-    const deletionTime = new Date();
-    deletionTime.setHours(deletionTime.getHours() + 24);
-
-    // Schedule the story deletion
-    setTimeout(async () => {
-      await Story.destroy({ where: { id: storyFound.id } });
-    }, deletionTime - new Date());
-
-    return res.send({
-      status: 201,
-      data: storyFound,
-      msg: "successful create new Story",
-    });
-  } else {
-    const newStory = await Story.create(
-      {
-        image: req.file.filename,
-        SellerId: serviceSeller.id,
-      },
-      {
-        returning: true,
-      }
-    );
-    await newStory.save();
-    // Set the deletion time to 24 hours from now
-    const deletionTime = new Date();
-    deletionTime.setHours(deletionTime.getHours() + 24);
-
-    // Schedule the story deletion
-    setTimeout(async () => {
-      await Story.destroy({ where: { id: newStory.id } });
-    }, deletionTime - new Date());
-
-    return res.send({
-      status: 201,
-      data: newStory,
-      msg: "successful create new Story",
-    });
-  }
-};
-
-const addPost = async (req, res) => {
-  const { ServiceSellerId } = req.params;
-
-  const serviceSeller = await Seller.findOne({
-    where: { id: ServiceSellerId },
-  });
-
-  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
-
-  if (serviceSeller.id != req.user.userId)
-    //NOTE: The id of the seller provided not the one that has permission
-    throw serverErrs.BAD_REQUEST("No Auth");
-
-  await validateCreatePost.validate(req.body);
-
-  const { text } = req.body;
-
-  if (!req.file) {
-    throw serverErrs.BAD_REQUEST("Image not found");
-  }
-
-  const newPost = await Post.create(
-    {
-      text,
-      SellerId: serviceSeller.id,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  const newImage = await Image.create(
-    {
-      image: req.file.filename,
-      PostId: newPost.id,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  await newPost.save();
-
-  await newImage.save();
-
-  res.send({
-    status: 201,
-    msg: "successful create new Post",
-  });
-};
-
-const addLike = async (req, res) => {
-  await validateCreateLike.validate(req.body);
-
-  const { PostId, SellerId } = req.body;
-
-  const seller = await Seller.findOne({
-    where: { id: SellerId },
-  });
-
-  if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
-
-  const post = await Post.findOne({
-    where: { id: PostId },
-  });
-
-  if (!post) throw serverErrs.BAD_REQUEST("Post not found");
-
-  const newLike = await Like.create(
-    {
-      PostId,
-      SellerId,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  await newLike.save();
-
-  await post.increment("count", { by: 1 });
-
-  res.send({
-    status: 201,
-    msg: "successful add like to Post",
-  });
-};
-
-const addComment = async (req, res) => {
-  await validateCreateComment.validate(req.body);
-
-  const { PostId, SellerId, text } = req.body;
-
-  const seller = await Seller.findOne({
-    where: { id: SellerId },
-  });
-
-  if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
-
-  const post = await Post.findOne({
-    where: { id: PostId },
-  });
-
-  if (!post) throw serverErrs.BAD_REQUEST("Post not found");
-
-  const newComment = await Comment.create(
-    {
-      text,
-      PostId,
-      SellerId,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  await newComment.save();
-
-  res.send({
-    status: 201,
-    msg: "successful add comment to Post",
-  });
-};
-
-const editAvatar = async (req, res) => {
-  const { ServiceSellerId } = req.params;
-
-  const serviceSeller = await Seller.findOne({
-    where: { id: ServiceSellerId },
-  });
-
-  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
-
-  if (serviceSeller.id != req.user.userId)
-    //NOTE: The id of the seller provided not the one that has permission
-    throw serverErrs.BAD_REQUEST("No Auth");
-
-  if (!req.file) {
-    throw serverErrs.BAD_REQUEST("avatar not found");
-  }
-
-  await serviceSeller.update({ avatar: req.file.filename });
-
-  res.send({
-    status: 201,
-    msg: "successful update avatar in seller",
-  });
-};
-
-const editCover = async (req, res) => {
-  const { ServiceSellerId } = req.params;
-
-  const serviceSeller = await Seller.findOne({
-    where: { id: ServiceSellerId },
-  });
-
-  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
-
-  if (serviceSeller.id != req.user.userId)
-    //NOTE: The id of the seller provided not the one that has permission
-    throw serverErrs.BAD_REQUEST("No Auth");
-
-  if (!req.file) {
-    throw serverErrs.BAD_REQUEST("cover not found");
-  }
-
-  await serviceSeller.update({ cover: req.file.filename });
-
-  res.send({
-    status: 201,
-    msg: "successful update cover in seller",
-  });
-};
-
 const editService = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -380,7 +140,6 @@ const editService = async (req, res) => {
     msg: "successful update service",
   });
 };
-
 const deleteService = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -416,7 +175,6 @@ const deleteService = async (req, res) => {
     msg: "successful delete service",
   });
 };
-
 const getSellerServices = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -442,6 +200,82 @@ const getSellerServices = async (req, res) => {
   });
 };
 
+// Story requests
+const addStory = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
+
+  const storyFound = await Story.findOne({
+    where: { SellerId: serviceSeller.id },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
+  if (storyFound?.image) {
+    clearImage(storyFound.image);
+    await storyFound.update({ image: req.file.filename });
+    // Set the deletion time to 24 hours from now
+    const deletionTime = new Date();
+    deletionTime.setHours(deletionTime.getHours() + 24);
+
+    // Schedule the story deletion
+    setTimeout(async () => {
+      await Story.destroy({ where: { id: storyFound.id } });
+    }, deletionTime - new Date());
+
+    return res.send({
+      status: 201,
+      data: storyFound,
+      msg: "successful create new Story",
+    });
+  } else {
+    const newStory = await Story.create({
+      image: req.file.filename,
+      SellerId: serviceSeller.id,
+    });
+    await newStory.save();
+    // Set the deletion time to 24 hours from now
+    const deletionTime = new Date();
+    deletionTime.setHours(deletionTime.getHours() + 24);
+
+    // Schedule the story deletion
+    setTimeout(async () => {
+      await Story.destroy({ where: { id: newStory.id } });
+    }, deletionTime - new Date());
+
+    const result = await Story.findOne({
+      where: { SellerId: serviceSeller.id },
+      include: {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    });
+    return res.send({
+      status: 201,
+      data: result,
+      msg: "successful create new Story",
+    });
+  }
+};
 const editStory = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -469,13 +303,29 @@ const editStory = async (req, res) => {
 
   await story.update({ image: req.file.filename });
 
+  const deletionTime = new Date();
+  deletionTime.setHours(deletionTime.getHours() + 24);
+
+  // Schedule the story deletion
+  setTimeout(async () => {
+    await Story.destroy({ where: { id: story.id } });
+  }, deletionTime - new Date());
+
+  const result = await Story.findOne({
+    where: { id: story.id },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
   res.send({
     status: 201,
-    data: story,
+    data: result,
     msg: "successful edit Story",
   });
 };
-
 const deleteStory = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -504,7 +354,127 @@ const deleteStory = async (req, res) => {
     msg: "successful delete story",
   });
 };
+const getAllStories = async (req, res) => {
+  const stories = await Story.findAll({
+    where: {
+      SellerId: {
+        [Op.not]: req.user.userId,
+      },
+    },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
 
+  res.send({
+    status: 200,
+    stories,
+    msg: "successful get all stories",
+  });
+};
+const getSellerStories = async (req, res) => {
+  const stories = await Story.findAll({
+    where: { SellerId: req.user.userId },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
+  res.send({
+    status: 200,
+    stories,
+    msg: "successful get all stories for me",
+  });
+};
+
+// Post requests
+const addPost = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  const { text } = req.body;
+
+  let newPost;
+  if (text) {
+    newPost = await Post.create(
+      {
+        text,
+        SellerId: serviceSeller.id,
+      },
+      {
+        returning: true,
+      }
+    );
+  } else {
+    newPost = await Post.create(
+      {
+        SellerId: serviceSeller.id,
+      },
+      {
+        returning: true,
+      }
+    );
+  }
+  await newPost.save();
+
+  if (req.file) {
+    //TODO: if file is video save it to videos
+    // if (req.file.destination === "images") {
+    const newImage = await Image.create(
+      {
+        image: req.file.filename,
+        PostId: newPost.id,
+      },
+      {
+        returning: true,
+      }
+    );
+    await newImage.save();
+    // } else {
+    //   const newVideo = await Video.create({
+    //     video: req.file.filename,
+    //     PostId: newPost.id,
+    //   });
+    //   await newVideo.save();
+    // }
+  }
+  //TODO: Add model Video
+  const result = await Post.findOne({
+    where: { id: newPost.id },
+    include: [
+      { model: Image },
+      { model: Like },
+      { model: Comment },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  res.send({
+    status: 201,
+    data: result,
+    msg: "successful create new Post",
+  });
+};
 const editPost = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -529,21 +499,43 @@ const editPost = async (req, res) => {
   await post.update({ ...others });
 
   if (req.file) {
+    // if (req.file.destination === "images") {
     const imageFound = await Image.findOne({ where: { PostId } });
 
     if (!imageFound)
       throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
     await imageFound.update({ image: req.file.filename });
+    // } else {
+    //   const videoFound = await Video.findOne({ where: { PostId } });
+
+    //   if (!videoFound)
+    //     throw serverErrs.BAD_REQUEST("video for this post not found! ");
+
+    //   await videoFound.update({ video: req.file.filename });
+    // }
   }
+  const result = await Post.findOne({
+    where: { id: post.id },
+    include: [
+      { model: Image },
+      { model: Like },
+      { model: Comment },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
 
   res.send({
     status: 201,
-    data: post,
+    data: result,
     msg: "successful edit post",
   });
 };
-
 const deletePost = async (req, res) => {
   const { ServiceSellerId } = req.params;
 
@@ -567,19 +559,16 @@ const deletePost = async (req, res) => {
 
   const imageFound = await Image.findOne({ where: { PostId } });
 
-  if (!imageFound)
-    throw serverErrs.BAD_REQUEST("image for this post not found! ");
-
   await post.destroy();
 
-  await imageFound.destroy();
+  //TODO: Image or Video may found
+  if (imageFound) await imageFound.destroy();
 
   res.send({
     status: 201,
     msg: "successful delete post",
   });
 };
-
 const getAllPosts = async (req, res) => {
   const { SellerId } = req.params;
   const posts = await Post.findAll({
@@ -587,7 +576,12 @@ const getAllPosts = async (req, res) => {
       { model: Image },
       { model: Like },
       { model: Comment },
-      { model: Seller },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
     ],
   });
 
@@ -595,7 +589,6 @@ const getAllPosts = async (req, res) => {
     posts.map(async (post) => {
       const likes = await post.getLikes();
       const hasLike = likes.some((like) => like.SellerId === +SellerId);
-      console.log({ hasLike });
       await post.update({ isLike: hasLike });
     })
   );
@@ -607,16 +600,43 @@ const getAllPosts = async (req, res) => {
   });
 };
 
-const getAllStories = async (req, res) => {
-  const stories = await Story.findAll({ include: { model: Seller } });
+// Like requests
+const addLike = async (req, res) => {
+  await validateCreateLike.validate(req.body);
+
+  const { PostId, SellerId } = req.body;
+
+  const seller = await Seller.findOne({
+    where: { id: SellerId },
+  });
+
+  if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
+
+  const post = await Post.findOne({
+    where: { id: PostId },
+  });
+
+  if (!post) throw serverErrs.BAD_REQUEST("Post not found");
+
+  const newLike = await Like.create(
+    {
+      PostId,
+      SellerId,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  await newLike.save();
+
+  await post.increment("count", { by: 1 });
 
   res.send({
-    status: 200,
-    stories,
-    msg: "successful get all stories",
+    status: 201,
+    msg: "successful add like to Post",
   });
 };
-
 const deleteLike = async (req, res) => {
   await validateDeleteLike.validate(req.body);
 
@@ -637,6 +657,42 @@ const deleteLike = async (req, res) => {
   });
 };
 
+// Comment requests
+const addComment = async (req, res) => {
+  await validateCreateComment.validate(req.body);
+
+  const { PostId, SellerId, text } = req.body;
+
+  const seller = await Seller.findOne({
+    where: { id: SellerId },
+  });
+
+  if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
+
+  const post = await Post.findOne({
+    where: { id: PostId },
+  });
+
+  if (!post) throw serverErrs.BAD_REQUEST("Post not found");
+
+  const newComment = await Comment.create(
+    {
+      text,
+      PostId,
+      SellerId,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  await newComment.save();
+
+  res.send({
+    status: 201,
+    msg: "successful add comment to Post",
+  });
+};
 const editComment = async (req, res) => {
   await validateEditComment.validate(req.body);
 
@@ -654,6 +710,57 @@ const editComment = async (req, res) => {
   });
 };
 
+// Seller requests
+const editAvatar = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("avatar not found");
+  }
+
+  await serviceSeller.update({ avatar: req.file.filename });
+
+  res.send({
+    status: 201,
+    avatar: req.file.filename,
+    msg: "successful update avatar in seller",
+  });
+};
+const editCover = async (req, res) => {
+  const { ServiceSellerId } = req.params;
+
+  const serviceSeller = await Seller.findOne({
+    where: { id: ServiceSellerId },
+  });
+
+  if (!serviceSeller) throw serverErrs.BAD_REQUEST("Invalid ServiceSellerId! ");
+
+  if (serviceSeller.id != req.user.userId)
+    //NOTE: The id of the seller provided not the one that has permission
+    throw serverErrs.BAD_REQUEST("No Auth");
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("cover not found");
+  }
+
+  await serviceSeller.update({ cover: req.file.filename });
+
+  res.send({
+    status: 201,
+    cover: req.file.filename,
+    msg: "successful update cover in seller",
+  });
+};
 const getAllSubCategory = async (req, res) => {
   const subCategories = await SubCategory.findAll({
     attributes: ["id", "nameEN", "nameAR", "nameKUR"],
@@ -668,22 +775,23 @@ const getAllSubCategory = async (req, res) => {
 
 module.exports = {
   addService,
-  addStory,
-  addPost,
-  addLike,
-  addComment,
-  editAvatar,
-  editCover,
   editService,
   deleteService,
   getSellerServices,
+  addStory,
   editStory,
   deleteStory,
+  getAllStories,
+  getSellerStories,
+  addPost,
   editPost,
   deletePost,
   getAllPosts,
-  getAllStories,
+  addLike,
   deleteLike,
+  addComment,
   editComment,
+  editAvatar,
+  editCover,
   getAllSubCategory,
 };

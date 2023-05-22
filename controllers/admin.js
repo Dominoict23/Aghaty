@@ -80,6 +80,8 @@ const addSeller = async (req, res) => {
     lastName,
     password: hashedPassword,
     role,
+    avatar: "avatar.png",
+    cover: "cover.jpg",
     serviceType,
     location,
     CategoryId,

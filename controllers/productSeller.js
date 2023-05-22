@@ -217,7 +217,7 @@ const getSellerStories = async (req, res) => {
   res.send({
     status: 200,
     stories,
-    msg: "successful get all stories",
+    msg: "successful get all stories for me",
   });
 };
 
@@ -236,10 +236,7 @@ const addPost = async (req, res) => {
     throw serverErrs.BAD_REQUEST("No Auth");
 
   const { text } = req.body;
-  //ASK: Can seller send post with text only
-  if (!req.file) {
-    throw serverErrs.BAD_REQUEST("Please send image or video");
-  }
+
   let newPost;
   if (text) {
     newPost = await Post.create(
@@ -262,7 +259,10 @@ const addPost = async (req, res) => {
     );
   }
   await newPost.save();
-  if (req.file.destination === "images") {
+
+  if (req.file) {
+    //TODO: if file is video save it to videos
+    // if (req.file.destination === "images") {
     const newImage = await Image.create(
       {
         image: req.file.filename,
@@ -273,14 +273,15 @@ const addPost = async (req, res) => {
       }
     );
     await newImage.save();
-  } else {
-    const newVideo = await Video.create({
-      video: req.file.filename,
-      PostId: newPost.id,
-    });
-    await newVideo.save();
+    // } else {
+    //   const newVideo = await Video.create({
+    //     video: req.file.filename,
+    //     PostId: newPost.id,
+    //   });
+    //   await newVideo.save();
+    // }
   }
-
+  //TODO: Add model Video
   const result = await Post.findOne({
     where: { id: newPost.id },
     include: [
@@ -325,21 +326,21 @@ const editPost = async (req, res) => {
   await post.update({ ...others });
 
   if (req.file) {
-    if (req.file.destination === "images") {
-      const imageFound = await Image.findOne({ where: { PostId } });
+    // if (req.file.destination === "images") {
+    const imageFound = await Image.findOne({ where: { PostId } });
 
-      if (!imageFound)
-        throw serverErrs.BAD_REQUEST("image for this post not found! ");
+    if (!imageFound)
+      throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
-      await imageFound.update({ image: req.file.filename });
-    } else {
-      const videoFound = await Video.findOne({ where: { PostId } });
+    await imageFound.update({ image: req.file.filename });
+    // } else {
+    //   const videoFound = await Video.findOne({ where: { PostId } });
 
-      if (!videoFound)
-        throw serverErrs.BAD_REQUEST("video for this post not found! ");
+    //   if (!videoFound)
+    //     throw serverErrs.BAD_REQUEST("video for this post not found! ");
 
-      await videoFound.update({ video: req.file.filename });
-    }
+    //   await videoFound.update({ video: req.file.filename });
+    // }
   }
   const result = await Post.findOne({
     where: { id: post.id },
@@ -385,12 +386,10 @@ const deletePost = async (req, res) => {
 
   const imageFound = await Image.findOne({ where: { PostId } });
 
-  if (!imageFound)
-    throw serverErrs.BAD_REQUEST("image for this post not found! ");
-
   await post.destroy();
 
-  await imageFound.destroy();
+  //TODO: Image or Video may found
+  if (imageFound) await imageFound.destroy();
 
   res.send({
     status: 201,
@@ -417,7 +416,6 @@ const getAllPosts = async (req, res) => {
     posts.map(async (post) => {
       const likes = await post.getLikes();
       const hasLike = likes.some((like) => like.SellerId === +SellerId);
-      console.log({ hasLike });
       await post.update({ isLike: hasLike });
     })
   );

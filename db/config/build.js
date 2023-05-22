@@ -1,9 +1,9 @@
 const sequelize = require("./connection");
 
 const {
-  // seller,
-  // category,
-  // subCategory,
+  seller,
+  category,
+  subCategory,
   // products,
   // posts,
   // stories,
@@ -14,9 +14,9 @@ const {
 } = require("./fakeData");
 
 const {
-  // Seller,
-  // Category,
-  // SubCategory,
+  Seller,
+  Category,
+  SubCategory,
   // Product,
   // Post,
   // Story,
@@ -35,17 +35,17 @@ const insertDB = async () => {
   await Message.bulkCreate(messages).then(() =>
     console.log("Messages data have been saved")
   );
-  // await Category.bulkCreate(category).then(() =>
-  //   console.log("Category data have been saved")
-  // );
-  // await Seller.bulkCreate(seller).then(() =>
-  //   console.log("Seller data have been saved")
-  // );
+  await Category.bulkCreate(category).then(() =>
+    console.log("Category data have been saved")
+  );
+  await SubCategory.bulkCreate(subCategory).then(() =>
+    console.log("SubCategory data have been saved")
+  );
+  await Seller.bulkCreate(seller).then(() =>
+    console.log("Seller data have been saved")
+  );
   // await Delivery.bulkCreate(deliveries).then(() =>
   //   console.log("Delivery data have been saved")
-  // );
-  // await SubCategory.bulkCreate(subCategory).then(() =>
-  //   console.log("SubCategory data have been saved")
   // );
   // await Story.bulkCreate(stories).then(() =>
   //   console.log("Story data have been saved")

@@ -22,6 +22,7 @@ const {
   getAllStories,
   getAllPosts,
   getAllSubCategory,
+  getSellerStories,
 } = require("../controllers/serviceSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -127,6 +128,13 @@ sellerRouter.get(
   verifyToken,
   checkUserAuth("serviceSeller"),
   errorCatcher(getAllStories)
+);
+
+sellerRouter.get(
+  "/allStories/me",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(getSellerStories)
 );
 
 sellerRouter.get(
