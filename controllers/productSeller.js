@@ -680,6 +680,15 @@ const addProduct = async (req, res) => {
 
   await newImage.save();
 
+  // Get the existing subCategories array
+  const subCategoriesArray = await productSeller.subCategories;
+
+  // Add the new subCategory to the array
+  subCategoriesArray.push(SubCategoryId);
+
+  // Update the seller with the new subCategories array
+  await productSeller.update({ subCategories: subCategoriesArray });
+
   res.send({
     status: 201,
     msg: "successful create new product",
@@ -700,13 +709,20 @@ const editProduct = async (req, res) => {
 
   await validateEditProduct.validate(req.body);
 
-  const { ProductId, ...others } = req.body;
+  const { ProductId, SubCategoryId, ...others } = req.body;
 
   const product = await Product.findOne({ where: { id: ProductId } });
 
   if (!product) throw serverErrs.BAD_REQUEST("Product not found! ");
 
-  await product.update({ ...others });
+  if (SubCategoryId) {
+    await product.update({ ...others, SubCategoryId });
+    const subCategoriesArray = await productSeller.subCategories;
+    subCategoriesArray.push(SubCategoryId);
+    await productSeller.update({ subCategories: subCategoriesArray });
+  } else {
+    await product.update({ ...others });
+  }
 
   if (req.file) {
     const imageFound = await Image.findOne({ where: { ProductId } });

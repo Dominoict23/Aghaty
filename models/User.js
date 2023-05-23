@@ -26,11 +26,11 @@ const User = sequelize.define("User", {
   },
   avatar: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "",
   },
   cover: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "",
   },
   verificationCode: {
     type: DataTypes.INTEGER,

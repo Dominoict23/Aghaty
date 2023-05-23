@@ -43,17 +43,32 @@ const Seller = sequelize.define("Seller", {
   serviceType: {
     type: DataTypes.STRING,
   },
-  location: {
+  address: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  //ASK: rate in seller calculated from table feedback using seller id
+  //NOTE: rate in seller calculated from table feedback using seller id
   rate: {
     type: DataTypes.DOUBLE,
     defaultValue: 0,
   },
   verificationCode: {
     type: DataTypes.INTEGER,
+  },
+  subCategories: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "",
+    get() {
+      const rawValue = this.getDataValue("subCategories");
+      return rawValue ? rawValue.split(",") : [];
+    },
+    set(value) {
+      if (Array.isArray(value)) {
+        const stringValue = value.join(",");
+        this.setDataValue("subCategories", stringValue);
+      }
+    },
   },
 });
 

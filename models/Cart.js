@@ -7,10 +7,6 @@ const Cart = sequelize.define("Cart", {
     autoIncrement: true,
     primaryKey: true,
   },
-  count: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
   totalPrice: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
