@@ -77,6 +77,9 @@ Image.belongsTo(Product);
 Service.hasMany(Image);
 Image.belongsTo(Service);
 
+Admin.hasMany(Image);
+Image.belongsTo(Admin);
+
 Seller.hasMany(Service);
 Service.belongsTo(Seller);
 

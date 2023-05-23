@@ -7,6 +7,7 @@ const {
   DiscountCode,
   Message,
   Delivery,
+  Image,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -26,6 +27,8 @@ const {
   validateAddDelivery,
   validateEditDelivery,
   validateDeleteDelivery,
+  validateEditBanner,
+  validateDeleteBanner,
 } = require("../validation");
 
 // Auth requests
@@ -62,7 +65,7 @@ const addSeller = async (req, res) => {
     password,
     role,
     serviceType,
-    location,
+    address,
     CategoryId,
   } = req.body;
 
@@ -83,7 +86,7 @@ const addSeller = async (req, res) => {
     avatar: "avatar.png",
     cover: "cover.jpg",
     serviceType,
-    location,
+    address,
     CategoryId,
     //TODO: verificationCode: code
   });
@@ -454,6 +457,81 @@ const getAllMessages = async (req, res) => {
   });
 };
 
+// Banner requests
+const addBanner = async (req, res) => {
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
+
+  const newBanner = await Image.create(
+    {
+      image: req.file.filename,
+      AdminId: req.user.userId,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  await newBanner.save();
+
+  res.send({
+    status: 201,
+    newBanner,
+    msg: "Banner added successfully",
+  });
+};
+const editBanner = async (req, res) => {
+  await validateEditBanner.validate(req.body);
+
+  if (!req.file) {
+    throw serverErrs.BAD_REQUEST("Image not found");
+  }
+
+  const { BannerId } = req.body;
+
+  const banner = await Image.findOne({
+    where: { id: BannerId },
+  });
+
+  if (!banner) throw serverErrs.BAD_REQUEST("banner not found");
+
+  await banner.update({ image: req.file.filename });
+
+  res.send({
+    status: 201,
+    banner,
+    msg: "Banner updated successfully",
+  });
+};
+const deleteBanner = async (req, res) => {
+  await validateDeleteBanner.validate(req.body);
+
+  const { BannerId } = req.body;
+
+  const banner = await Image.findOne({
+    where: { id: BannerId },
+  });
+
+  if (!banner) throw serverErrs.BAD_REQUEST("banner not found");
+
+  await banner.destroy();
+
+  res.send({
+    status: 201,
+    msg: "banner deleted successfully",
+  });
+};
+const getAllBanners = async (req, res) => {
+  const banners = await Image.findAll({ where: { AdminId: req.user.userId } });
+
+  res.send({
+    status: 200,
+    banners,
+    msg: "get all banners successfully",
+  });
+};
+
 module.exports = {
   login,
   addSeller,
@@ -477,4 +555,8 @@ module.exports = {
   editDelivery,
   deleteDelivery,
   getAllDeliveries,
+  addBanner,
+  editBanner,
+  deleteBanner,
+  getAllBanners,
 };

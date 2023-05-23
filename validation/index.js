@@ -198,11 +198,18 @@ const validateEditDelivery = yup.object().shape({
   firstName: yup.string().optional(),
   lastName: yup.string().optional(),
   password: yup.string().optional().min(8).max(16),
-
   DeliveryId: yup.number().required(),
 });
 const validateDeleteDelivery = yup.object().shape({
   DeliveryId: yup.number().required(),
+});
+
+// Banner validations
+const validateEditBanner = yup.object().shape({
+  BannerId: yup.number().required(),
+});
+const validateDeleteBanner = yup.object().shape({
+  BannerId: yup.number().required(),
 });
 
 module.exports = {
@@ -237,4 +244,6 @@ module.exports = {
   validateAddDelivery,
   validateEditDelivery,
   validateDeleteDelivery,
+  validateEditBanner,
+  validateDeleteBanner,
 };

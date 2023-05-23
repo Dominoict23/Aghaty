@@ -15,7 +15,7 @@ const seller = [
     cover: "cover.jpg",
     role: "productSeller",
     serviceType: "",
-    location: "Amman",
+    address: "Amman",
     CategoryId: 1,
   },
   {
@@ -27,7 +27,7 @@ const seller = [
     cover: "cover.jpg",
     role: "serviceSeller",
     serviceType: "Carpenter",
-    location: "Amman",
+    address: "Amman",
     CategoryId: 3,
     // verificationCode: ,
   },

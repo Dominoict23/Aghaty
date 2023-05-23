@@ -31,6 +31,10 @@ const {
   addDelivery,
   editDelivery,
   deleteDelivery,
+  getAllBanners,
+  deleteBanner,
+  editBanner,
+  addBanner,
 } = require("../controllers/admin");
 
 adminRouter.post("/login", errorCatcher(login));
@@ -171,6 +175,32 @@ adminRouter.get(
   verifyToken,
   checkUserAuth("admin"),
   errorCatcher(getAllDeliveries)
+);
+
+// Banners requests
+adminRouter.post(
+  "/addBanner",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(addBanner)
+);
+adminRouter.patch(
+  "/editBanner",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(editBanner)
+);
+adminRouter.delete(
+  "/deleteBanner",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(deleteBanner)
+);
+adminRouter.get(
+  "/allBanners",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(getAllBanners)
 );
 
 module.exports = adminRouter;
