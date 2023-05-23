@@ -60,18 +60,15 @@ const validateDeletePost = yup.object().shape({
 // Like validation
 const validateCreateLike = yup.object().shape({
   PostId: yup.number().required(),
-  SellerId: yup.number().required(),
 });
 const validateDeleteLike = yup.object().shape({
   PostId: yup.number().required(),
-  SellerId: yup.number().required(),
 });
 
 // Comment validation
 const validateCreateComment = yup.object().shape({
   text: yup.string().min(1).required(),
   PostId: yup.number().required(),
-  SellerId: yup.number().required(),
 });
 const validateEditComment = yup.object().shape({
   text: yup.string().min(1).required(),

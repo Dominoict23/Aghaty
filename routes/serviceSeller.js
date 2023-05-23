@@ -52,9 +52,19 @@ sellerRouter.post(
   errorCatcher(addPost)
 );
 
-sellerRouter.post("/addLike", errorCatcher(addLike));
+sellerRouter.post(
+  "/addLike",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(addLike)
+);
 
-sellerRouter.post("/addComment", errorCatcher(addComment));
+sellerRouter.post(
+  "/addComment",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(addComment)
+);
 
 sellerRouter.put(
   "/editAvatar/:ServiceSellerId",
@@ -91,7 +101,12 @@ sellerRouter.put(
   errorCatcher(editPost)
 );
 
-sellerRouter.put("/editComment", errorCatcher(editComment));
+sellerRouter.put(
+  "/editComment",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(editComment)
+);
 
 sellerRouter.delete(
   "/deleteService/:ServiceSellerId",
@@ -114,7 +129,12 @@ sellerRouter.delete(
   errorCatcher(deletePost)
 );
 
-sellerRouter.delete("/deleteLike", errorCatcher(deleteLike));
+sellerRouter.delete(
+  "/deleteLike",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(deleteLike)
+);
 
 sellerRouter.get(
   "/allSellerServices/:ServiceSellerId",

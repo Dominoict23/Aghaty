@@ -11,6 +11,7 @@ const {
   Service,
   SubCategory,
   Video,
+  User,
 } = require("../models");
 const {
   validateCreateService,
@@ -576,7 +577,33 @@ const getAllPosts = async (req, res) => {
     include: [
       { model: Image },
       { model: Like },
-      { model: Comment },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
       {
         model: Seller,
         attributes: {
@@ -605,10 +632,10 @@ const getAllPosts = async (req, res) => {
 const addLike = async (req, res) => {
   await validateCreateLike.validate(req.body);
 
-  const { PostId, SellerId } = req.body;
+  const { PostId } = req.body;
 
   const seller = await Seller.findOne({
-    where: { id: SellerId },
+    where: { id: req.user.userId },
   });
 
   if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
@@ -622,7 +649,7 @@ const addLike = async (req, res) => {
   const newLike = await Like.create(
     {
       PostId,
-      SellerId,
+      SellerId: req.user.userId,
     },
     {
       returning: true,
@@ -641,13 +668,20 @@ const addLike = async (req, res) => {
 const deleteLike = async (req, res) => {
   await validateDeleteLike.validate(req.body);
 
-  const { PostId, SellerId } = req.body;
+  const { PostId } = req.body;
+
+  const seller = await Seller.findOne({
+    where: { id: req.user.userId },
+  });
+
+  if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
 
   const post = await Post.findOne({ where: { id: PostId } });
 
   if (!post) throw serverErrs.BAD_REQUEST("Post not found! ");
 
-  const like = await Like.findOne({ PostId, SellerId });
+  const like = await Like.findOne({ PostId, SellerId: req.user.userId });
+
   await like.destroy();
 
   await post.decrement("count", { by: 1 });
@@ -662,10 +696,10 @@ const deleteLike = async (req, res) => {
 const addComment = async (req, res) => {
   await validateCreateComment.validate(req.body);
 
-  const { PostId, SellerId, text } = req.body;
+  const { PostId, text } = req.body;
 
   const seller = await Seller.findOne({
-    where: { id: SellerId },
+    where: { id: req.user.userId },
   });
 
   if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
@@ -680,7 +714,7 @@ const addComment = async (req, res) => {
     {
       text,
       PostId,
-      SellerId,
+      SellerId: req.user.userId,
     },
     {
       returning: true,
@@ -697,11 +731,20 @@ const addComment = async (req, res) => {
 const editComment = async (req, res) => {
   await validateEditComment.validate(req.body);
 
+  const seller = await Seller.findOne({
+    where: { id: req.user.userId },
+  });
+
+  if (!seller) throw serverErrs.BAD_REQUEST("Seller not found");
+
   const { CommentId, text } = req.body;
 
   const comment = await Comment.findOne({
     where: { id: CommentId },
   });
+
+  if (comment.SellerId !== seller.id)
+    throw serverErrs.BAD_REQUEST("This comment not yours");
 
   await comment.update({ text });
 
