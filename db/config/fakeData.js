@@ -17,6 +17,8 @@ const seller = [
     serviceType: "",
     address: "Amman",
     CategoryId: 1,
+    long: 34.347106,
+    lat: 31.383446,
   },
   {
     mobile: "097592414965",
@@ -29,7 +31,20 @@ const seller = [
     serviceType: "Carpenter",
     address: "Amman",
     CategoryId: 3,
+    long: 34.436067,
+    lat: 31.446056,
     // verificationCode: ,
+  },
+];
+
+const users = [
+  {
+    mobile: "097592185263",
+    firstName: "Ibrahim",
+    lastName: "Abu Nemer",
+    password: "12345678",
+    avatar: "avatar.png",
+    cover: "cover.jpg",
   },
 ];
 
@@ -209,4 +224,5 @@ module.exports = {
   admin,
   messages,
   // deliveries,
+  users,
 };

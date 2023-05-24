@@ -20,6 +20,10 @@ const {
   editComment,
   addComment,
   getSinglePosts,
+  getAllCategory,
+  getAllSubCategories,
+  getHighRateSellers,
+  nearestSellers,
 } = require("../controllers/user");
 
 // Auth routers
@@ -96,6 +100,36 @@ userRouter.patch(
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(editComment)
+);
+
+// Category router
+userRouter.get(
+  "/allCategories",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getAllCategory)
+);
+
+// SubCategory router
+userRouter.get(
+  "/allSubCategories/:CategoryId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getAllSubCategories)
+);
+
+// Sellers router
+userRouter.get(
+  "/sellers/highestRate/:CategoryId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getHighRateSellers)
+);
+userRouter.post(
+  "/sellers/nearest/:CategoryId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(nearestSellers)
 );
 
 module.exports = userRouter;

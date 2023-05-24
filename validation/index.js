@@ -126,6 +126,10 @@ const validateEditSeller = yup.object().shape({
 const validateDeleteSeller = yup.object().shape({
   SellerId: yup.number().required(),
 });
+const validateNearestSellers = yup.object().shape({
+  long: yup.number().required(),
+  lat: yup.number().required(),
+});
 
 // Category validation
 const validateAddCategory = yup.object().shape({
@@ -243,4 +247,5 @@ module.exports = {
   validateDeleteDelivery,
   validateEditBanner,
   validateDeleteBanner,
+  validateNearestSellers,
 };

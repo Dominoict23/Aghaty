@@ -11,6 +11,7 @@ const {
   admin,
   messages,
   // deliveries,
+  users,
 } = require("./fakeData");
 
 const {
@@ -25,6 +26,7 @@ const {
   Admin,
   Message,
   // Delivery,
+  User,
 } = require("../../models");
 
 const insertDB = async () => {
@@ -43,6 +45,9 @@ const insertDB = async () => {
   );
   await Seller.bulkCreate(seller).then(() =>
     console.log("Seller data have been saved")
+  );
+  await User.bulkCreate(users).then(() =>
+    console.log("User data have been saved")
   );
   // await Delivery.bulkCreate(deliveries).then(() =>
   //   console.log("Delivery data have been saved")

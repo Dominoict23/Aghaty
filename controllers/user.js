@@ -8,6 +8,8 @@ const {
   Post,
   Like,
   Comment,
+  Category,
+  SubCategory,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -15,6 +17,7 @@ const {
   validateCreateLike,
   validateDeleteLike,
   validateCreateComment,
+  validateNearestSellers,
 } = require("../validation");
 
 // Auth requests
@@ -236,7 +239,7 @@ const getSinglePosts = async (req, res) => {
   });
 };
 
-// Like requests
+// Like
 const addLike = async (req, res) => {
   await validateCreateLike.validate(req.body);
 
@@ -300,7 +303,7 @@ const deleteLike = async (req, res) => {
   });
 };
 
-// Comment requests
+// Comment
 const addComment = async (req, res) => {
   await validateCreateComment.validate(req.body);
 
@@ -362,6 +365,115 @@ const editComment = async (req, res) => {
   });
 };
 
+//Categories
+const getAllCategory = async (req, res) => {
+  const categories = await Category.findAll({
+    where: { role: "productSeller" },
+  });
+
+  res.send({
+    status: 200,
+    categories,
+    msg: "get all categories successfully",
+  });
+};
+
+// SubCategories
+const getAllSubCategories = async (req, res) => {
+  const { CategoryId } = req.params;
+  const subCategories = await SubCategory.findAll({
+    where: { CategoryId },
+    include: { model: Category },
+  });
+
+  res.send({
+    status: 200,
+    subCategories,
+    msg: "get all subCategories successfully",
+  });
+};
+
+// Seller
+const getHighRateSellers = async (req, res) => {
+  const { CategoryId } = req.params;
+  const sellers = await Seller.findAll({
+    where: { CategoryId },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+    order: [["rate", "DESC"]],
+  });
+
+  res.send({
+    status: 200,
+    sellers,
+    msg: "get highest rate sellers successfully",
+  });
+};
+
+const nearestSellers = async (req, res) => {
+  const { CategoryId } = req.params;
+
+  await validateNearestSellers.validate(req.body);
+
+  const { long, lat } = req.body;
+  // const { distance } = req.body;
+
+  // const user = await User.findOne({
+  //   where: {
+  //     id: req.user.userId,
+  //   },
+  // });
+
+  // if (!user) throw serverErrs.BAD_REQUEST("user not found");
+
+  // if (!distance)
+  //   throw serverErrs.BAD_REQUEST({
+  //     arabic: "المسافة غير موجودة",
+  //     english: "distance not found",
+  //   });
+
+  const sellers = await Seller.findAll({
+    where: { CategoryId },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+  });
+
+  const lon1 = long;
+  const lat1 = lat;
+  const result = [];
+  sellers?.forEach((seller) => {
+    const lon2 = seller.long;
+    const lat2 = seller.lat;
+    const R = 6371e3; // metres
+    const φ1 = (lat1 * Math.PI) / 180; // φ, λ in radians
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const d = R * c; // in metres
+
+    if (d < 15 * 1000) {
+      result.push(seller);
+    }
+    // if (d < distance * 1000) {
+    //   result.push(seller);
+    // }
+  });
+
+  res.send({
+    status: 201,
+    result,
+    msg: "successful get sellers in 15 kilo meter",
+  });
+};
+
 module.exports = {
   signup,
   editAvatar,
@@ -374,4 +486,8 @@ module.exports = {
   deleteLike,
   addComment,
   editComment,
+  getAllCategory,
+  getAllSubCategories,
+  getHighRateSellers,
+  nearestSellers,
 };
