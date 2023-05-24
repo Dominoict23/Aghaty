@@ -98,8 +98,22 @@ const addService = async (req, res) => {
 
   await newImage.save();
 
+  const result = await Service.findOne({
+    where: { id: newService.id },
+    include: [
+      { model: Image },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
   res.send({
     status: 201,
+    data: result,
     msg: "successful create new service",
   });
 };
@@ -137,8 +151,22 @@ const editService = async (req, res) => {
     await imageFound.update({ image: req.file.filename });
   }
 
+  const result = await Service.findOne({
+    where: { id: service.id },
+    include: [
+      { model: Image },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
   res.send({
     status: 201,
+    data: result,
     msg: "successful update service",
   });
 };
@@ -192,7 +220,15 @@ const getSellerServices = async (req, res) => {
 
   const services = await Service.findAll({
     where: { SellerId: ServiceSellerId },
-    include: { model: Image },
+    include: [
+      { model: Image },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
   });
 
   res.send({
@@ -461,7 +497,33 @@ const addPost = async (req, res) => {
     include: [
       { model: Image },
       { model: Like },
-      { model: Comment },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
       {
         model: Seller,
         attributes: {
@@ -522,7 +584,33 @@ const editPost = async (req, res) => {
     include: [
       { model: Image },
       { model: Like },
-      { model: Comment },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
       {
         model: Seller,
         attributes: {
@@ -625,6 +713,59 @@ const getAllPosts = async (req, res) => {
     status: 200,
     posts,
     msg: "successful get all posts",
+  });
+};
+const getSinglePosts = async (req, res) => {
+  const { PostId } = req.params;
+  const post = await Post.findOne({
+    where: { id: PostId },
+    include: [
+      { model: Image },
+      { model: Like },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  const likes = await post.getLikes();
+  const hasLike = likes.some((like) => like.SellerId == req.user.userId);
+  await post.update({ isLike: hasLike });
+
+  res.send({
+    status: 200,
+    post,
+    msg: "successful get single posts",
   });
 };
 
@@ -830,6 +971,7 @@ module.exports = {
   addPost,
   editPost,
   deletePost,
+  getSinglePosts,
   getAllPosts,
   addLike,
   deleteLike,

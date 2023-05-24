@@ -23,6 +23,7 @@ const {
   getAllPosts,
   getAllSubCategory,
   getSellerStories,
+  getSinglePosts,
 } = require("../controllers/serviceSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -162,6 +163,13 @@ sellerRouter.get(
   verifyToken,
   checkUserAuth("serviceSeller"),
   errorCatcher(getAllPosts)
+);
+
+sellerRouter.get(
+  "/singlePost/:PostId",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(getSinglePosts)
 );
 
 sellerRouter.get(

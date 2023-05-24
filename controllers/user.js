@@ -38,9 +38,15 @@ const signup = async (req, res) => {
     // verificationCode: code
   });
 
+  const userWithoutPassword = newUser.toJSON();
+  delete userWithoutPassword.password;
+  delete userWithoutPassword.verificationCode;
+  delete userWithoutPassword.createdAt;
+  delete userWithoutPassword.updatedAt;
+
   res.send({
     status: 201,
-    newUser,
+    userWithoutPassword,
     msg: "successful signup user",
   });
 };
@@ -176,6 +182,59 @@ const getAllPosts = async (req, res) => {
     msg: "successful get all posts",
   });
 };
+const getSinglePosts = async (req, res) => {
+  const { PostId } = req.params;
+  const post = await Post.findOne({
+    where: { id: PostId },
+    include: [
+      { model: Image },
+      { model: Like },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  const likes = await post.getLikes();
+  const hasLike = likes.some((like) => like.SellerId == req.user.userId);
+  await post.update({ isLike: hasLike });
+
+  res.send({
+    status: 200,
+    post,
+    msg: "successful get single posts",
+  });
+};
 
 // Like requests
 const addLike = async (req, res) => {
@@ -309,6 +368,7 @@ module.exports = {
   editCover,
   getAllStories,
   getAllBanners,
+  getSinglePosts,
   getAllPosts,
   addLike,
   deleteLike,

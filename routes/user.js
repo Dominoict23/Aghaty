@@ -19,6 +19,7 @@ const {
   deleteLike,
   editComment,
   addComment,
+  getSinglePosts,
 } = require("../controllers/user");
 
 // Auth routers
@@ -60,6 +61,13 @@ userRouter.get(
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(getAllPosts)
+);
+
+userRouter.get(
+  "/singlePost/:PostId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSinglePosts)
 );
 
 // Like routers

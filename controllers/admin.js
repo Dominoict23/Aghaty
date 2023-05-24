@@ -8,6 +8,7 @@ const {
   Message,
   Delivery,
   Image,
+  User,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -45,9 +46,15 @@ const login = async (req, res) => {
 
   const token = await generateToken({ userId: admin.id, role: "admin" });
 
+  const dataWithoutPassword = admin.toJSON();
+  delete dataWithoutPassword["password"];
+  delete dataWithoutPassword["verificationCode"];
+  delete dataWithoutPassword["createdAt"];
+  delete dataWithoutPassword["updatedAt"];
+
   res.send({
     status: 201,
-    admin,
+    data: dataWithoutPassword,
     msg: "successful log in as admin",
     token: token,
     role: "admin",
@@ -91,9 +98,15 @@ const addSeller = async (req, res) => {
     //TODO: verificationCode: code
   });
 
+  const dataWithoutPassword = newSeller.toJSON();
+  delete dataWithoutPassword.password;
+  delete dataWithoutPassword.verificationCode;
+  delete dataWithoutPassword.createdAt;
+  delete dataWithoutPassword.updatedAt;
+
   res.send({
     status: 201,
-    newSeller,
+    dataWithoutPassword,
     msg: "seller added successfully",
   });
 };
@@ -102,7 +115,12 @@ const editSeller = async (req, res) => {
 
   const { SellerId, password, ...others } = req.body;
 
-  const sellerFound = await Seller.findOne({ where: { id: SellerId } });
+  const sellerFound = await Seller.findOne({
+    where: { id: SellerId },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+  });
 
   if (!sellerFound) throw serverErrs.BAD_REQUEST("seller not found");
 
@@ -136,7 +154,12 @@ const deleteSeller = async (req, res) => {
   });
 };
 const getAllSellers = async (req, res) => {
-  const sellers = await Seller.findAll({ include: { model: Category } });
+  const sellers = await Seller.findAll({
+    include: { model: Category },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+  });
 
   res.send({
     status: 200,
@@ -165,13 +188,19 @@ const addDelivery = async (req, res) => {
     firstName,
     lastName,
     password: hashedPassword,
-    avatar,
-    cover,
+    avatar: "avatar.png",
+    cover: "cover.jpg",
   });
+
+  const dataWithoutPassword = newDelivery.toJSON();
+  delete dataWithoutPassword.password;
+  delete dataWithoutPassword.verificationCode;
+  delete dataWithoutPassword.createdAt;
+  delete dataWithoutPassword.updatedAt;
 
   res.send({
     status: 201,
-    newDelivery,
+    data: dataWithoutPassword,
     msg: "delivery added successfully",
   });
 };
@@ -180,7 +209,12 @@ const editDelivery = async (req, res) => {
 
   const { DeliveryId, password, ...others } = req.body;
 
-  const deliveryFound = await Delivery.findOne({ where: { id: DeliveryId } });
+  const deliveryFound = await Delivery.findOne({
+    where: { id: DeliveryId },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+  });
 
   if (!deliveryFound) throw serverErrs.BAD_REQUEST("Delivery not found");
 
@@ -214,7 +248,11 @@ const deleteDelivery = async (req, res) => {
   });
 };
 const getAllDeliveries = async (req, res) => {
-  const deliveries = await Delivery.findAll({});
+  const deliveries = await Delivery.findAll({
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+  });
 
   res.send({
     status: 200,
@@ -336,14 +374,9 @@ const editSubCategory = async (req, res) => {
     await subCategory.update({ ...others });
   }
 
-  const result = await SubCategory.findOne({
-    where: { id: subCategory.id },
-    include: { model: Category },
-  });
-
   res.send({
     status: 201,
-    data: result,
+    data: subCategory,
     msg: "SubCategory updated successfully",
   });
 };
@@ -448,7 +481,14 @@ const getAllDiscountCode = async (req, res) => {
 
 // Messages requests
 const getAllMessages = async (req, res) => {
-  const messages = await Message.findAll({});
+  const messages = await Message.findAll({
+    include: {
+      model: User,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
 
   res.send({
     status: 200,
@@ -491,7 +531,7 @@ const editBanner = async (req, res) => {
   const { BannerId } = req.body;
 
   const banner = await Image.findOne({
-    where: { id: BannerId },
+    where: { id: BannerId, AdminId: req.user.userId },
   });
 
   if (!banner) throw serverErrs.BAD_REQUEST("banner not found");
@@ -510,7 +550,7 @@ const deleteBanner = async (req, res) => {
   const { BannerId } = req.body;
 
   const banner = await Image.findOne({
-    where: { id: BannerId },
+    where: { id: BannerId, AdminId: req.user.userId },
   });
 
   if (!banner) throw serverErrs.BAD_REQUEST("banner not found");

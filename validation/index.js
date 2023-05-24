@@ -109,7 +109,7 @@ const validateAddSeller = yup.object().shape({
   password: yup.string().required().min(8).max(16),
   role: yup.string().required(),
   serviceType: yup.string().optional(),
-  location: yup.string().required(),
+  address: yup.string().required(),
   CategoryId: yup.number().required(),
 });
 const validateEditSeller = yup.object().shape({
@@ -119,7 +119,7 @@ const validateEditSeller = yup.object().shape({
   password: yup.string().optional().min(8).max(16),
   role: yup.string().optional(),
   serviceType: yup.string().optional(),
-  location: yup.string().optional(),
+  address: yup.string().optional(),
   CategoryId: yup.number().optional(),
   SellerId: yup.number().required(),
 });

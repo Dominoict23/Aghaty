@@ -23,6 +23,7 @@ const {
   editComment,
   getAllSubCategory,
   getSellerStories,
+  getSinglePosts,
 } = require("../controllers/productSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -162,6 +163,13 @@ sellerRouter.get(
   verifyToken,
   checkUserAuth("productSeller"),
   errorCatcher(getAllPosts)
+);
+
+sellerRouter.get(
+  "/singlePost/:PostId",
+  verifyToken,
+  checkUserAuth("productSeller"),
+  errorCatcher(getSinglePosts)
 );
 
 sellerRouter.get(

@@ -34,11 +34,17 @@ const login = async (req, res) => {
 
   const data = user ? user : delivery ? delivery : seller;
 
+  const dataWithoutPassword = data.toJSON();
+  delete dataWithoutPassword.password;
+  delete dataWithoutPassword.verificationCode;
+  delete dataWithoutPassword.createdAt;
+  delete dataWithoutPassword.updatedAt;
+
   const token = await generateToken({ userId: data.id, name: data.name, role });
 
   res.send({
     status: 201,
-    data: data,
+    data: dataWithoutPassword,
     msg: "successful log in",
     token: token,
     role: role,

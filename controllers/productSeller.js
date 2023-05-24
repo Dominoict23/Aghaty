@@ -288,7 +288,33 @@ const addPost = async (req, res) => {
     include: [
       { model: Image },
       { model: Like },
-      { model: Comment },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
       {
         model: Seller,
         attributes: {
@@ -348,7 +374,33 @@ const editPost = async (req, res) => {
     include: [
       { model: Image },
       { model: Like },
-      { model: Comment },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
       {
         model: Seller,
         attributes: {
@@ -451,6 +503,59 @@ const getAllPosts = async (req, res) => {
     status: 200,
     posts,
     msg: "successful get all posts",
+  });
+};
+const getSinglePosts = async (req, res) => {
+  const { PostId } = req.params;
+  const post = await Post.findOne({
+    where: { id: PostId },
+    include: [
+      { model: Image },
+      { model: Like },
+      {
+        model: Comment,
+        include: [
+          {
+            model: User,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+          {
+            model: Seller,
+            attributes: {
+              exclude: [
+                "verificationCode",
+                "password",
+                "createdAt",
+                "updatedAt",
+              ],
+            },
+          },
+        ],
+      },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  const likes = await post.getLikes();
+  const hasLike = likes.some((like) => like.SellerId == req.user.userId);
+  await post.update({ isLike: hasLike });
+
+  res.send({
+    status: 200,
+    post,
+    msg: "successful get single posts",
   });
 };
 
@@ -725,15 +830,28 @@ const addProduct = async (req, res) => {
 
   // Get the existing subCategories array
   const subCategoriesArray = await productSeller.subCategories;
-
   // Add the new subCategory to the array
   subCategoriesArray.push(SubCategoryId);
-
   // Update the seller with the new subCategories array
   await productSeller.update({ subCategories: subCategoriesArray });
 
+  const result = await Product.findOne({
+    where: { id: newProduct.id },
+    include: [
+      { model: Image },
+      { model: SubCategory },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
   res.send({
     status: 201,
+    data: result,
     msg: "successful create new product",
   });
 };
@@ -761,7 +879,7 @@ const editProduct = async (req, res) => {
   if (SubCategoryId) {
     await product.update({ ...others, SubCategoryId });
     const subCategoriesArray = await productSeller.subCategories;
-    subCategoriesArray.push(SubCategoryId);
+    subCategoriesArray.splice(product.id - 1, 1, SubCategoryId);
     await productSeller.update({ subCategories: subCategoriesArray });
   } else {
     await product.update({ ...others });
@@ -776,8 +894,23 @@ const editProduct = async (req, res) => {
     await imageFound.update({ image: req.file.filename });
   }
 
+  const result = await Product.findOne({
+    where: { id: product.id },
+    include: [
+      { model: Image },
+      { model: SubCategory },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
   res.send({
     status: 201,
+    data: result,
     msg: "successful update product",
   });
 };
@@ -811,6 +944,12 @@ const deleteProduct = async (req, res) => {
 
   await imageFound.destroy();
 
+  const subCategoriesArray = await productSeller.subCategories;
+
+  subCategoriesArray.splice(product.id - 1, 1, 0);
+
+  await productSeller.update({ subCategories: subCategoriesArray });
+
   res.send({
     status: 201,
     msg: "successful delete product",
@@ -831,7 +970,16 @@ const getSellerProducts = async (req, res) => {
 
   const products = await Product.findAll({
     where: { SellerId: ProductSellerId },
-    include: { model: Image },
+    include: [
+      { model: Image },
+      { model: SubCategory },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
   });
 
   res.send({
@@ -854,6 +1002,7 @@ module.exports = {
   addPost,
   deletePost,
   editPost,
+  getSinglePosts,
   getAllPosts,
   editAvatar,
   editCover,
