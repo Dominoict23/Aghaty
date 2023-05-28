@@ -7,6 +7,10 @@ const OrderProduct = sequelize.define("OrderProduct", {
     autoIncrement: true,
     primaryKey: true,
   },
+  quantity: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
 });
 
 module.exports = OrderProduct;

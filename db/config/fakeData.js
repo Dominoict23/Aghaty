@@ -42,7 +42,7 @@ const users = [
     mobile: "097592185263",
     firstName: "Ibrahim",
     lastName: "Abu Nemer",
-    password: "12345678",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
     avatar: "avatar.png",
     cover: "cover.jpg",
   },

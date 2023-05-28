@@ -10,6 +10,9 @@ const {
   Comment,
   Category,
   SubCategory,
+  Product,
+  Cart,
+  CartProduct,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -474,6 +477,87 @@ const nearestSellers = async (req, res) => {
   });
 };
 
+// Products
+const getProductsBySubId = async (req, res) => {
+  const { SubCategoryId } = req.params;
+
+  const products = await Product.findAll({
+    where: { SubCategoryId, SellerId: req.user.userId },
+    include: {
+      model: Seller,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
+  res.send({
+    status: 201,
+    products,
+    msg: "successful get products for this seller and subcategory",
+  });
+};
+
+// Cart
+const addToCart = async (req, res) => {
+  let { products } = req.body;
+  if (typeof products === "string") {
+    products = JSON.parse(products);
+  }
+
+  let cart = await Cart.findOne({
+    where: { UserId: req.user.userId },
+  });
+
+  if (cart) {
+    await cart.update({ totalPrice: 0 });
+    await CartProduct.destroy({ where: { CartId: cart.id } });
+  } else {
+    cart = await Cart.create({
+      UserId: req.user.userId,
+    });
+    await cart.save();
+  }
+
+  products.map((product) => {
+    product.CartId = cart.id;
+  });
+  await CartProduct.bulkCreate(products);
+
+  const promises = products.map(async (product) => {
+    const p = await Product.findOne({ where: { id: product.ProductId } });
+    return product.quantity * p.price;
+  });
+
+  const totalPrice = (await Promise.all(promises)).reduce(
+    (accumulator, price) => accumulator + price,
+    0
+  );
+  await cart.update({ totalPrice });
+
+  res.send({
+    status: 201,
+    msg: "successful add products to cart",
+  });
+};
+const showCart = async (req, res) => {
+  const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
+
+  if (!cart) throw serverErrs.BAD_REQUEST("Cart for this user not exist");
+
+  const products = await CartProduct.findAll({
+    where: { CartId: cart.id },
+    include: { model: Product },
+  });
+
+  res.send({
+    status: 200,
+    products,
+    totalPrice: cart.totalPrice,
+    msg: "successful get products and total price for this user cart",
+  });
+};
+
 module.exports = {
   signup,
   editAvatar,
@@ -490,4 +574,7 @@ module.exports = {
   getAllSubCategories,
   getHighRateSellers,
   nearestSellers,
+  getProductsBySubId,
+  addToCart,
+  showCart,
 };

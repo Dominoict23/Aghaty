@@ -24,6 +24,9 @@ const {
   getAllSubCategories,
   getHighRateSellers,
   nearestSellers,
+  getProductsBySubId,
+  addToCart,
+  showCart,
 } = require("../controllers/user");
 
 // Auth routers
@@ -130,6 +133,28 @@ userRouter.post(
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(nearestSellers)
+);
+
+// Products router
+userRouter.get(
+  "/products/:SubCategoryId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getProductsBySubId)
+);
+
+// Cart router
+userRouter.post(
+  "/cart/addProducts",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addToCart)
+);
+userRouter.get(
+  "/cart/show",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(showCart)
 );
 
 module.exports = userRouter;
