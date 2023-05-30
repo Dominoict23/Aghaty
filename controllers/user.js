@@ -13,6 +13,12 @@ const {
   Product,
   Cart,
   CartProduct,
+  OrderProduct,
+  Order,
+  SocialMedia,
+  UserLocation,
+  Message,
+  Location,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -21,7 +27,12 @@ const {
   validateDeleteLike,
   validateCreateComment,
   validateNearestSellers,
+  validateCreateLocation,
+  validateEditLocation,
+  validateDeleteLocation,
+  validateCreateMessage,
 } = require("../validation");
+const generateToken = require("../middleware/generateToken");
 
 // Auth requests
 const signup = async (req, res) => {
@@ -33,15 +44,24 @@ const signup = async (req, res) => {
 
   const hashedPassword = await hash(password, 12);
 
-  const newUser = await User.create({
-    mobile,
-    password: hashedPassword,
-    firstName,
-    lastName,
-    avatar: "avatar.png",
-    cover: "cover.jpg",
-    //TODO: generate random code and send it using twilio
-    // verificationCode: code
+  const newUser = await User.create(
+    {
+      mobile,
+      password: hashedPassword,
+      firstName,
+      lastName,
+      avatar: "avatar.png",
+      cover: "cover.jpg",
+      //TODO: generate random code and send it using twilio
+      // verificationCode: code
+    },
+    { returning: true }
+  );
+
+  const token = await generateToken({
+    userId: newUser.id,
+    name: newUser.name,
+    role: "user",
   });
 
   const userWithoutPassword = newUser.toJSON();
@@ -53,6 +73,7 @@ const signup = async (req, res) => {
   res.send({
     status: 201,
     userWithoutPassword,
+    token,
     msg: "successful signup user",
   });
 };
@@ -395,6 +416,26 @@ const getAllSubCategories = async (req, res) => {
     msg: "get all subCategories successfully",
   });
 };
+const getSellerSubCategories = async (req, res) => {
+  const { SellerId } = req.params;
+  const productSeller = await Seller.findOne({ where: { id: SellerId } });
+
+  if (!productSeller) throw serverErrs.BAD_REQUEST("Seller not found");
+
+  const subCategories = await SubCategory.findAll({
+    where: {
+      id: {
+        [Op.in]: productSeller.subCategories,
+      },
+    },
+  });
+
+  res.send({
+    status: 200,
+    subCategories,
+    msg: "get all subCategories successfully",
+  });
+};
 
 // Seller
 const getHighRateSellers = async (req, res) => {
@@ -413,7 +454,6 @@ const getHighRateSellers = async (req, res) => {
     msg: "get highest rate sellers successfully",
   });
 };
-
 const nearestSellers = async (req, res) => {
   const { CategoryId } = req.params;
 
@@ -541,6 +581,7 @@ const addToCart = async (req, res) => {
   });
 };
 const showCart = async (req, res) => {
+  //TODO: locationId for user from body
   const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
 
   if (!cart) throw serverErrs.BAD_REQUEST("Cart for this user not exist");
@@ -550,11 +591,307 @@ const showCart = async (req, res) => {
     include: { model: Product },
   });
 
+  //TODO: calculate delivery price from seller locationId and user locationId from body
+
   res.send({
     status: 200,
     products,
     totalPrice: cart.totalPrice,
     msg: "successful get products and total price for this user cart",
+  });
+};
+
+// CartProduct
+const decreaseQuantity = async (req, res) => {
+  const { ProductId } = req.body;
+
+  const cartProduct = await CartProduct.findOne({
+    where: { ProductId },
+    include: { model: Cart, where: { UserId: req.user.userId } },
+  });
+
+  if (!cartProduct) throw serverErrs.BAD_REQUEST("product not found on cart");
+
+  await cartProduct.decrement("quantity", { by: 1 });
+
+  const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
+
+  if (!cart) throw serverErrs.BAD_REQUEST("Cart not found");
+
+  const products = await CartProduct.findAll({ where: { CartId: cart.id } });
+
+  const promises = products.map(async (product) => {
+    const p = await Product.findOne({ where: { id: product.ProductId } });
+    return product.quantity * p.price;
+  });
+
+  const totalPrice = (await Promise.all(promises)).reduce(
+    (accumulator, price) => accumulator + price,
+    0
+  );
+  await cart.update({ totalPrice });
+
+  res.send({
+    status: 201,
+    totalPrice: cart.totalPrice,
+    msg: "successful decrement quantity for this product",
+  });
+};
+const increaseQuantity = async (req, res) => {
+  const { ProductId } = req.body;
+
+  const cartProduct = await CartProduct.findOne({
+    where: { ProductId },
+    include: { model: Cart, where: { UserId: req.user.userId } },
+  });
+
+  if (!cartProduct) throw serverErrs.BAD_REQUEST("product not found on cart");
+
+  await cartProduct.increment("quantity", { by: 1 });
+
+  const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
+
+  if (!cart) throw serverErrs.BAD_REQUEST("Cart not found");
+
+  const products = await CartProduct.findAll({ where: { CartId: cart.id } });
+
+  const promises = products.map(async (product) => {
+    const p = await Product.findOne({ where: { id: product.ProductId } });
+    return product.quantity * p.price;
+  });
+
+  const totalPrice = (await Promise.all(promises)).reduce(
+    (accumulator, price) => accumulator + price,
+    0
+  );
+  await cart.update({ totalPrice });
+
+  res.send({
+    status: 201,
+    totalPrice: cart.totalPrice,
+    msg: "successful increment quantity for this product",
+  });
+};
+const deleteCartProduct = async (req, res) => {
+  const { ProductId } = req.body;
+
+  const cartProduct = await CartProduct.findOne({
+    where: { ProductId },
+    include: { model: Cart, where: { UserId: req.user.userId } },
+  });
+
+  if (!cartProduct) throw serverErrs.BAD_REQUEST("product not found on cart");
+
+  await cartProduct.destroy();
+
+  const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
+
+  if (!cart) throw serverErrs.BAD_REQUEST("Cart not found");
+
+  const products = await CartProduct.findAll({});
+
+  const promises = products.map(async (product) => {
+    const p = await Product.findOne({ where: { id: product.ProductId } });
+    return product.quantity * p.price;
+  });
+
+  const totalPrice = (await Promise.all(promises)).reduce(
+    (accumulator, price) => accumulator + price,
+    0
+  );
+  await cart.update({ totalPrice });
+
+  res.send({
+    status: 201,
+    msg: "successful deleted product from cart",
+  });
+};
+
+// Order
+const addOrder = async (req, res) => {
+  //TODO: locationId for user from body
+  // TODO: handle discount code case
+  // const {discountCode} = req.body;
+
+  const count = await CartProduct.count({
+    include: { model: Cart, where: { UserId: req.user.userId } },
+  });
+
+  if (count === 0)
+    throw serverErrs.BAD_REQUEST(
+      "there is no products in cart to order for this user"
+    );
+
+  // const newOrder = await Order.create({
+  //   name,
+  // })
+
+  // const cartProducts = await CartProduct.findAll({
+  //   include: { model: Cart, where: { UserId: req.user.userId } },
+  // });
+
+  // cartProducts.forEach(async (cartProduct) => {
+  //   await OrderProduct.create({
+  //     quantity: cartProduct.quantity,
+  //     OrderId: ,
+  //     ProductId: cartProduct.ProductId,
+  //   });
+  //   await cartProduct.destroy();
+  // });
+};
+
+// Social Media
+const getSocialMedia = async (req, res) => {
+  const socialMedia = await SocialMedia.findAll();
+  res.send({
+    status: 200,
+    data: socialMedia,
+    msg: "successful get SocialMedia",
+  });
+};
+
+// Message
+const createMessage = async (req, res) => {
+  await validateCreateMessage.validate(req.body);
+
+  const { name, phone, msgBody } = req.body;
+
+  await Message.create({
+    name,
+    phone,
+    msgBody,
+    UserId: req.user.userId,
+  });
+
+  res.send({
+    status: 201,
+    msg: "successful create new Message",
+  });
+};
+
+// Location
+const createLocation = async (req, res) => {
+  await validateCreateLocation.validate(req.body);
+
+  const { name, city, street, buildNumber, long, lat } = req.body;
+
+  if (!req.file) throw serverErrs.BAD_REQUEST("image not found");
+
+  const newLocation = await Location.create(
+    {
+      name,
+      city,
+      street,
+      buildNumber,
+      long,
+      lat,
+      image: req.file.filename,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  await UserLocation.create({
+    LocationId: newLocation.id,
+    UserId: req.user.userId,
+  });
+
+  const userLocation = await UserLocation.findOne({
+    where: {
+      LocationId: newLocation.id,
+      UserId: req.user.userId,
+    },
+    include: [
+      { model: Location },
+      {
+        model: User,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  res.send({
+    status: 201,
+    data: userLocation,
+    msg: "successful create new Location",
+  });
+};
+const editLocation = async (req, res) => {
+  await validateEditLocation.validate(req.body);
+  const { LocationId, ...others } = req.body;
+  const location = await Location.findOne({
+    where: { id: LocationId },
+  });
+  if (!Location) throw serverErrs.BAD_REQUEST("Location not found");
+
+  if (req.file) {
+    await location.update({ ...others, image: req.file.filename });
+  } else {
+    await location.update({ ...others });
+  }
+
+  const userLocation = await UserLocation.findOne({
+    where: {
+      LocationId: location.id,
+      UserId: req.user.userId,
+    },
+    include: [
+      { model: Location },
+      {
+        model: User,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  res.send({
+    status: 201,
+    data: userLocation,
+    msg: "successful update new Location",
+  });
+};
+const deleteLocation = async (req, res) => {
+  await validateDeleteLocation.validate(req.body);
+  const { LocationId } = req.body;
+  const location = await Location.findOne({
+    where: { id: LocationId },
+  });
+  if (!location) throw serverErrs.BAD_REQUEST("Location not found");
+
+  await UserLocation.destroy({
+    where: { UserId: req.user.userId, LocationId: location.id },
+  });
+
+  await location.destroy();
+
+  res.send({
+    status: 201,
+    msg: "successful delete Location",
+  });
+};
+const getLocations = async (req, res) => {
+  const locations = await UserLocation.findAll({
+    where: { UserId: req.user.userId },
+    include: [
+      { model: Location },
+      {
+        model: User,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+
+  res.send({
+    status: 200,
+    data: locations,
+    msg: "successful get all locations for this user",
   });
 };
 
@@ -572,9 +909,19 @@ module.exports = {
   editComment,
   getAllCategory,
   getAllSubCategories,
+  getSellerSubCategories,
   getHighRateSellers,
   nearestSellers,
   getProductsBySubId,
   addToCart,
   showCart,
+  decreaseQuantity,
+  increaseQuantity,
+  deleteCartProduct,
+  getSocialMedia,
+  createLocation,
+  editLocation,
+  deleteLocation,
+  getLocations,
+  createMessage,
 };

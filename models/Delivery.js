@@ -37,14 +37,14 @@ const Delivery = sequelize.define("Delivery", {
     defaultValue: "free",
   },
   // NOTE:long, lat change based on firebase
-  long: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
-  lat: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
+  // long: {
+  //   type: DataTypes.DOUBLE,
+  //   defaultValue: 0,
+  // },
+  // lat: {
+  //   type: DataTypes.DOUBLE,
+  //   defaultValue: 0,
+  // },
   verificationCode: {
     type: DataTypes.INTEGER,
   },

@@ -27,6 +27,16 @@ const {
   getProductsBySubId,
   addToCart,
   showCart,
+  getSellerSubCategories,
+  decreaseQuantity,
+  increaseQuantity,
+  deleteCartProduct,
+  getSocialMedia,
+  createLocation,
+  editLocation,
+  deleteLocation,
+  getLocations,
+  createMessage,
 } = require("../controllers/user");
 
 // Auth routers
@@ -120,6 +130,12 @@ userRouter.get(
   checkUserAuth("user"),
   errorCatcher(getAllSubCategories)
 );
+userRouter.get(
+  "/sellerSubCategories/:SellerId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSellerSubCategories)
+);
 
 // Sellers router
 userRouter.get(
@@ -155,6 +171,68 @@ userRouter.get(
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(showCart)
+);
+
+// CartProduct routers
+userRouter.patch(
+  "/cartProduct/decreaseQuantity",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(decreaseQuantity)
+);
+userRouter.patch(
+  "/cartProduct/increaseQuantity",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(increaseQuantity)
+);
+userRouter.delete(
+  "/cartProduct/delete",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(deleteCartProduct)
+);
+
+//Social media routers
+userRouter.get(
+  "/SocialMedia/get",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSocialMedia)
+);
+
+//Message routers
+userRouter.post(
+  "/Message/create",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(createMessage)
+);
+
+// Location routers
+userRouter.post(
+  "/Location/create",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(createLocation)
+);
+userRouter.patch(
+  "/Location/edit",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(editLocation)
+);
+userRouter.delete(
+  "/Location/delete",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(deleteLocation)
+);
+userRouter.get(
+  "/Location/get",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getLocations)
 );
 
 module.exports = userRouter;

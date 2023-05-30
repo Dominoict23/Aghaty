@@ -34,9 +34,6 @@ const insertDB = async () => {
   await Admin.bulkCreate(admin).then(() =>
     console.log("Admin data have been saved")
   );
-  await Message.bulkCreate(messages).then(() =>
-    console.log("Messages data have been saved")
-  );
   await Category.bulkCreate(category).then(() =>
     console.log("Category data have been saved")
   );
@@ -48,6 +45,9 @@ const insertDB = async () => {
   );
   await User.bulkCreate(users).then(() =>
     console.log("User data have been saved")
+  );
+  await Message.bulkCreate(messages).then(() =>
+    console.log("Messages data have been saved")
   );
   // await Delivery.bulkCreate(deliveries).then(() =>
   //   console.log("Delivery data have been saved")

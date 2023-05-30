@@ -213,6 +213,49 @@ const validateDeleteBanner = yup.object().shape({
   BannerId: yup.number().required(),
 });
 
+// Location validations
+const validateCreateLocation = yup.object().shape({
+  name: yup.string().required(),
+  city: yup.string().required(),
+  street: yup.string().required(),
+  buildNumber: yup.string().required(),
+  long: yup.number().required(),
+  lat: yup.number().required(),
+});
+const validateEditLocation = yup.object().shape({
+  name: yup.string().optional(),
+  city: yup.string().optional(),
+  street: yup.string().optional(),
+  buildNumber: yup.string().optional(),
+  long: yup.number().optional(),
+  lat: yup.number().optional(),
+  LocationId: yup.number().required(),
+});
+const validateDeleteLocation = yup.object().shape({
+  LocationId: yup.number().required(),
+});
+
+// SocialMedia validations
+const validateCreateSocialMedia = yup.object().shape({
+  type: yup.string().optional(),
+  link: yup.string().required(),
+});
+const validateEditSocialMedia = yup.object().shape({
+  type: yup.string().optional(),
+  link: yup.string().optional(),
+  SocialMediaId: yup.number().required(),
+});
+const validateDeleteSocialMedia = yup.object().shape({
+  SocialMediaId: yup.number().required(),
+});
+
+// Message validations
+const validateCreateMessage = yup.object().shape({
+  name: yup.string().required(),
+  phone: yup.string().required(),
+  msgBody: yup.string().required(),
+});
+
 module.exports = {
   loginValidation,
   validateCreateProduct,
@@ -248,4 +291,11 @@ module.exports = {
   validateEditBanner,
   validateDeleteBanner,
   validateNearestSellers,
+  validateCreateLocation,
+  validateEditLocation,
+  validateDeleteLocation,
+  validateCreateSocialMedia,
+  validateEditSocialMedia,
+  validateDeleteSocialMedia,
+  validateCreateMessage,
 };

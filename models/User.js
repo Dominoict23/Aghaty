@@ -35,14 +35,6 @@ const User = sequelize.define("User", {
   verificationCode: {
     type: DataTypes.INTEGER,
   },
-  long: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
-  lat: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
 });
 
 module.exports = User;

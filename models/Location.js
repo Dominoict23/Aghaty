@@ -19,14 +19,20 @@ const Location = sequelize.define("Location", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  // NOTE: buildNumber is string because we can't put a default value if it was integer && mobile doesn't accept null
   buildNumber: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: "",
   },
   image: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  long: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
+  lat: {
+    type: DataTypes.DOUBLE,
     allowNull: false,
   },
 });

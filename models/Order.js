@@ -13,7 +13,7 @@ const Order = sequelize.define("Order", {
   },
   status: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "PENDING",
   },
   day: {
     type: DataTypes.STRING,
@@ -21,10 +21,11 @@ const Order = sequelize.define("Order", {
   },
   date: {
     type: DataTypes.DATE,
+    allowNull: false,
   },
   totalPrice: {
     type: DataTypes.INTEGER,
-    defaultValue: 0,
+    allowNull: false,
   },
 });
 

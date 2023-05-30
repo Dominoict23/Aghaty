@@ -70,14 +70,6 @@ const Seller = sequelize.define("Seller", {
       }
     },
   },
-  long: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
-  lat: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
 });
 
 module.exports = Seller;

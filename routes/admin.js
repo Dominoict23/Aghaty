@@ -35,6 +35,10 @@ const {
   deleteBanner,
   editBanner,
   addBanner,
+  deleteSocialMedia,
+  editSocialMedia,
+  createSocialMedia,
+  getSocialMedia,
 } = require("../controllers/admin");
 
 adminRouter.post("/login", errorCatcher(login));
@@ -201,6 +205,32 @@ adminRouter.get(
   verifyToken,
   checkUserAuth("admin"),
   errorCatcher(getAllBanners)
+);
+
+// Social Media routers
+adminRouter.post(
+  "/SocialMedia/create",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(createSocialMedia)
+);
+adminRouter.patch(
+  "/SocialMedia/edit",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(editSocialMedia)
+);
+adminRouter.delete(
+  "/SocialMedia/delete",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(deleteSocialMedia)
+);
+adminRouter.get(
+  "/SocialMedia/get",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(getSocialMedia)
 );
 
 module.exports = adminRouter;

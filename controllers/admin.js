@@ -9,6 +9,7 @@ const {
   Delivery,
   Image,
   User,
+  SocialMedia,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -30,6 +31,9 @@ const {
   validateDeleteDelivery,
   validateEditBanner,
   validateDeleteBanner,
+  validateCreateSocialMedia,
+  validateEditSocialMedia,
+  validateDeleteSocialMedia,
 } = require("../validation");
 
 // Auth requests
@@ -572,6 +576,68 @@ const getAllBanners = async (req, res) => {
   });
 };
 
+// Social Media requests
+const createSocialMedia = async (req, res) => {
+  await validateCreateSocialMedia.validate(req.body);
+
+  const { type, link } = req.body;
+
+  const newSocialMedia = await SocialMedia.create(
+    {
+      type,
+      link,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  res.send({
+    status: 201,
+    data: newSocialMedia,
+    msg: "successful create new SocialMedia",
+  });
+};
+const editSocialMedia = async (req, res) => {
+  await validateEditSocialMedia.validate(req.body);
+  const { SocialMediaId } = req.body;
+  const socialMedia = await SocialMedia.findOne({
+    where: { id: SocialMediaId },
+  });
+  if (!socialMedia) throw serverErrs.BAD_REQUEST("socialMedia not found");
+
+  await socialMedia.update(req.body);
+
+  res.send({
+    status: 201,
+    data: socialMedia,
+    msg: "successful update new SocialMedia",
+  });
+};
+const deleteSocialMedia = async (req, res) => {
+  await validateDeleteSocialMedia.validate(req.body);
+  const { SocialMediaId } = req.body;
+  const socialMedia = await SocialMedia.findOne({
+    where: { id: SocialMediaId },
+  });
+  if (!socialMedia) throw serverErrs.BAD_REQUEST("socialMedia not found");
+
+  await socialMedia.destroy();
+
+  res.send({
+    status: 201,
+    msg: "successful delete SocialMedia",
+  });
+};
+const getSocialMedia = async (req, res) => {
+  const socialMedia = await SocialMedia.findAll();
+  res.send({
+    status: 200,
+    data: socialMedia,
+    msg: "successful get SocialMedia",
+  });
+};
+
 module.exports = {
   login,
   addSeller,
@@ -599,4 +665,8 @@ module.exports = {
   editBanner,
   deleteBanner,
   getAllBanners,
+  createSocialMedia,
+  editSocialMedia,
+  deleteSocialMedia,
+  getSocialMedia,
 };
