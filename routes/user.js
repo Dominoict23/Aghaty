@@ -43,6 +43,9 @@ const {
   deleteFeedbackLike,
   addFeedbackComment,
   deleteFeedbackComment,
+  addProductsOrder,
+  getProductsOrders,
+  getSingleProductsOrder,
 } = require("../controllers/user");
 
 // Auth routers
@@ -172,7 +175,7 @@ userRouter.post(
   checkUserAuth("user"),
   errorCatcher(addToCart)
 );
-userRouter.get(
+userRouter.post(
   "/cart/show",
   verifyToken,
   checkUserAuth("user"),
@@ -283,4 +286,25 @@ userRouter.delete(
   checkUserAuth("user"),
   errorCatcher(deleteFeedbackComment)
 );
+
+// Order routers
+userRouter.post(
+  "/Order/Products/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addProductsOrder)
+);
+userRouter.get(
+  "/Order/Products/all",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getProductsOrders)
+);
+userRouter.get(
+  "/Order/Products/:OrderId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSingleProductsOrder)
+);
+
 module.exports = userRouter;

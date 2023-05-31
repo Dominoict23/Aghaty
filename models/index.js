@@ -94,8 +94,8 @@ Order.belongsTo(User);
 Seller.hasMany(Order);
 Order.belongsTo(Seller);
 
-Location.hasOne(Order);
-Order.belongsTo(Location);
+// Location.hasOne(Order);
+// Order.belongsTo(Location);
 
 Seller.hasMany(Feedback);
 Feedback.belongsTo(Seller);

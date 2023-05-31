@@ -17,11 +17,9 @@ const Order = sequelize.define("Order", {
   },
   day: {
     type: DataTypes.STRING,
-    allowNull: false,
   },
   date: {
-    type: DataTypes.DATE,
-    allowNull: false,
+    type: DataTypes.STRING,
   },
   totalPrice: {
     type: DataTypes.INTEGER,

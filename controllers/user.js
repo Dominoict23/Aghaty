@@ -21,6 +21,7 @@ const {
   Location,
   Feedback,
   Rate,
+  DiscountCode,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -39,6 +40,7 @@ const {
   validateDeleteFeedbackComment,
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
+const { calculateDistance } = require("../utils/getDistance");
 
 // Auth requests
 const signup = async (req, res) => {
@@ -566,7 +568,7 @@ const addToCart = async (req, res) => {
   });
 
   if (cart) {
-    await cart.update({ totalPrice: 0 });
+    await cart.update({ totalProductsPrice: 0 });
     await CartProduct.destroy({ where: { CartId: cart.id } });
   } else {
     cart = await Cart.create({
@@ -575,13 +577,9 @@ const addToCart = async (req, res) => {
     await cart.save();
   }
 
-  products.map((product) => {
-    product.CartId = cart.id;
-  });
-  await CartProduct.bulkCreate(products);
-
   const promises = products.map(async (product) => {
     const p = await Product.findOne({ where: { id: product.ProductId } });
+    if (!p) throw serverErrs.BAD_REQUEST("Product not exist please add it");
     return product.quantity * p.price;
   });
 
@@ -589,7 +587,14 @@ const addToCart = async (req, res) => {
     (accumulator, price) => accumulator + price,
     0
   );
-  await cart.update({ totalPrice });
+
+  products.map((product) => {
+    product.CartId = cart.id;
+  });
+
+  await CartProduct.bulkCreate(products);
+
+  await cart.update({ totalProductsPrice: totalPrice });
 
   res.send({
     status: 201,
@@ -597,7 +602,8 @@ const addToCart = async (req, res) => {
   });
 };
 const showCart = async (req, res) => {
-  //TODO: locationId for user from body
+  const { LocationId } = req.body;
+
   const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
 
   if (!cart) throw serverErrs.BAD_REQUEST("Cart for this user not exist");
@@ -607,12 +613,34 @@ const showCart = async (req, res) => {
     include: { model: Product },
   });
 
-  //TODO: calculate delivery price from seller locationId and user locationId from body
+  if (products.length < 1)
+    throw serverErrs.BAD_REQUEST("There are no products in cart to show");
+
+  const userLocation = await UserLocation.findOne({
+    where: { LocationId, UserId: req.user.userId },
+    include: { model: Location },
+  });
+  const userLong = userLocation.Location.long;
+  const userLat = userLocation.Location.lat;
+
+  const sellerLocation = await UserLocation.findOne({
+    where: { SellerId: products[0].Product.SellerId },
+    include: { model: Location },
+  });
+  const sellerLong = sellerLocation.Location.long;
+  const sellerLat = sellerLocation.Location.lat;
+
+  const distance = calculateDistance(userLat, userLong, sellerLat, sellerLong);
+
+  const deliveryPrice = distance * 10; // 10$ per kilometer
+
+  await cart.update({ deliveryPrice });
 
   res.send({
     status: 200,
     products,
-    totalPrice: cart.totalPrice,
+    totalProductsPrice: cart.totalProductsPrice,
+    deliveryPrice,
     msg: "successful get products and total price for this user cart",
   });
 };
@@ -645,11 +673,11 @@ const decreaseQuantity = async (req, res) => {
     (accumulator, price) => accumulator + price,
     0
   );
-  await cart.update({ totalPrice });
+  await cart.update({ totalProductsPrice: totalPrice });
 
   res.send({
     status: 201,
-    totalPrice: cart.totalPrice,
+    totalProductsPrice: cart.totalProductsPrice,
     msg: "successful decrement quantity for this product",
   });
 };
@@ -680,11 +708,11 @@ const increaseQuantity = async (req, res) => {
     (accumulator, price) => accumulator + price,
     0
   );
-  await cart.update({ totalPrice });
+  await cart.update({ totalProductsPrice: totalPrice });
 
   res.send({
     status: 201,
-    totalPrice: cart.totalPrice,
+    totalProductsPrice: cart.totalProductsPrice,
     msg: "successful increment quantity for this product",
   });
 };
@@ -715,7 +743,7 @@ const deleteCartProduct = async (req, res) => {
     (accumulator, price) => accumulator + price,
     0
   );
-  await cart.update({ totalPrice });
+  await cart.update({ totalProductsPrice: totalPrice });
 
   res.send({
     status: 201,
@@ -724,36 +752,105 @@ const deleteCartProduct = async (req, res) => {
 };
 
 // Order
-const addOrder = async (req, res) => {
-  //TODO: locationId for user from body
+const addProductsOrder = async (req, res) => {
   // TODO: handle discount code case
-  // const {discountCode} = req.body;
+  const { discountCode } = req.body;
 
-  const count = await CartProduct.count({
-    include: { model: Cart, where: { UserId: req.user.userId } },
-  });
+  const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
+
+  if (!cart) throw serverErrs.BAD_REQUEST("cart not found");
+
+  const count = await CartProduct.count({ where: { CartId: cart.id } });
 
   if (count === 0)
     throw serverErrs.BAD_REQUEST(
       "there is no products in cart to order for this user"
     );
 
-  // const newOrder = await Order.create({
-  //   name,
-  // })
+  const orderNum = await Order.count();
 
-  // const cartProducts = await CartProduct.findAll({
-  //   include: { model: Cart, where: { UserId: req.user.userId } },
-  // });
+  const cartProducts = await CartProduct.findAll({
+    where: { CartId: cart.id },
+    include: { model: Product },
+  });
 
-  // cartProducts.forEach(async (cartProduct) => {
-  //   await OrderProduct.create({
-  //     quantity: cartProduct.quantity,
-  //     OrderId: ,
-  //     ProductId: cartProduct.ProductId,
-  //   });
-  //   await cartProduct.destroy();
-  // });
+  const discountCodeFound = await DiscountCode.findOne({
+    where: { code: discountCode, isEnable: true },
+  });
+
+  let totalPrice = cart.totalProductsPrice + cart.deliveryPrice;
+
+  if (discountCodeFound) {
+    totalPrice = totalPrice - (totalPrice * discountCodeFound.discount) / 100;
+  }
+
+  const newOrder = await Order.create(
+    {
+      name: `Order no #${orderNum + 1}`,
+      totalPrice,
+      UserId: req.user.userId,
+      SellerId: cartProducts[0].Product.SellerId,
+    },
+    { returning: true }
+  );
+
+  const currentDate = new Date(newOrder.createdAt);
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const dayOfWeek = daysOfWeek[currentDate.getDay()];
+  const day = String(currentDate.getDate()).padStart(2, "0");
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const year = currentDate.getFullYear();
+  const date = `${day}/${month}/${year}`;
+
+  await newOrder.update({ day: dayOfWeek, date });
+
+  await cart.update({ totalProductsPrice: 0, deliveryPrice: 0 });
+
+  cartProducts.forEach(async (cartProduct) => {
+    await OrderProduct.create({
+      quantity: cartProduct.quantity,
+      OrderId: newOrder.id,
+      ProductId: cartProduct.ProductId,
+    });
+
+    await cartProduct.destroy();
+  });
+
+  res.send({
+    status: 201,
+    msg: "successful create new products order",
+  });
+};
+const getProductsOrders = async (req, res) => {
+  const orders = await Order.findAll({ where: { UserId: req.user.userId } });
+
+  res.send({
+    status: 200,
+    orders,
+    msg: "successful get all products orders",
+  });
+};
+const getSingleProductsOrder = async (req, res) => {
+  const { OrderId } = req.params;
+
+  const orders = await OrderProduct.findAll({
+    where: { OrderId },
+    include: { model: Product },
+  });
+
+  res.send({
+    status: 200,
+    orders,
+    msg: "successful get single products order",
+  });
 };
 
 // Social Media
@@ -1124,4 +1221,7 @@ module.exports = {
   deleteFeedbackLike,
   addFeedbackComment,
   deleteFeedbackComment,
+  addProductsOrder,
+  getProductsOrders,
+  getSingleProductsOrder,
 };

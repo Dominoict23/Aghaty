@@ -224,8 +224,17 @@ const locations = [
     street: "Omar Almokhtar",
     buildNumber: "123456",
     image: "location1.jpg",
-    long: 34.308826,
-    lat: 31.354675,
+    long: 34.3088,
+    lat: 31.3547,
+  },
+  {
+    name: "Palestine",
+    city: "jerusalem ",
+    street: "jerusalem ",
+    buildNumber: "123456",
+    image: "location1.jpg",
+    long: 35.2137,
+    lat: 31.7683,
   },
 ];
 
@@ -233,6 +242,10 @@ const userLocations = [
   {
     UserId: 1,
     LocationId: 1,
+  },
+  {
+    SellerId: 1,
+    LocationId: 2,
   },
 ];
 
