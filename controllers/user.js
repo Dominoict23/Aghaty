@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const { hash } = require("bcrypt");
 const {
   User,
@@ -19,6 +19,8 @@ const {
   UserLocation,
   Message,
   Location,
+  Feedback,
+  Rate,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -31,6 +33,10 @@ const {
   validateEditLocation,
   validateDeleteLocation,
   validateCreateMessage,
+  validateAddRate,
+  validateFeedbackLike,
+  validateCreateFeedbackComment,
+  validateDeleteFeedbackComment,
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
 
@@ -197,9 +203,9 @@ const getAllPosts = async (req, res) => {
 
   await Promise.all(
     posts.map(async (post) => {
-      const likes = await post.getLikes();
-      const hasLike = likes.some((like) => like.UserId == req.user.userId);
-      await post.update({ isLike: hasLike });
+      const likes = await post?.getLikes();
+      const hasLike = likes?.some((like) => like.UserId == req.user.userId);
+      await post?.update({ isLike: hasLike });
     })
   );
 
@@ -252,9 +258,9 @@ const getSinglePosts = async (req, res) => {
     ],
   });
 
-  const likes = await post.getLikes();
-  const hasLike = likes.some((like) => like.SellerId == req.user.userId);
-  await post.update({ isLike: hasLike });
+  const likes = await post?.getLikes();
+  const hasLike = likes?.some((like) => like.SellerId == req.user.userId);
+  await post?.update({ isLike: hasLike });
 
   res.send({
     status: 200,
@@ -263,7 +269,7 @@ const getSinglePosts = async (req, res) => {
   });
 };
 
-// Like
+// Post Likes
 const addLike = async (req, res) => {
   await validateCreateLike.validate(req.body);
 
@@ -281,24 +287,32 @@ const addLike = async (req, res) => {
 
   if (!post) throw serverErrs.BAD_REQUEST("Post not found");
 
-  const newLike = await Like.create(
-    {
-      PostId,
-      UserId: req.user.userId,
-    },
-    {
-      returning: true,
-    }
-  );
+  const like = await Like.findOne({ where: { PostId, UserId: user.id } });
+  if (!like) {
+    const newLike = await Like.create(
+      {
+        PostId,
+        UserId: req.user.userId,
+      },
+      {
+        returning: true,
+      }
+    );
 
-  await newLike.save();
+    await newLike.save();
 
-  await post.increment("count", { by: 1 });
+    await post.increment("count", { by: 1 });
 
-  res.send({
-    status: 201,
-    msg: "successful add like to Post",
-  });
+    res.send({
+      status: 201,
+      msg: "successful add like to Post",
+    });
+  } else {
+    res.send({
+      status: 201,
+      msg: "like is already exist for this Post",
+    });
+  }
 };
 const deleteLike = async (req, res) => {
   await validateDeleteLike.validate(req.body);
@@ -317,6 +331,8 @@ const deleteLike = async (req, res) => {
 
   const like = await Like.findOne({ PostId, UserId: req.user.userId });
 
+  if (!like) throw serverErrs.BAD_REQUEST("like not found");
+
   await like.destroy();
 
   await post.decrement("count", { by: 1 });
@@ -327,7 +343,7 @@ const deleteLike = async (req, res) => {
   });
 };
 
-// Comment
+// Post Comments
 const addComment = async (req, res) => {
   await validateCreateComment.validate(req.body);
 
@@ -895,6 +911,184 @@ const getLocations = async (req, res) => {
   });
 };
 
+// FeedBack
+const getSellerFeedBack = async (req, res) => {
+  const { SellerId } = req.params;
+  const feedBack = await Feedback.findOne({
+    where: { SellerId },
+    include: [
+      { model: Like },
+      {
+        model: Comment,
+        include: {
+          model: User,
+          attributes: {
+            exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+          },
+        },
+      },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
+  });
+  const likes = await feedBack?.getLikes();
+  const hasLike = likes?.some((like) => like.UserId == req.user.userId);
+  await feedBack?.update({ isLike: hasLike });
+
+  const commentCounts = await Comment.count({
+    where: { FeedbackId: feedBack.id },
+  });
+
+  res.send({
+    status: 200,
+    feedBack,
+    commentCounts,
+    msg: "successful get seller feedBack",
+  });
+};
+const addRate = async (req, res) => {
+  await validateAddRate.validate(req.body);
+  const { FeedbackId, rate } = req.body;
+  const rateFound = await Rate.findOne({
+    where: { FeedbackId, UserId: req.user.userId },
+  });
+
+  if (rateFound) {
+    await rateFound.update({ rate });
+  } else {
+    await Rate.create({ rate, FeedbackId, UserId: req.user.userId });
+  }
+  const rates = await Rate.findAll({
+    where: { FeedbackId },
+  });
+  const sellerRate =
+    rates.reduce((accumulator, rate) => accumulator + rate.rate, 0) /
+    rates.length;
+
+  const feedBack = await Feedback.findOne({ FeedbackId });
+  await feedBack.update({
+    rate: sellerRate,
+  });
+
+  (await Seller.findOne({ id: feedBack.SellerId })).update({
+    rate: sellerRate,
+  });
+
+  res.send({
+    status: 201,
+    msg: "successful add rate",
+  });
+};
+const addFeedbackLike = async (req, res) => {
+  await validateFeedbackLike.validate(req.body);
+
+  const { FeedbackId } = req.body;
+
+  const feedBack = await Feedback.findOne({
+    where: { id: FeedbackId },
+  });
+
+  if (!feedBack) throw serverErrs.BAD_REQUEST("FeedBack not found");
+  const like = await Like.findOne({
+    where: { FeedbackId, UserId: req.user.userId },
+  });
+  if (!like) {
+    const newLike = await Like.create(
+      {
+        FeedbackId,
+        UserId: req.user.userId,
+      },
+      {
+        returning: true,
+      }
+    );
+
+    await newLike.save();
+
+    res.send({
+      status: 201,
+      msg: "successful add like to Feedback",
+    });
+  } else {
+    res.send({
+      status: 201,
+      msg: "like is already exist for this Feedback",
+    });
+  }
+};
+const deleteFeedbackLike = async (req, res) => {
+  await validateFeedbackLike.validate(req.body);
+
+  const { FeedbackId } = req.body;
+
+  const feedBack = await Feedback.findOne({
+    where: { id: FeedbackId },
+  });
+
+  if (!feedBack) throw serverErrs.BAD_REQUEST("FeedBack not found");
+
+  const like = await Like.findOne({ FeedbackId, UserId: req.user.userId });
+
+  if (!like) throw serverErrs.BAD_REQUEST("like not found");
+
+  await like.destroy();
+
+  res.send({
+    status: 201,
+    msg: "successful delete like from Feedback",
+  });
+};
+const addFeedbackComment = async (req, res) => {
+  await validateCreateFeedbackComment.validate(req.body);
+
+  const { FeedbackId, text } = req.body;
+
+  const feedBack = await Feedback.findOne({
+    where: { id: FeedbackId },
+  });
+
+  if (!feedBack) throw serverErrs.BAD_REQUEST("FeedBack not found");
+
+  await Comment.create(
+    {
+      text,
+      FeedbackId,
+      UserId: req.user.userId,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  res.send({
+    status: 201,
+    msg: "successful add comment to Post",
+  });
+};
+const deleteFeedbackComment = async (req, res) => {
+  await validateDeleteFeedbackComment.validate(req.body);
+
+  const { CommentId } = req.body;
+
+  const comment = await Comment.findOne({
+    where: { id: CommentId },
+  });
+
+  if (comment.UserId !== req.user.userId)
+    throw serverErrs.BAD_REQUEST("This comment not yours");
+
+  await comment.destroy();
+
+  res.send({
+    status: 201,
+    msg: "successful delete comment from Feedback",
+  });
+};
+
 module.exports = {
   signup,
   editAvatar,
@@ -924,4 +1118,10 @@ module.exports = {
   deleteLocation,
   getLocations,
   createMessage,
+  getSellerFeedBack,
+  addRate,
+  addFeedbackLike,
+  deleteFeedbackLike,
+  addFeedbackComment,
+  deleteFeedbackComment,
 };

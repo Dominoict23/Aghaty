@@ -493,9 +493,9 @@ const getAllPosts = async (req, res) => {
 
   await Promise.all(
     posts.map(async (post) => {
-      const likes = await post.getLikes();
-      const hasLike = likes.some((like) => like.SellerId === +SellerId);
-      await post.update({ isLike: hasLike });
+      const likes = await post?.getLikes();
+      const hasLike = likes?.some((like) => like.SellerId === +SellerId);
+      await post?.update({ isLike: hasLike });
     })
   );
 
@@ -548,9 +548,9 @@ const getSinglePosts = async (req, res) => {
     ],
   });
 
-  const likes = await post.getLikes();
-  const hasLike = likes.some((like) => like.SellerId == req.user.userId);
-  await post.update({ isLike: hasLike });
+  const likes = await post?.getLikes();
+  const hasLike = likes?.some((like) => like.SellerId == req.user.userId);
+  await post?.update({ isLike: hasLike });
 
   res.send({
     status: 200,
@@ -577,24 +577,29 @@ const addLike = async (req, res) => {
 
   if (!post) throw serverErrs.BAD_REQUEST("Post not found");
 
-  const newLike = await Like.create(
-    {
-      PostId,
-      SellerId: req.user.userId,
-    },
-    {
-      returning: true,
-    }
-  );
-
-  await newLike.save();
-
-  await post.increment("count", { by: 1 });
-
-  res.send({
-    status: 201,
-    msg: "successful add like to Post",
-  });
+  const like = await Like.findOne({ where: { PostId, SellerId: seller.id } });
+  if (!like) {
+    const newLike = await Like.create(
+      {
+        PostId,
+        SellerId: req.user.userId,
+      },
+      {
+        returning: true,
+      }
+    );
+    await newLike.save();
+    await post.increment("count", { by: 1 });
+    res.send({
+      status: 201,
+      msg: "successful add like to Post",
+    });
+  } else {
+    res.send({
+      status: 201,
+      msg: "like is already exist for this Post",
+    });
+  }
 };
 const deleteLike = async (req, res) => {
   await validateDeleteLike.validate(req.body);
@@ -612,6 +617,8 @@ const deleteLike = async (req, res) => {
   if (!post) throw serverErrs.BAD_REQUEST("Post not found! ");
 
   const like = await Like.findOne({ PostId, SellerId: req.user.userId });
+
+  if (!like) throw serverErrs.BAD_REQUEST("like not found");
 
   await like.destroy();
 

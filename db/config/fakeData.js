@@ -37,6 +37,8 @@ const seller = [
   },
 ];
 
+const feedBacks = [{ SellerId: 1 }, { SellerId: 2 }];
+
 const users = [
   {
     mobile: "097592185263",
@@ -213,6 +215,27 @@ const messages = [
 //   },
 // ];
 
+const banners = [{ image: "banner1.jpg", AdminId: 1 }];
+
+const locations = [
+  {
+    name: "Palestine",
+    city: "Gaze",
+    street: "Omar Almokhtar",
+    buildNumber: "123456",
+    image: "location1.jpg",
+    long: 34.308826,
+    lat: 31.354675,
+  },
+];
+
+const userLocations = [
+  {
+    UserId: 1,
+    LocationId: 1,
+  },
+];
+
 module.exports = {
   seller,
   category,
@@ -225,4 +248,8 @@ module.exports = {
   messages,
   // deliveries,
   users,
+  banners,
+  feedBacks,
+  locations,
+  userLocations,
 };

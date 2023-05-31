@@ -64,14 +64,24 @@ const validateCreateLike = yup.object().shape({
 const validateDeleteLike = yup.object().shape({
   PostId: yup.number().required(),
 });
+const validateFeedbackLike = yup.object().shape({
+  FeedbackId: yup.number().required(),
+});
 
 // Comment validation
 const validateCreateComment = yup.object().shape({
   text: yup.string().min(1).required(),
   PostId: yup.number().required(),
 });
+const validateCreateFeedbackComment = yup.object().shape({
+  text: yup.string().min(1).required(),
+  FeedbackId: yup.number().required(),
+});
 const validateEditComment = yup.object().shape({
   text: yup.string().min(1).required(),
+  CommentId: yup.number().required(),
+});
+const validateDeleteFeedbackComment = yup.object().shape({
   CommentId: yup.number().required(),
 });
 
@@ -256,6 +266,12 @@ const validateCreateMessage = yup.object().shape({
   msgBody: yup.string().required(),
 });
 
+// Rate validation
+const validateAddRate = yup.object().shape({
+  rate: yup.number().required(),
+  FeedbackId: yup.number().required(),
+});
+
 module.exports = {
   loginValidation,
   validateCreateProduct,
@@ -298,4 +314,8 @@ module.exports = {
   validateEditSocialMedia,
   validateDeleteSocialMedia,
   validateCreateMessage,
+  validateAddRate,
+  validateFeedbackLike,
+  validateCreateFeedbackComment,
+  validateDeleteFeedbackComment,
 };

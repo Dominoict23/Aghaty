@@ -12,6 +12,10 @@ const {
   messages,
   // deliveries,
   users,
+  banners,
+  feedBacks,
+  locations,
+  userLocations,
 } = require("./fakeData");
 
 const {
@@ -21,12 +25,15 @@ const {
   // Product,
   // Post,
   // Story,
-  // Image,
   // Service,
   Admin,
   Message,
   // Delivery,
   User,
+  Image,
+  Feedback,
+  Location,
+  UserLocation,
 } = require("../../models");
 
 const insertDB = async () => {
@@ -40,14 +47,26 @@ const insertDB = async () => {
   await SubCategory.bulkCreate(subCategory).then(() =>
     console.log("SubCategory data have been saved")
   );
+  await Image.bulkCreate(banners).then(() =>
+    console.log("Image data have been saved")
+  );
   await Seller.bulkCreate(seller).then(() =>
     console.log("Seller data have been saved")
+  );
+  await Feedback.bulkCreate(feedBacks).then(() =>
+    console.log("Feedback data have been saved")
   );
   await User.bulkCreate(users).then(() =>
     console.log("User data have been saved")
   );
   await Message.bulkCreate(messages).then(() =>
     console.log("Messages data have been saved")
+  );
+  await Location.bulkCreate(locations).then(() =>
+    console.log("Locations data have been saved")
+  );
+  await UserLocation.bulkCreate(userLocations).then(() =>
+    console.log("User Locations data have been saved")
   );
   // await Delivery.bulkCreate(deliveries).then(() =>
   //   console.log("Delivery data have been saved")

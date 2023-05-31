@@ -10,6 +10,7 @@ const {
   Image,
   User,
   SocialMedia,
+  Feedback,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -101,6 +102,8 @@ const addSeller = async (req, res) => {
     CategoryId,
     //TODO: verificationCode: code
   });
+
+  await Feedback.create({ SellerId: newSeller.id });
 
   const dataWithoutPassword = newSeller.toJSON();
   delete dataWithoutPassword.password;

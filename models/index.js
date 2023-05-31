@@ -25,6 +25,8 @@ const OrderDelivery = require("./OrderDelivery");
 const OrderFromTo = require("./OrderFromTo");
 const FinancialRecord = require("./FinancialRecord");
 const Message = require("./Message");
+const SocialMedia = require("./SocialMedia");
+const Rate = require("./Rate");
 
 User.hasOne(Cart);
 Cart.belongsTo(User);
@@ -95,14 +97,17 @@ Order.belongsTo(Seller);
 Location.hasOne(Order);
 Order.belongsTo(Location);
 
-User.hasMany(Feedback);
-Feedback.belongsTo(User);
-
 Seller.hasMany(Feedback);
 Feedback.belongsTo(Seller);
 
 User.hasMany(UserLocation);
 UserLocation.belongsTo(User);
+
+Seller.hasMany(UserLocation);
+UserLocation.belongsTo(Seller);
+
+Delivery.hasMany(UserLocation);
+UserLocation.belongsTo(Delivery);
 
 Location.hasMany(UserLocation);
 UserLocation.belongsTo(Location);
@@ -146,6 +151,18 @@ Message.belongsTo(User);
 Category.hasMany(Seller);
 Seller.belongsTo(Category);
 
+Feedback.hasMany(Rate);
+Rate.belongsTo(Feedback);
+
+User.hasMany(Rate);
+Rate.belongsTo(User);
+
+Feedback.hasMany(Like);
+Like.belongsTo(Feedback);
+
+Feedback.hasMany(Comment);
+Comment.belongsTo(Feedback);
+
 module.exports = {
   User,
   Admin,
@@ -174,4 +191,6 @@ module.exports = {
   OrderFromTo,
   FinancialRecord,
   Message,
+  SocialMedia,
+  Rate,
 };

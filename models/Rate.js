@@ -1,15 +1,11 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/config/connection");
 
-const Feedback = sequelize.define("Feedback", {
+const Rate = sequelize.define("Rate", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
-  },
-  isLike: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
   },
   rate: {
     type: DataTypes.DOUBLE,
@@ -17,4 +13,4 @@ const Feedback = sequelize.define("Feedback", {
   },
 });
 
-module.exports = Feedback;
+module.exports = Rate;

@@ -37,6 +37,12 @@ const {
   deleteLocation,
   getLocations,
   createMessage,
+  getSellerFeedBack,
+  addRate,
+  addFeedbackLike,
+  deleteFeedbackLike,
+  addFeedbackComment,
+  deleteFeedbackComment,
 } = require("../controllers/user");
 
 // Auth routers
@@ -235,4 +241,46 @@ userRouter.get(
   errorCatcher(getLocations)
 );
 
+// FeedBack routers
+userRouter.get(
+  "/Feedback/get/:SellerId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSellerFeedBack)
+);
+
+userRouter.post(
+  "/Feedback/Rate/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addRate)
+);
+
+// FeedBack like
+userRouter.post(
+  "/Feedback/Like/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addFeedbackLike)
+);
+userRouter.delete(
+  "/Feedback/Like/delete",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(deleteFeedbackLike)
+);
+
+// FeedBack comment
+userRouter.post(
+  "/Feedback/Comment/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addFeedbackComment)
+);
+userRouter.delete(
+  "/Feedback/Comment/delete",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(deleteFeedbackComment)
+);
 module.exports = userRouter;
