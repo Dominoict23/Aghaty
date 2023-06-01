@@ -22,6 +22,8 @@ const {
   Feedback,
   Rate,
   DiscountCode,
+  Service,
+  ServiceOrder,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -39,6 +41,7 @@ const {
   validateCreateFeedbackComment,
   validateDeleteFeedbackComment,
   validateAllCategory,
+  validateAddServiceOrder,
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
 const { calculateDistance } = require("../utils/calculateDistance");
@@ -548,6 +551,37 @@ const nearestSellers = async (req, res) => {
     msg: "Successfully retrieved sellers within 15 kilometers.",
   });
 };
+const getServiceSellers = async (req, res) => {
+  const sellers = await Seller.findAll({
+    where: { role: "serviceSeller" },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+  });
+
+  res.send({
+    status: 200,
+    sellers,
+    msg: "get all service sellers successfully",
+  });
+};
+const getSingleServiceSeller = async (req, res) => {
+  const { SellerId } = req.params;
+
+  const seller = await Seller.findOne({
+    where: { id: SellerId, role: "serviceSeller" },
+    attributes: {
+      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    },
+    include: { model: Service, include: { model: Image } },
+  });
+
+  res.send({
+    status: 200,
+    seller,
+    msg: "get single service seller successfully",
+  });
+};
 
 // Products
 const getProductsBySubId = async (req, res) => {
@@ -875,7 +909,36 @@ const getSingleProductsOrder = async (req, res) => {
     msg: "successful get single products order",
   });
 };
+const addServiceOrder = async (req, res) => {
+  await validateAddServiceOrder.validate(req.body);
 
+  const { username, location, mobile, serviceDescription, SellerId } = req.body;
+
+  await ServiceOrder.create({
+    username,
+    location,
+    mobile,
+    serviceDescription,
+    UserId: req.user.userId,
+    SellerId,
+  });
+
+  res.send({
+    status: 201,
+    msg: "successful create new service order",
+  });
+};
+const getServicesOrders = async (req, res) => {
+  const orders = await ServiceOrder.findAll({
+    where: { UserId: req.user.userId },
+  });
+
+  res.send({
+    status: 200,
+    orders,
+    msg: "successful get all Service orders",
+  });
+};
 // Social Media
 const getSocialMedia = async (req, res) => {
   const socialMedia = await SocialMedia.findAll();
@@ -1247,4 +1310,8 @@ module.exports = {
   addProductsOrder,
   getProductsOrders,
   getSingleProductsOrder,
+  getServiceSellers,
+  getSingleServiceSeller,
+  addServiceOrder,
+  getServicesOrders,
 };

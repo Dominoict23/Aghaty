@@ -46,6 +46,10 @@ const {
   addProductsOrder,
   getProductsOrders,
   getSingleProductsOrder,
+  getServiceSellers,
+  getSingleServiceSeller,
+  addServiceOrder,
+  getServicesOrders,
 } = require("../controllers/user");
 
 // Auth routers
@@ -158,6 +162,18 @@ userRouter.post(
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(nearestSellers)
+);
+userRouter.get(
+  "/seller/service/all",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getServiceSellers)
+);
+userRouter.get(
+  "/seller/service/:SellerId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSingleServiceSeller)
 );
 
 // Products router
@@ -294,11 +310,23 @@ userRouter.post(
   checkUserAuth("user"),
   errorCatcher(addProductsOrder)
 );
+userRouter.post(
+  "/Order/Service/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addServiceOrder)
+);
 userRouter.get(
   "/Order/Products/all",
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(getProductsOrders)
+);
+userRouter.get(
+  "/Order/Service/all",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getServicesOrders)
 );
 userRouter.get(
   "/Order/Products/:OrderId",

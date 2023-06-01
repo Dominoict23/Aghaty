@@ -118,8 +118,8 @@ ServiceOrder.belongsTo(User);
 Seller.hasMany(ServiceOrder);
 ServiceOrder.belongsTo(Seller);
 
-Service.hasMany(ServiceOrder);
-ServiceOrder.belongsTo(Service);
+// Service.hasMany(ServiceOrder);
+// ServiceOrder.belongsTo(Service);
 
 Order.hasMany(OrderProduct);
 OrderProduct.belongsTo(Order);

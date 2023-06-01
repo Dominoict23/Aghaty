@@ -110,6 +110,13 @@ const validateEditService = yup.object().shape({
 const validateDeleteService = yup.object().shape({
   ServiceId: yup.number().required(),
 });
+const validateAddServiceOrder = yup.object().shape({
+  username: yup.string().required(),
+  location: yup.string().required(),
+  mobile: yup.string().required(),
+  serviceDescription: yup.string().required(),
+  SellerId: yup.number().required(),
+});
 
 // Seller validation
 const validateAddSeller = yup.object().shape({
@@ -321,4 +328,5 @@ module.exports = {
   validateCreateFeedbackComment,
   validateDeleteFeedbackComment,
   validateAllCategory,
+  validateAddServiceOrder,
 };
