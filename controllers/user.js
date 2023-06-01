@@ -1,4 +1,4 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const { hash } = require("bcrypt");
 const {
   User,
@@ -38,9 +38,10 @@ const {
   validateFeedbackLike,
   validateCreateFeedbackComment,
   validateDeleteFeedbackComment,
+  validateAllCategory,
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
-const { calculateDistance } = require("../utils/getDistance");
+const { calculateDistance } = require("../utils/calculateDistance");
 
 // Auth requests
 const signup = async (req, res) => {
@@ -409,12 +410,14 @@ const editComment = async (req, res) => {
 
 //Categories
 const getAllCategory = async (req, res) => {
+  await validateAllCategory.validate(req.body);
+  const { role } = req.body;
   const categories = await Category.findAll({
-    where: { role: "productSeller" },
+    where: { role },
   });
 
   res.send({
-    status: 200,
+    status: 201,
     categories,
     msg: "get all categories successfully",
   });
@@ -477,7 +480,7 @@ const nearestSellers = async (req, res) => {
 
   await validateNearestSellers.validate(req.body);
 
-  const { long, lat } = req.body;
+  const { LocationId } = req.body;
   // const { distance } = req.body;
 
   // const user = await User.findOne({
@@ -494,44 +497,55 @@ const nearestSellers = async (req, res) => {
   //     english: "distance not found",
   //   });
 
+  const userLocation = await UserLocation.findOne({
+    where: { LocationId, UserId: req.user.userId },
+    include: { model: Location },
+  });
+
+  const userCoordinates = {
+    lat: userLocation.Location.lat,
+    long: userLocation.Location.long,
+  };
+
   const sellers = await Seller.findAll({
     where: { CategoryId },
     attributes: {
       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
     },
+    include: [
+      {
+        model: UserLocation,
+        include: { model: Location },
+      },
+    ],
   });
 
-  const lon1 = long;
-  const lat1 = lat;
   const result = [];
-  sellers?.forEach((seller) => {
-    const lon2 = seller.long;
-    const lat2 = seller.lat;
-    const R = 6371e3; // metres
-    const φ1 = (lat1 * Math.PI) / 180; // φ, λ in radians
-    const φ2 = (lat2 * Math.PI) / 180;
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
 
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  await Promise.all(
+    sellers.map(async (seller) => {
+      const sellerCoordinates = {
+        lat: seller.UserLocations[0]?.Location?.lat,
+        long: seller.UserLocations[0]?.Location?.long,
+      };
 
-    const d = R * c; // in metres
+      const distance = calculateDistance(
+        userCoordinates.lat,
+        userCoordinates.long,
+        sellerCoordinates.lat,
+        sellerCoordinates.long
+      );
 
-    if (d < 15 * 1000) {
-      result.push(seller);
-    }
-    // if (d < distance * 1000) {
-    //   result.push(seller);
-    // }
-  });
+      if (distance < 15) {
+        result.push(seller);
+      }
+    })
+  );
 
   res.send({
     status: 201,
     result,
-    msg: "successful get sellers in 15 kilo meter",
+    msg: "Successfully retrieved sellers within 15 kilometers.",
   });
 };
 
@@ -620,17 +634,26 @@ const showCart = async (req, res) => {
     where: { LocationId, UserId: req.user.userId },
     include: { model: Location },
   });
-  const userLong = userLocation.Location.long;
-  const userLat = userLocation.Location.lat;
+  const userCoordinates = {
+    lat: userLocation.Location.lat,
+    long: userLocation.Location.long,
+  };
 
   const sellerLocation = await UserLocation.findOne({
     where: { SellerId: products[0].Product.SellerId },
     include: { model: Location },
   });
-  const sellerLong = sellerLocation.Location.long;
-  const sellerLat = sellerLocation.Location.lat;
+  const sellerCoordinates = {
+    lat: sellerLocation.Location.lat,
+    long: sellerLocation.Location.long,
+  };
 
-  const distance = calculateDistance(userLat, userLong, sellerLat, sellerLong);
+  const distance = calculateDistance(
+    userCoordinates.lat,
+    userCoordinates.long,
+    sellerCoordinates.lat,
+    sellerCoordinates.long
+  );
 
   const deliveryPrice = distance * 10; // 10$ per kilometer
 

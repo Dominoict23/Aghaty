@@ -125,7 +125,7 @@ userRouter.patch(
 );
 
 // Category router
-userRouter.get(
+userRouter.post(
   "/allCategories",
   verifyToken,
   checkUserAuth("user"),

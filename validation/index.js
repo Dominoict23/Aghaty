@@ -137,8 +137,7 @@ const validateDeleteSeller = yup.object().shape({
   SellerId: yup.number().required(),
 });
 const validateNearestSellers = yup.object().shape({
-  long: yup.number().required(),
-  lat: yup.number().required(),
+  LocationId: yup.number().required(),
 });
 
 // Category validation
@@ -157,6 +156,9 @@ const validateEditCategory = yup.object().shape({
 });
 const validateDeleteCategory = yup.object().shape({
   CategoryId: yup.number().required(),
+});
+const validateAllCategory = yup.object().shape({
+  role: yup.string().required(),
 });
 
 // SubCategory validation
@@ -318,4 +320,5 @@ module.exports = {
   validateFeedbackLike,
   validateCreateFeedbackComment,
   validateDeleteFeedbackComment,
+  validateAllCategory,
 };
