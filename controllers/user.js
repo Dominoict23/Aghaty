@@ -622,12 +622,15 @@ const getProductsBySubId = async (req, res) => {
 
   const products = await Product.findAll({
     where: { SubCategoryId, SellerId: req.user.userId },
-    include: {
-      model: Seller,
-      attributes: {
-        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+    include: [
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
       },
-    },
+      { model: Image },
+    ],
   });
 
   res.send({
