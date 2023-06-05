@@ -21,6 +21,20 @@ const seller = [
     lat: 31.383446,
   },
   {
+    mobile: "097597774042",
+    firstName: "Bahaa",
+    lastName: "Alkahlout",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS", // 12345678
+    avatar: "avatar.png",
+    cover: "cover.jpg",
+    role: "productSeller",
+    serviceType: "",
+    address: "Amman",
+    CategoryId: 1,
+    long: 34.347106,
+    lat: 31.383446,
+  },
+  {
     mobile: "097592414965",
     firstName: "Muhammed",
     lastName: "Abu Shawqi",
@@ -78,6 +92,13 @@ const category = [
     nameKUR: "lebaskar",
     image: "serviceCategory2.jpg",
     role: "serviceSeller",
+  },
+  {
+    nameEN: "taxi",
+    nameAR: "سيارة اجره",
+    nameKUR: "texsî",
+    image: "taxiCategory2.jpg",
+    role: "productSeller",
   },
 ];
 
