@@ -219,20 +219,10 @@ userRouter.delete(
 );
 
 //Social media routers
-userRouter.get(
-  "/SocialMedia/get",
-  verifyToken,
-  checkUserAuth("user"),
-  errorCatcher(getSocialMedia)
-);
+userRouter.get("/SocialMedia/get", errorCatcher(getSocialMedia));
 
 //Message routers
-userRouter.post(
-  "/Message/create",
-  verifyToken,
-  checkUserAuth("user"),
-  errorCatcher(createMessage)
-);
+userRouter.post("/Message/create", errorCatcher(createMessage));
 
 // Location routers
 userRouter.post(
