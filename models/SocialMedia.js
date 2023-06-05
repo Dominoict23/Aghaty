@@ -8,6 +8,10 @@ const SocialMedia = sequelize.define("SocialMedia", {
     allowNull: false,
     primaryKey: true,
   },
+  icon: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   type: {
     type: DataTypes.STRING,
     defaultValue: "",

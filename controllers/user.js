@@ -42,6 +42,7 @@ const {
   validateDeleteFeedbackComment,
   validateAllCategory,
   validateAddServiceOrder,
+  validateHighRateSellers,
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
 const { calculateDistance } = require("../utils/calculateDistance");
@@ -463,7 +464,14 @@ const getSellerSubCategories = async (req, res) => {
 
 // Seller
 const getHighRateSellers = async (req, res) => {
-  const { CategoryId } = req.params;
+  await validateHighRateSellers.validate(req.body);
+
+  const { CategoryId } = req.body;
+  // const { CategoryId, SubCategoryId } = req.body;
+
+  // let sellers;
+
+  // if (SubCategoryId === 0) {
   const sellers = await Seller.findAll({
     where: { CategoryId },
     attributes: {
@@ -471,6 +479,15 @@ const getHighRateSellers = async (req, res) => {
     },
     order: [["rate", "DESC"]],
   });
+  // } else {
+  //   sellers = await Seller.findAll({
+  //     where: { CategoryId, SubCategoryId },
+  //     attributes: {
+  //       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+  //     },
+  //     order: [["rate", "DESC"]],
+  //   });
+  // }
 
   res.send({
     status: 200,
@@ -479,11 +496,11 @@ const getHighRateSellers = async (req, res) => {
   });
 };
 const nearestSellers = async (req, res) => {
-  const { CategoryId } = req.params;
-
   await validateNearestSellers.validate(req.body);
 
-  const { LocationId } = req.body;
+  const { CategoryId, LocationId } = req.body;
+  // const { CategoryId, SubCategoryId, LocationId } = req.body;
+
   // const { distance } = req.body;
 
   // const user = await User.findOne({
@@ -509,7 +526,8 @@ const nearestSellers = async (req, res) => {
     lat: userLocation.Location.lat,
     long: userLocation.Location.long,
   };
-
+  // let sellers;
+  // if (SubCategoryId === 0) {
   const sellers = await Seller.findAll({
     where: { CategoryId },
     attributes: {
@@ -522,6 +540,20 @@ const nearestSellers = async (req, res) => {
       },
     ],
   });
+  // } else {
+  //   sellers = await Seller.findAll({
+  //     where: { CategoryId, SubCategoryId },
+  //     attributes: {
+  //       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+  //     },
+  //     include: [
+  //       {
+  //         model: UserLocation,
+  //         include: { model: Location },
+  //       },
+  //     ],
+  //   });
+  // }
 
   const result = [];
 
@@ -539,7 +571,8 @@ const nearestSellers = async (req, res) => {
         sellerCoordinates.long
       );
 
-      if (distance < 15) {
+      // TODO: change the number of kilometers
+      if (distance < 98) {
         result.push(seller);
       }
     })

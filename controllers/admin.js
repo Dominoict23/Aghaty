@@ -179,7 +179,7 @@ const getAllSellers = async (req, res) => {
 const addDelivery = async (req, res) => {
   await validateAddDelivery.validate(req.body);
 
-  const { mobile, firstName, lastName, password, avatar, cover } = req.body;
+  const { mobile, firstName, lastName, password, type } = req.body;
 
   const deliveryFound = await Delivery.findOne({ where: { mobile } });
 
@@ -195,6 +195,7 @@ const addDelivery = async (req, res) => {
     firstName,
     lastName,
     password: hashedPassword,
+    type, // taxi, fizba, and other types
     avatar: "avatar.png",
     cover: "cover.jpg",
   });
@@ -585,8 +586,11 @@ const createSocialMedia = async (req, res) => {
 
   const { type, link } = req.body;
 
+  if (!req.file) throw serverErrs.BAD_REQUEST("Icon not found");
+
   const newSocialMedia = await SocialMedia.create(
     {
+      icon: req.file.filename,
       type,
       link,
     },
@@ -603,13 +607,20 @@ const createSocialMedia = async (req, res) => {
 };
 const editSocialMedia = async (req, res) => {
   await validateEditSocialMedia.validate(req.body);
-  const { SocialMediaId } = req.body;
+
+  const { SocialMediaId, ...others } = req.body;
+
   const socialMedia = await SocialMedia.findOne({
     where: { id: SocialMediaId },
   });
+
   if (!socialMedia) throw serverErrs.BAD_REQUEST("socialMedia not found");
 
-  await socialMedia.update(req.body);
+  if (req.file) {
+    await socialMedia.update({ icon: req.file.filename, ...others });
+  } else {
+    await socialMedia.update({ ...others });
+  }
 
   res.send({
     status: 201,

@@ -12,6 +12,8 @@ const {
   SubCategory,
   Video,
   User,
+  Order,
+  OrderProduct,
 } = require("../models");
 const {
   validateCreateProduct,
@@ -25,10 +27,8 @@ const {
   validateDeleteLike,
   validateCreateComment,
   validateEditComment,
+  validateOrders,
 } = require("../validation");
-
-// TODO Later: get product orders (4 filters)??
-// TODO Later: get product order specific??
 
 // Story requests
 const addStory = async (req, res) => {
@@ -995,7 +995,36 @@ const getSellerProducts = async (req, res) => {
     msg: "successful get seller all products",
   });
 };
+const getProductOrders = async (req, res) => {
+  await validateOrders.validate(req.body);
 
+  const { status } = req.body;
+
+  const orders = await Order.findAll({
+    where: { SellerId: req.user.userId, status },
+  });
+
+  res.send({
+    status: 201,
+    orders,
+    msg: "successful get all products orders",
+  });
+};
+
+const getProductOrder = async (req, res) => {
+  const { OrderId } = req.params;
+
+  const order = await OrderProduct.findOne({
+    where: { OrderId },
+    include: { model: Product },
+  });
+
+  res.send({
+    status: 201,
+    order,
+    msg: "successful get single product order",
+  });
+};
 module.exports = {
   addProduct,
   editProduct,
@@ -1018,4 +1047,6 @@ module.exports = {
   addComment,
   editComment,
   getAllSubCategory,
+  getProductOrders,
+  getProductOrder,
 };

@@ -12,6 +12,7 @@ const {
   SubCategory,
   Video,
   User,
+  ServiceOrder,
 } = require("../models");
 const {
   validateCreateService,
@@ -967,6 +968,18 @@ const getAllSubCategory = async (req, res) => {
   });
 };
 
+const getServiceOrders = async (req, res) => {
+  const orders = await ServiceOrder.findAll({
+    where: { SellerId: req.user.userId },
+  });
+
+  res.send({
+    status: 200,
+    orders,
+    msg: "successful get all Services orders",
+  });
+};
+
 module.exports = {
   addService,
   editService,
@@ -989,4 +1002,5 @@ module.exports = {
   editAvatar,
   editCover,
   getAllSubCategory,
+  getServiceOrders,
 };

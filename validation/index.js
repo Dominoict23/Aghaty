@@ -36,6 +36,9 @@ const validateEditProduct = yup.object().shape({
 const validateDeleteProduct = yup.object().shape({
   ProductId: yup.number().required(),
 });
+const validateOrders = yup.object().shape({
+  status: yup.string().required(),
+});
 
 const validateEditStory = yup.object().shape({
   StoryId: yup.number().required(),
@@ -144,7 +147,13 @@ const validateDeleteSeller = yup.object().shape({
   SellerId: yup.number().required(),
 });
 const validateNearestSellers = yup.object().shape({
+  CategoryId: yup.number().required(),
+  // SubCategoryId: yup.number().required(),
   LocationId: yup.number().required(),
+});
+const validateHighRateSellers = yup.object().shape({
+  CategoryId: yup.number().required(),
+  // SubCategoryId: yup.number().required(),
 });
 
 // Category validation
@@ -210,6 +219,7 @@ const validateAddDelivery = yup.object().shape({
   mobile: yup.string().required().min(12).max(15),
   firstName: yup.string().required(),
   lastName: yup.string().required(),
+  type: yup.string().required(),
   password: yup.string().required().min(8).max(16),
 });
 
@@ -329,4 +339,6 @@ module.exports = {
   validateDeleteFeedbackComment,
   validateAllCategory,
   validateAddServiceOrder,
+  validateOrders,
+  validateHighRateSellers,
 };

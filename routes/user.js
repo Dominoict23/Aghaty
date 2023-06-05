@@ -151,14 +151,14 @@ userRouter.get(
 );
 
 // Sellers router
-userRouter.get(
-  "/sellers/highestRate/:CategoryId",
+userRouter.post(
+  "/sellers/highestRate",
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(getHighRateSellers)
 );
 userRouter.post(
-  "/sellers/nearest/:CategoryId",
+  "/sellers/nearest",
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(nearestSellers)
