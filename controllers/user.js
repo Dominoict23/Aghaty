@@ -46,6 +46,7 @@ const {
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
 const { calculateDistance } = require("../utils/calculateDistance");
+const sequelize = require("../db/config/connection");
 
 // Auth requests
 const signup = async (req, res) => {
@@ -466,28 +467,26 @@ const getSellerSubCategories = async (req, res) => {
 const getHighRateSellers = async (req, res) => {
   await validateHighRateSellers.validate(req.body);
 
-  const { CategoryId } = req.body;
-  // const { CategoryId, SubCategoryId } = req.body;
+  const { CategoryId, SubCategoryId } = req.body;
 
-  // let sellers;
+  let sellers;
 
-  // if (SubCategoryId === 0) {
-  const sellers = await Seller.findAll({
-    where: { CategoryId },
-    attributes: {
-      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
-    },
-    order: [["rate", "DESC"]],
-  });
-  // } else {
-  //   sellers = await Seller.findAll({
-  //     where: { CategoryId, SubCategoryId },
-  //     attributes: {
-  //       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
-  //     },
-  //     order: [["rate", "DESC"]],
-  //   });
-  // }
+  if (SubCategoryId === 0) {
+    sellers = await Seller.findAll({
+      where: { CategoryId },
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+      order: [["rate", "DESC"]],
+    });
+  } else {
+    sellers = await Seller.findAll({
+      where: sequelize.literal(
+        `FIND_IN_SET('${SubCategoryId}', subCategories)`
+      ),
+      order: [["rate", "DESC"]],
+    });
+  }
 
   res.send({
     status: 200,
@@ -498,8 +497,7 @@ const getHighRateSellers = async (req, res) => {
 const nearestSellers = async (req, res) => {
   await validateNearestSellers.validate(req.body);
 
-  const { CategoryId, LocationId } = req.body;
-  // const { CategoryId, SubCategoryId, LocationId } = req.body;
+  const { CategoryId, SubCategoryId, LocationId } = req.body;
 
   // const { distance } = req.body;
 
@@ -526,34 +524,39 @@ const nearestSellers = async (req, res) => {
     lat: userLocation.Location.lat,
     long: userLocation.Location.long,
   };
-  // let sellers;
-  // if (SubCategoryId === 0) {
-  const sellers = await Seller.findAll({
-    where: { CategoryId },
-    attributes: {
-      exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
-    },
-    include: [
-      {
-        model: UserLocation,
-        include: { model: Location },
+  let sellers;
+  if (SubCategoryId === 0) {
+    sellers = await Seller.findAll({
+      where: { CategoryId },
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
       },
-    ],
-  });
-  // } else {
-  //   sellers = await Seller.findAll({
-  //     where: { CategoryId, SubCategoryId },
-  //     attributes: {
-  //       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
-  //     },
-  //     include: [
-  //       {
-  //         model: UserLocation,
-  //         include: { model: Location },
-  //       },
-  //     ],
-  //   });
-  // }
+      include: [
+        {
+          model: UserLocation,
+          include: { model: Location },
+        },
+      ],
+    });
+  } else {
+    sellers = await Seller.findAll({
+      where: {
+        [Op.and]: [
+          sequelize.literal(`FIND_IN_SET('${SubCategoryId}', subCategories)`),
+          { CategoryId },
+        ],
+      },
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+      include: [
+        {
+          model: UserLocation,
+          include: { model: Location },
+        },
+      ],
+    });
+  }
 
   const result = [];
 
@@ -995,7 +998,6 @@ const createMessage = async (req, res) => {
     name,
     phone,
     msgBody,
-    UserId: req.user.userId,
   });
 
   res.send({

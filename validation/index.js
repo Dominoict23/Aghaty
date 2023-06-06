@@ -148,12 +148,12 @@ const validateDeleteSeller = yup.object().shape({
 });
 const validateNearestSellers = yup.object().shape({
   CategoryId: yup.number().required(),
-  // SubCategoryId: yup.number().required(),
+  SubCategoryId: yup.number().required(),
   LocationId: yup.number().required(),
 });
 const validateHighRateSellers = yup.object().shape({
   CategoryId: yup.number().required(),
-  // SubCategoryId: yup.number().required(),
+  SubCategoryId: yup.number().required(),
 });
 
 // Category validation
