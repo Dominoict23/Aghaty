@@ -94,9 +94,6 @@ Order.belongsTo(User);
 Seller.hasMany(Order);
 Order.belongsTo(Seller);
 
-// Location.hasOne(Order);
-// Order.belongsTo(Location);
-
 Seller.hasMany(Feedback);
 Feedback.belongsTo(Seller);
 
@@ -112,14 +109,8 @@ UserLocation.belongsTo(Delivery);
 Location.hasMany(UserLocation);
 UserLocation.belongsTo(Location);
 
-User.hasMany(ServiceOrder);
-ServiceOrder.belongsTo(User);
-
-Seller.hasMany(ServiceOrder);
-ServiceOrder.belongsTo(Seller);
-
-// Service.hasMany(ServiceOrder);
-// ServiceOrder.belongsTo(Service);
+Order.hasOne(ServiceOrder);
+ServiceOrder.belongsTo(Order);
 
 Order.hasMany(OrderProduct);
 OrderProduct.belongsTo(Order);

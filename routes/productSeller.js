@@ -25,7 +25,7 @@ const {
   getSellerStories,
   getSinglePosts,
   getProductOrders,
-  getProductOrder,
+  getProductsOrder,
 } = require("../controllers/productSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -192,7 +192,7 @@ sellerRouter.get(
   "/orders/:OrderId",
   verifyToken,
   checkUserAuth("productSeller"),
-  errorCatcher(getProductOrder)
+  errorCatcher(getProductsOrder)
 );
 
 module.exports = sellerRouter;

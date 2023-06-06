@@ -64,6 +64,45 @@ const users = [
   },
 ];
 
+const deliveries = [
+  {
+    mobile: "097590000001",
+    firstName: "Abood",
+    lastName: "Abood",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
+    avatar: "avatar.png",
+    cover: "cover.jpg",
+    type: "Taxi cars",
+    lat: 31.451056,
+    long: 34.436067,
+    // verificationCode: ,
+  },
+  {
+    mobile: "097590000002",
+    firstName: "Ahmed",
+    lastName: "Ahmed",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
+    avatar: "avatar.png",
+    cover: "cover.jpg",
+    type: "Taxi cars",
+    lat: 31.441056,
+    long: 34.436067,
+    // verificationCode: ,
+  },
+  {
+    mobile: "097590000003",
+    firstName: "Ali",
+    lastName: "Ali",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
+    avatar: "avatar.png",
+    cover: "cover.jpg",
+    type: "Taxi cars",
+    lat: 31.456056,
+    long: 34.436067,
+    // verificationCode: ,
+  },
+];
+
 const category = [
   {
     nameEN: "Restaurants",
@@ -131,6 +170,27 @@ const subCategory = [
   //   image: "subService2.png",
   //   CategoryId: 4,
   // },
+  {
+    nameEN: "Taxi cars",
+    nameAR: "سيارات تاكسي",
+    nameKUR: "cars taxi",
+    image: "subTaxi1.jpg",
+    CategoryId: 5,
+  },
+  {
+    nameEN: "Transport buses",
+    nameAR: "باصات نقل",
+    nameKUR: "Otobusên veguhestinê",
+    image: "subTaxi2.jpg",
+    CategoryId: 5,
+  },
+  {
+    nameEN: "Freight",
+    nameAR: "نقل بضائع",
+    nameKUR: "Bar",
+    image: "subTaxi3.jpg",
+    CategoryId: 5,
+  },
 ];
 
 // const products = [
@@ -206,35 +266,18 @@ const subCategory = [
 //   },
 // ];
 
-//TODO: add user id
 const messages = [
   {
     name: "ibrahim",
     phone: "11111111",
     msgBody: "I want to contact you because etc....",
-    UserId: 1,
   },
   {
     name: "ahmed",
     phone: "22222222",
     msgBody: "I want to contact you because etc....",
-    UserId: 1,
   },
 ];
-
-// const deliveries = [
-//   {
-//     mobile: "097592185233",
-//     firstName: "Abood",
-//     lastName: "Abood",
-//     password: "$2b$12$yayNjXNIO8sQdF/aaNPLcuGhdU68AlH0JaCOeSiLLpg9XtvwmD.xy",
-//     avatar:
-//       "https://www.cdtfa.ca.gov/images/industry/guy_with_open_sign_172870112.png",
-//     cover:
-//       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2urnpJtbyzVbDQb4hbogaPhtLvtea_nQ8lA&usqp=CAU",
-//     // verificationCode: ,
-//   },
-// ];
 
 const banners = [{ image: "banner1.jpg", AdminId: 1 }];
 
@@ -268,6 +311,10 @@ const userLocations = [
     SellerId: 1,
     LocationId: 2,
   },
+  {
+    SellerId: 2,
+    LocationId: 2,
+  },
 ];
 
 module.exports = {
@@ -280,7 +327,7 @@ module.exports = {
   // services,
   admin,
   messages,
-  // deliveries,
+  deliveries,
   users,
   banners,
   feedBacks,

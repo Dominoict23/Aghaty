@@ -1010,18 +1010,17 @@ const getProductOrders = async (req, res) => {
     msg: "successful get all products orders",
   });
 };
-
-const getProductOrder = async (req, res) => {
+const getProductsOrder = async (req, res) => {
   const { OrderId } = req.params;
 
-  const order = await OrderProduct.findOne({
+  const orders = await OrderProduct.findAll({
     where: { OrderId },
     include: { model: Product },
   });
 
   res.send({
     status: 201,
-    order,
+    orders,
     msg: "successful get single product order",
   });
 };
@@ -1048,5 +1047,5 @@ module.exports = {
   editComment,
   getAllSubCategory,
   getProductOrders,
-  getProductOrder,
+  getProductsOrder,
 };

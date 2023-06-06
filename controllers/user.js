@@ -712,7 +712,10 @@ const showCart = async (req, res) => {
 
   const products = await CartProduct.findAll({
     where: { CartId: cart.id },
-    include: { model: Product },
+    include: {
+      model: Product,
+      include: { model: Image, attributes: ["image"] },
+    },
   });
 
   if (products.length < 1)
@@ -878,8 +881,6 @@ const addProductsOrder = async (req, res) => {
       "there is no products in cart to order for this user"
     );
 
-  const orderNum = await Order.count();
-
   const cartProducts = await CartProduct.findAll({
     where: { CartId: cart.id },
     include: { model: Product },
@@ -894,6 +895,10 @@ const addProductsOrder = async (req, res) => {
   if (discountCodeFound) {
     totalPrice = totalPrice - (totalPrice * discountCodeFound.discount) / 100;
   }
+
+  const orderNum = await Order.count({
+    where: { SellerId: cartProducts[0].Product.SellerId },
+  });
 
   const newOrder = await Order.create(
     {
@@ -941,11 +946,19 @@ const addProductsOrder = async (req, res) => {
   });
 };
 const getProductsOrders = async (req, res) => {
-  const orders = await Order.findAll({ where: { UserId: req.user.userId } });
+  const orders = await Order.findAll({
+    where: { UserId: req.user.userId },
+    include: { model: OrderProduct, required: true },
+  });
+
+  const formattedOrders = orders.map((order, index) => ({
+    ...order.toJSON(),
+    name: `Order no #${index + 1}`,
+  }));
 
   res.send({
     status: 200,
-    orders,
+    orders: formattedOrders,
     msg: "successful get all products orders",
   });
 };
@@ -968,13 +981,42 @@ const addServiceOrder = async (req, res) => {
 
   const { username, location, mobile, serviceDescription, SellerId } = req.body;
 
+  const orderNum = await Order.count({ where: { SellerId } });
+
+  const newOrder = await Order.create(
+    {
+      name: `Order no #${orderNum + 1}`,
+      totalPrice: 0,
+      UserId: req.user.userId,
+      SellerId,
+    },
+    { returning: true }
+  );
+
+  const currentDate = new Date(newOrder.createdAt);
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const dayOfWeek = daysOfWeek[currentDate.getDay()];
+  const day = String(currentDate.getDate()).padStart(2, "0");
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const year = currentDate.getFullYear();
+  const date = `${day}/${month}/${year}`;
+
+  await newOrder.update({ day: dayOfWeek, date });
+
   await ServiceOrder.create({
     username,
     location,
     mobile,
     serviceDescription,
-    UserId: req.user.userId,
-    SellerId,
+    OrderId: newOrder.id,
   });
 
   res.send({
@@ -983,16 +1025,25 @@ const addServiceOrder = async (req, res) => {
   });
 };
 const getServicesOrders = async (req, res) => {
-  const orders = await ServiceOrder.findAll({
-    where: { UserId: req.user.userId },
+  const orders = await Order.findAll({
+    where: {
+      UserId: req.user.userId,
+    },
+    include: { model: ServiceOrder, required: true },
   });
+
+  const formattedOrders = orders.map((order, index) => ({
+    ...order.toJSON(),
+    name: `Order no #${index + 1}`,
+  }));
 
   res.send({
     status: 200,
-    orders,
+    orders: formattedOrders,
     msg: "successful get all Service orders",
   });
 };
+
 // Social Media
 const getSocialMedia = async (req, res) => {
   const socialMedia = await SocialMedia.findAll();

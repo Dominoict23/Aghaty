@@ -12,7 +12,7 @@ const {
   SubCategory,
   Video,
   User,
-  ServiceOrder,
+  Order,
 } = require("../models");
 const {
   validateCreateService,
@@ -26,6 +26,7 @@ const {
   validateDeletePost,
   validateDeleteLike,
   validateEditComment,
+  validateOrders,
 } = require("../validation");
 
 // Service requests
@@ -969,8 +970,12 @@ const getAllSubCategory = async (req, res) => {
 };
 
 const getServiceOrders = async (req, res) => {
-  const orders = await ServiceOrder.findAll({
-    where: { SellerId: req.user.userId },
+  await validateOrders.validate(req.body);
+
+  const { status } = req.body;
+
+  const orders = await Order.findAll({
+    where: { SellerId: req.user.userId, status },
   });
 
   res.send({
