@@ -622,19 +622,34 @@ const getSingleServiceSeller = async (req, res) => {
 // Products
 const getProductsBySubId = async (req, res) => {
   const { SubCategoryId } = req.params;
-
-  const products = await Product.findAll({
-    where: { SubCategoryId, SellerId: req.user.userId },
-    include: [
-      {
-        model: Seller,
-        attributes: {
-          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+  let products;
+  if (SubCategoryId == 0) {
+    products = await Product.findAll({
+      where: { SellerId: req.user.userId },
+      include: [
+        {
+          model: Seller,
+          attributes: {
+            exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+          },
         },
-      },
-      { model: Image },
-    ],
-  });
+        { model: Image },
+      ],
+    });
+  } else {
+    products = await Product.findAll({
+      where: { SubCategoryId, SellerId: req.user.userId },
+      include: [
+        {
+          model: Seller,
+          attributes: {
+            exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+          },
+        },
+        { model: Image },
+      ],
+    });
+  }
 
   res.send({
     status: 201,
