@@ -714,7 +714,7 @@ const showCart = async (req, res) => {
     where: { CartId: cart.id },
     include: {
       model: Product,
-      include: { model: Image, attributes: ["image"] },
+      include: { model: Image },
     },
   });
 

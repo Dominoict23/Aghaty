@@ -180,7 +180,7 @@ sellerRouter.get(
   errorCatcher(getAllSubCategory)
 );
 
-sellerRouter.get(
+sellerRouter.post(
   "/orders/all",
   verifyToken,
   checkUserAuth("serviceSeller"),
