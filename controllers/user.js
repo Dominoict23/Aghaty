@@ -471,7 +471,7 @@ const getHighRateSellers = async (req, res) => {
 
   let sellers;
 
-  if (SubCategoryId === 0) {
+  if (SubCategoryId == 0) {
     sellers = await Seller.findAll({
       where: { CategoryId },
       attributes: {
@@ -525,7 +525,7 @@ const nearestSellers = async (req, res) => {
     long: userLocation.Location.long,
   };
   let sellers;
-  if (SubCategoryId === 0) {
+  if (SubCategoryId == 0) {
     sellers = await Seller.findAll({
       where: { CategoryId },
       attributes: {
