@@ -474,30 +474,31 @@ const addPost = async (req, res) => {
 
   if (req.file) {
     //TODO: if file is video save it to videos
-    // if (req.file.destination === "images") {
-    const newImage = await Image.create(
-      {
-        image: req.file.filename,
+    if (req.file.destination === "images") {
+      const newImage = await Image.create(
+        {
+          image: req.file.filename,
+          PostId: newPost.id,
+        },
+        {
+          returning: true,
+        }
+      );
+      await newImage.save();
+    } else {
+      const newVideo = await Video.create({
+        video: req.file.filename,
         PostId: newPost.id,
-      },
-      {
-        returning: true,
-      }
-    );
-    await newImage.save();
-    // } else {
-    //   const newVideo = await Video.create({
-    //     video: req.file.filename,
-    //     PostId: newPost.id,
-    //   });
-    //   await newVideo.save();
-    // }
+      });
+      await newVideo.save();
+    }
   }
   //TODO: Add model Video
   const result = await Post.findOne({
     where: { id: newPost.id },
     include: [
       { model: Image },
+      { model: Video },
       { model: Like },
       {
         model: Comment,
@@ -565,26 +566,27 @@ const editPost = async (req, res) => {
   await post.update({ ...others });
 
   if (req.file) {
-    // if (req.file.destination === "images") {
-    const imageFound = await Image.findOne({ where: { PostId } });
+    if (req.file.destination === "images") {
+      const imageFound = await Image.findOne({ where: { PostId } });
 
-    if (!imageFound)
-      throw serverErrs.BAD_REQUEST("image for this post not found! ");
+      if (!imageFound)
+        throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
-    await imageFound.update({ image: req.file.filename });
-    // } else {
-    //   const videoFound = await Video.findOne({ where: { PostId } });
+      await imageFound.update({ image: req.file.filename });
+    } else {
+      const videoFound = await Video.findOne({ where: { PostId } });
 
-    //   if (!videoFound)
-    //     throw serverErrs.BAD_REQUEST("video for this post not found! ");
+      if (!videoFound)
+        throw serverErrs.BAD_REQUEST("video for this post not found! ");
 
-    //   await videoFound.update({ video: req.file.filename });
-    // }
+      await videoFound.update({ video: req.file.filename });
+    }
   }
   const result = await Post.findOne({
     where: { id: post.id },
     include: [
       { model: Image },
+      { model: Video },
       { model: Like },
       {
         model: Comment,
@@ -651,10 +653,13 @@ const deletePost = async (req, res) => {
 
   const imageFound = await Image.findOne({ where: { PostId } });
 
+  const videoFound = await Video.findOne({ where: { PostId } });
+
   await post.destroy();
 
   //TODO: Image or Video may found
   if (imageFound) await imageFound.destroy();
+  if (videoFound) await videoFound.destroy();
 
   res.send({
     status: 201,
@@ -666,6 +671,7 @@ const getAllPosts = async (req, res) => {
   const posts = await Post.findAll({
     include: [
       { model: Image },
+      { model: Video },
       { model: Like },
       {
         model: Comment,
@@ -723,6 +729,7 @@ const getSinglePosts = async (req, res) => {
     where: { id: PostId },
     include: [
       { model: Image },
+      { model: Video },
       { model: Like },
       {
         model: Comment,

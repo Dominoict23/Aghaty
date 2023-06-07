@@ -24,6 +24,7 @@ const {
   DiscountCode,
   Service,
   ServiceOrder,
+  Video,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -172,6 +173,7 @@ const getAllPosts = async (req, res) => {
   const posts = await Post.findAll({
     include: [
       { model: Image },
+      { model: Video },
       { model: Like },
       {
         model: Comment,
@@ -229,6 +231,7 @@ const getSinglePosts = async (req, res) => {
     where: { id: PostId },
     include: [
       { model: Image },
+      { model: Video },
       { model: Like },
       {
         model: Comment,
