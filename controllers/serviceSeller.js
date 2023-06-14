@@ -1020,9 +1020,17 @@ const getServiceOrders = async (req, res) => {
 
   const { status } = req.body;
 
-  const orders = await Order.findAll({
-    where: { SellerId: req.user.userId, status },
-  });
+  let orders;
+
+  if (status === "all") {
+    orders = await Order.findAll({
+      where: { SellerId: req.user.userId },
+    });
+  } else {
+    orders = await Order.findAll({
+      where: { SellerId: req.user.userId, status },
+    });
+  }
 
   res.send({
     status: 200,
