@@ -26,6 +26,9 @@ const {
   getSinglePosts,
   getProductOrders,
   getProductsOrder,
+  getPendingProductOrders,
+  acceptProductOrder,
+  rejectProductOrder,
 } = require("../controllers/productSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -189,10 +192,31 @@ sellerRouter.post(
 );
 
 sellerRouter.get(
-  "/orders/:OrderId",
+  "/orders/single/:OrderId",
   verifyToken,
   checkUserAuth("productSeller"),
   errorCatcher(getProductsOrder)
+);
+
+sellerRouter.get(
+  "/orders/pending",
+  verifyToken,
+  checkUserAuth("productSeller"),
+  errorCatcher(getPendingProductOrders)
+);
+
+sellerRouter.post(
+  "/Order/product/accept",
+  verifyToken,
+  checkUserAuth("productSeller"),
+  errorCatcher(acceptProductOrder)
+);
+
+sellerRouter.post(
+  "/Order/product/reject",
+  verifyToken,
+  checkUserAuth("productSeller"),
+  errorCatcher(rejectProductOrder)
 );
 
 module.exports = sellerRouter;

@@ -36,6 +36,7 @@ const {
   validateEditSocialMedia,
   validateDeleteSocialMedia,
 } = require("../validation");
+const { deliveryRef } = require("../firebaseConfig");
 
 // Auth requests
 const login = async (req, res) => {
@@ -200,6 +201,8 @@ const addDelivery = async (req, res) => {
     cover: "cover.jpg",
   });
 
+  await deliveryRef.child(newDelivery.id).set({ long: "", lat: "" });
+
   const dataWithoutPassword = newDelivery.toJSON();
   delete dataWithoutPassword.password;
   delete dataWithoutPassword.verificationCode;
@@ -275,7 +278,7 @@ const addCategory = async (req, res) => {
 
   const { nameEN, nameAR, nameKUR, role } = req.body;
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("Image not found");
   }
 
@@ -283,7 +286,7 @@ const addCategory = async (req, res) => {
     nameEN,
     nameAR,
     nameKUR,
-    image: req.file.filename,
+    image: req.files.image[0].filename,
     role,
   });
 
@@ -302,8 +305,8 @@ const editCategory = async (req, res) => {
 
   if (!category) throw serverErrs.BAD_REQUEST("category not found");
 
-  if (req.file) {
-    await category.update({ ...others, image: req.file.filename });
+  if (req.files.image !== undefined) {
+    await category.update({ ...others, image: req.files.image[0].filename });
   } else {
     await category.update({ ...others });
   }
@@ -346,7 +349,7 @@ const addSubCategory = async (req, res) => {
 
   const { nameEN, nameAR, nameKUR, CategoryId } = req.body;
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("Image not found");
   }
 
@@ -354,7 +357,7 @@ const addSubCategory = async (req, res) => {
     nameEN,
     nameAR,
     nameKUR,
-    image: req.file.filename,
+    image: req.files.image[0].filename,
     CategoryId,
   });
 
@@ -376,8 +379,8 @@ const editSubCategory = async (req, res) => {
 
   if (!subCategory) throw serverErrs.BAD_REQUEST("subCategory not found");
 
-  if (req.file) {
-    await subCategory.update({ ...others, image: req.file.filename });
+  if (req.files.image !== undefined) {
+    await subCategory.update({ ...others, image: req.files.image[0].filename });
   } else {
     await subCategory.update({ ...others });
   }
@@ -507,13 +510,13 @@ const getAllMessages = async (req, res) => {
 
 // Banner requests
 const addBanner = async (req, res) => {
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("Image not found");
   }
 
   const newBanner = await Image.create(
     {
-      image: req.file.filename,
+      image: req.files.image[0].filename,
       AdminId: req.user.userId,
     },
     {
@@ -532,7 +535,7 @@ const addBanner = async (req, res) => {
 const editBanner = async (req, res) => {
   await validateEditBanner.validate(req.body);
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("Image not found");
   }
 
@@ -544,7 +547,7 @@ const editBanner = async (req, res) => {
 
   if (!banner) throw serverErrs.BAD_REQUEST("banner not found");
 
-  await banner.update({ image: req.file.filename });
+  await banner.update({ image: req.files.image[0].filename });
 
   res.send({
     status: 201,
@@ -586,11 +589,12 @@ const createSocialMedia = async (req, res) => {
 
   const { type, link } = req.body;
 
-  if (!req.file) throw serverErrs.BAD_REQUEST("Icon not found");
+  if (Object.keys(req.files).length === 0)
+    throw serverErrs.BAD_REQUEST("Icon not found");
 
   const newSocialMedia = await SocialMedia.create(
     {
-      icon: req.file.filename,
+      icon: req.files.image[0].filename,
       type,
       link,
     },
@@ -616,8 +620,8 @@ const editSocialMedia = async (req, res) => {
 
   if (!socialMedia) throw serverErrs.BAD_REQUEST("socialMedia not found");
 
-  if (req.file) {
-    await socialMedia.update({ icon: req.file.filename, ...others });
+  if (req.files.image !== undefined) {
+    await socialMedia.update({ icon: req.files.image[0].filename, ...others });
   } else {
     await socialMedia.update({ ...others });
   }

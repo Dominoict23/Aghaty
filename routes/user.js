@@ -50,6 +50,9 @@ const {
   getSingleServiceSeller,
   addServiceOrder,
   getServicesOrders,
+  deliveriesBySubCategoryName,
+  addOrderPackage,
+  addOrderDelivery,
 } = require("../controllers/user");
 
 // Auth routers
@@ -163,7 +166,7 @@ userRouter.post(
   checkUserAuth("user"),
   errorCatcher(nearestSellers)
 );
-userRouter.get(
+userRouter.post(
   "/seller/service/all",
   verifyToken,
   checkUserAuth("user"),
@@ -174,6 +177,14 @@ userRouter.get(
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(getSingleServiceSeller)
+);
+
+// Deliveries router
+userRouter.post(
+  "/deliveries/all",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(deliveriesBySubCategoryName)
 );
 
 // Products router
@@ -191,7 +202,7 @@ userRouter.post(
   checkUserAuth("user"),
   errorCatcher(addToCart)
 );
-userRouter.post(
+userRouter.get(
   "/cart/show",
   verifyToken,
   checkUserAuth("user"),
@@ -294,17 +305,12 @@ userRouter.delete(
 );
 
 // Order routers
+//// Product orders
 userRouter.post(
   "/Order/Products/add",
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(addProductsOrder)
-);
-userRouter.post(
-  "/Order/Service/add",
-  verifyToken,
-  checkUserAuth("user"),
-  errorCatcher(addServiceOrder)
 );
 userRouter.get(
   "/Order/Products/all",
@@ -313,16 +319,37 @@ userRouter.get(
   errorCatcher(getProductsOrders)
 );
 userRouter.get(
+  "/Order/Products/:OrderId",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getSingleProductsOrder)
+);
+//// Service orders
+userRouter.post(
+  "/Order/Service/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addServiceOrder)
+);
+userRouter.get(
   "/Order/Service/all",
   verifyToken,
   checkUserAuth("user"),
   errorCatcher(getServicesOrders)
 );
-userRouter.get(
-  "/Order/Products/:OrderId",
+//// Package Orders
+userRouter.post(
+  "/Order/Package/add",
   verifyToken,
   checkUserAuth("user"),
-  errorCatcher(getSingleProductsOrder)
+  errorCatcher(addOrderPackage)
+);
+//// Delivery Orders
+userRouter.post(
+  "/Order/Delivery/add",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(addOrderDelivery)
 );
 
 module.exports = userRouter;

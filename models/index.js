@@ -22,11 +22,12 @@ const ServiceOrder = require("./ServiceOrder");
 const OrderProduct = require("./OrderProduct");
 const Delivery = require("./Delivery");
 const OrderDelivery = require("./OrderDelivery");
-const OrderFromTo = require("./OrderFromTo");
+const OrderPackage = require("./OrderPackage");
 const FinancialRecord = require("./FinancialRecord");
 const Message = require("./Message");
 const SocialMedia = require("./SocialMedia");
 const Rate = require("./Rate");
+const Live = require("./Live");
 
 User.hasOne(Cart);
 Cart.belongsTo(User);
@@ -88,6 +89,9 @@ Service.belongsTo(Seller);
 Post.hasMany(Video);
 Video.belongsTo(Post);
 
+Post.hasMany(Live);
+Live.belongsTo(Post);
+
 User.hasMany(Order);
 Order.belongsTo(User);
 
@@ -118,14 +122,17 @@ OrderProduct.belongsTo(Order);
 Product.hasMany(OrderProduct);
 OrderProduct.belongsTo(Product);
 
-Delivery.hasMany(OrderDelivery);
-OrderDelivery.belongsTo(Delivery);
+User.hasMany(OrderDelivery);
+OrderDelivery.belongsTo(User);
 
-Order.hasMany(OrderDelivery);
+User.hasMany(OrderPackage);
+OrderPackage.belongsTo(User);
+
+OrderPackage.hasOne(OrderDelivery);
+OrderDelivery.belongsTo(OrderPackage);
+
+Order.hasOne(OrderDelivery);
 OrderDelivery.belongsTo(Order);
-
-Delivery.hasMany(OrderFromTo);
-OrderFromTo.belongsTo(Delivery);
 
 Seller.hasMany(FinancialRecord);
 FinancialRecord.belongsTo(Seller);
@@ -141,6 +148,9 @@ Message.belongsTo(User);
 
 Category.hasMany(Seller);
 Seller.belongsTo(Category);
+
+Category.hasMany(Delivery);
+Delivery.belongsTo(Category);
 
 Feedback.hasMany(Rate);
 Rate.belongsTo(Feedback);
@@ -179,9 +189,10 @@ module.exports = {
   OrderProduct,
   Delivery,
   OrderDelivery,
-  OrderFromTo,
+  OrderPackage,
   FinancialRecord,
   Message,
   SocialMedia,
   Rate,
+  Live,
 };

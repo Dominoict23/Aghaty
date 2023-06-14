@@ -1,16 +1,16 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/config/connection");
 
-const UserLocation = sequelize.define("UserLocation", {
+const Live = sequelize.define("Live", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  isDefault: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false,
+  roomID: {
+    type: DataTypes.STRING,
+    allowNull: false,
   },
 });
 
-module.exports = UserLocation;
+module.exports = Live;

@@ -10,37 +10,59 @@ const { clientError, serverError } = require("./middleware");
 dotenv.config();
 const app = express();
 
-// const fileStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "images");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + "-" + file.originalname);
-//   },
-// });
-
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Specify the destination folder based on the file type
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, "images");
-    } else if (file.mimetype.startsWith("video/")) {
-      cb(null, "videos");
-    } else {
-      cb(new Error("Invalid file type"));
-    }
+    cb(null, "uploads");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    const fileExtension = path.extname(file.originalname);
+    const uniquePrefix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniquePrefix + fileExtension);
   },
 });
 
+const fileFilter = (req, file, cb) => {
+  const allowedExtensions = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".bmp",
+    ".svg",
+    ".tif",
+    ".tiff",
+    ".webp",
+    ".mp4",
+    ".mov",
+    ".avi",
+    ".wmv",
+    ".mkv",
+    ".flv",
+    ".webm",
+    ".m4v",
+    ".mpeg",
+    ".3gp",
+  ]; // Add more extensions if needed
+  const fileExtension = path.extname(file.originalname).toLowerCase(); // Get the file extension
+
+  // Check if the file extension is allowed
+  if (allowedExtensions.includes(fileExtension)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image or video files are allowed."));
+  }
+};
+
 app.use(cors());
 // save image
-app.use(multer({ storage: fileStorage }).single("image"));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).fields([
+    { name: "image", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+  ])
+);
 
-app.use("/images", express.static(path.join(__dirname, "images")));
-app.use("/videos", express.static(path.join(__dirname, "videos")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.set("port", process.env.PORT || 3500);
 

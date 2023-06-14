@@ -13,6 +13,7 @@ const {
   Video,
   User,
   Order,
+  Live,
 } = require("../models");
 const {
   validateCreateService,
@@ -27,7 +28,9 @@ const {
   validateDeleteLike,
   validateEditComment,
   validateOrders,
+  validateAcceptRejectOrder,
 } = require("../validation");
+const path = require("path");
 
 // Service requests
 const addService = async (req, res) => {
@@ -65,9 +68,8 @@ const addService = async (req, res) => {
     priceTo,
   });
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0)
     throw serverErrs.BAD_REQUEST("Image not found");
-  }
 
   const newService = await Service.create(
     {
@@ -88,7 +90,7 @@ const addService = async (req, res) => {
 
   const newImage = await Image.create(
     {
-      image: req.file.filename,
+      image: req.files.image[0].filename,
       ServiceId: newService.id,
     },
     {
@@ -144,13 +146,13 @@ const editService = async (req, res) => {
 
   await service.update({ ...others });
 
-  if (req.file) {
+  if (req.files.image !== undefined) {
     const imageFound = await Image.findOne({ where: { ServiceId } });
 
     if (!imageFound)
       throw serverErrs.BAD_REQUEST("image for this service not found! ");
 
-    await imageFound.update({ image: req.file.filename });
+    await imageFound.update({ image: req.files.image[0].filename });
   }
 
   const result = await Service.findOne({
@@ -254,7 +256,7 @@ const addStory = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("Image not found");
   }
 
@@ -270,7 +272,7 @@ const addStory = async (req, res) => {
 
   if (storyFound?.image) {
     clearImage(storyFound.image);
-    await storyFound.update({ image: req.file.filename });
+    await storyFound.update({ image: req.files.image[0].filename });
     // Set the deletion time to 24 hours from now
     const deletionTime = new Date();
     deletionTime.setHours(deletionTime.getHours() + 24);
@@ -287,7 +289,7 @@ const addStory = async (req, res) => {
     });
   } else {
     const newStory = await Story.create({
-      image: req.file.filename,
+      image: req.files.image[0].filename,
       SellerId: serviceSeller.id,
     });
     await newStory.save();
@@ -337,11 +339,11 @@ const editStory = async (req, res) => {
 
   if (!story) throw serverErrs.BAD_REQUEST("Story not found!");
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("Image not found");
   }
 
-  await story.update({ image: req.file.filename });
+  await story.update({ image: req.files.image[0].filename });
 
   const deletionTime = new Date();
   deletionTime.setHours(deletionTime.getHours() + 24);
@@ -472,12 +474,11 @@ const addPost = async (req, res) => {
   }
   await newPost.save();
 
-  if (req.file) {
-    //TODO: if file is video save it to videos
-    if (req.file.destination === "images") {
+  if (Object.keys(req.files).length !== 0) {
+    if (req.files.image !== undefined) {
       const newImage = await Image.create(
         {
-          image: req.file.filename,
+          image: req.files.image[0].filename,
           PostId: newPost.id,
         },
         {
@@ -485,21 +486,23 @@ const addPost = async (req, res) => {
         }
       );
       await newImage.save();
-    } else {
+    }
+    if (req.files.video !== undefined) {
       const newVideo = await Video.create({
-        video: req.file.filename,
+        video: req.files.video[0].filename,
         PostId: newPost.id,
       });
       await newVideo.save();
     }
   }
-  //TODO: Add model Video
+
   const result = await Post.findOne({
     where: { id: newPost.id },
     include: [
       { model: Image },
       { model: Video },
       { model: Like },
+      { model: Live },
       {
         model: Comment,
         include: [
@@ -535,6 +538,10 @@ const addPost = async (req, res) => {
       },
     ],
   });
+
+  const hasVideo = Object.values(await result?.getVideos()).length !== 0;
+  const hasLive = Object.values(await result?.getLives()).length !== 0;
+  await result.update({ hasVideo, hasLive });
 
   res.send({
     status: 201,
@@ -565,21 +572,21 @@ const editPost = async (req, res) => {
 
   await post.update({ ...others });
 
-  if (req.file) {
-    if (req.file.destination === "images") {
+  if (Object.keys(req.files).length !== 0) {
+    if (req.files.image !== undefined) {
       const imageFound = await Image.findOne({ where: { PostId } });
 
       if (!imageFound)
         throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
-      await imageFound.update({ image: req.file.filename });
-    } else {
+      await imageFound.update({ image: req.files.image[0].filename });
+    } else if (req.files.video !== undefined) {
       const videoFound = await Video.findOne({ where: { PostId } });
 
       if (!videoFound)
         throw serverErrs.BAD_REQUEST("video for this post not found! ");
 
-      await videoFound.update({ video: req.file.filename });
+      await videoFound.update({ video: req.files.video[0].filename });
     }
   }
   const result = await Post.findOne({
@@ -588,6 +595,7 @@ const editPost = async (req, res) => {
       { model: Image },
       { model: Video },
       { model: Like },
+      { model: Live },
       {
         model: Comment,
         include: [
@@ -623,6 +631,10 @@ const editPost = async (req, res) => {
       },
     ],
   });
+
+  const hasVideo = Object.values(await result?.getVideos()).length !== 0;
+  const hasLive = Object.values(await result?.getLives()).length !== 0;
+  await result.update({ hasVideo, hasLive });
 
   res.send({
     status: 201,
@@ -655,11 +667,14 @@ const deletePost = async (req, res) => {
 
   const videoFound = await Video.findOne({ where: { PostId } });
 
+  const liveFound = await Live.findOne({ where: { PostId } });
+
   await post.destroy();
 
   //TODO: Image or Video may found
   if (imageFound) await imageFound.destroy();
   if (videoFound) await videoFound.destroy();
+  if (liveFound) await liveFound.destroy();
 
   res.send({
     status: 201,
@@ -673,6 +688,7 @@ const getAllPosts = async (req, res) => {
       { model: Image },
       { model: Video },
       { model: Like },
+      { model: Live },
       {
         model: Comment,
         include: [
@@ -712,8 +728,10 @@ const getAllPosts = async (req, res) => {
   await Promise.all(
     posts.map(async (post) => {
       const likes = await post?.getLikes();
+      const hasVideo = Object.values(await post?.getVideos()).length !== 0;
+      const hasLive = Object.values(await post?.getLives()).length !== 0;
       const hasLike = likes?.some((like) => like.SellerId === +SellerId);
-      await post?.update({ isLike: hasLike });
+      await post?.update({ isLike: hasLike, hasVideo, hasLive });
     })
   );
 
@@ -731,6 +749,7 @@ const getSinglePosts = async (req, res) => {
       { model: Image },
       { model: Video },
       { model: Like },
+      { model: Live },
       {
         model: Comment,
         include: [
@@ -768,8 +787,10 @@ const getSinglePosts = async (req, res) => {
   });
 
   const likes = await post?.getLikes();
+  const hasVideo = Object.values(await post?.getVideos()).length !== 0;
+  const hasLive = Object.values(await post?.getLives()).length !== 0;
   const hasLike = likes?.some((like) => like.SellerId == req.user.userId);
-  await post?.update({ isLike: hasLike });
+  await post?.update({ isLike: hasLike, hasVideo, hasLive });
 
   res.send({
     status: 200,
@@ -882,8 +903,19 @@ const addComment = async (req, res) => {
 
   await newComment.save();
 
+  const result = await Comment.findOne({
+    where: { id: newComment.id },
+    include: {
+      model: User,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
   res.send({
     status: 201,
+    data: result,
     msg: "successful add comment to Post",
   });
 };
@@ -900,6 +932,12 @@ const editComment = async (req, res) => {
 
   const comment = await Comment.findOne({
     where: { id: CommentId },
+    include: {
+      model: User,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
   });
 
   if (comment.SellerId !== seller.id)
@@ -909,6 +947,7 @@ const editComment = async (req, res) => {
 
   res.send({
     status: 201,
+    data: comment,
     msg: "successful edit comment",
   });
 };
@@ -927,15 +966,15 @@ const editAvatar = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("avatar not found");
   }
 
-  await serviceSeller.update({ avatar: req.file.filename });
+  await serviceSeller.update({ avatar: req.files.image[0].filename });
 
   res.send({
     status: 201,
-    avatar: req.file.filename,
+    avatar: req.files.image[0].filename,
     msg: "successful update avatar in seller",
   });
 };
@@ -952,15 +991,15 @@ const editCover = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("cover not found");
   }
 
-  await serviceSeller.update({ cover: req.file.filename });
+  await serviceSeller.update({ cover: req.files.image[0].filename });
 
   res.send({
     status: 201,
-    cover: req.file.filename,
+    cover: req.files.image[0].filename,
     msg: "successful update cover in seller",
   });
 };
@@ -992,6 +1031,39 @@ const getServiceOrders = async (req, res) => {
   });
 };
 
+const acceptServiceOrder = async (req, res) => {
+  await validateAcceptRejectOrder.validate(req.body);
+
+  const { OrderId } = req.body;
+
+  const orderFound = await Order.findOne({ where: { id: OrderId } });
+
+  if (!orderFound) throw serverErrs.BAD_REQUEST("Order not found");
+
+  await orderFound.update({ status: "ACCEPTED" });
+
+  res.send({
+    status: 201,
+    msg: "successful accept service order",
+  });
+};
+const rejectServiceOrder = async (req, res) => {
+  await validateAcceptRejectOrder.validate(req.body);
+
+  const { OrderId } = req.body;
+
+  const orderFound = await Order.findOne({ where: { id: OrderId } });
+
+  if (!orderFound) throw serverErrs.BAD_REQUEST("Order not found");
+
+  await orderFound.update({ status: "REJECTED" });
+
+  res.send({
+    status: 201,
+    msg: "successful reject service order",
+  });
+};
+
 module.exports = {
   addService,
   editService,
@@ -1015,4 +1087,6 @@ module.exports = {
   editCover,
   getAllSubCategory,
   getServiceOrders,
+  acceptServiceOrder,
+  rejectServiceOrder,
 };

@@ -25,6 +25,10 @@ const {
   Service,
   ServiceOrder,
   Video,
+  Delivery,
+  OrderPackage,
+  OrderDelivery,
+  Live,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const {
@@ -44,6 +48,10 @@ const {
   validateAllCategory,
   validateAddServiceOrder,
   validateHighRateSellers,
+  validateDeliveriesBySubCategoryName,
+  validateAddOrderPackage,
+  validateAddOrderDelivery,
+  validateAllServiceSellers,
 } = require("../validation");
 const generateToken = require("../middleware/generateToken");
 const { calculateDistance } = require("../utils/calculateDistance");
@@ -101,15 +109,15 @@ const editAvatar = async (req, res) => {
 
   if (!userFound) throw serverErrs.BAD_REQUEST("user not found! ");
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("avatar not found");
   }
 
-  await userFound.update({ avatar: req.file.filename });
+  await userFound.update({ avatar: req.files.image[0].filename });
 
   res.send({
     status: 201,
-    avatar: req.file.filename,
+    avatar: req.files.image[0].filename,
     msg: "successful update avatar in user",
   });
 };
@@ -120,15 +128,15 @@ const editCover = async (req, res) => {
 
   if (!userFound) throw serverErrs.BAD_REQUEST("user not found! ");
 
-  if (!req.file) {
+  if (Object.keys(req.files).length === 0) {
     throw serverErrs.BAD_REQUEST("cover not found");
   }
 
-  await userFound.update({ cover: req.file.filename });
+  await userFound.update({ cover: req.files.image[0].filename });
 
   res.send({
     status: 201,
-    cover: req.file.filename,
+    cover: req.files.image[0].filename,
     msg: "successful update cover in user",
   });
 };
@@ -175,6 +183,7 @@ const getAllPosts = async (req, res) => {
       { model: Image },
       { model: Video },
       { model: Like },
+      { model: Live },
       {
         model: Comment,
         include: [
@@ -214,8 +223,10 @@ const getAllPosts = async (req, res) => {
   await Promise.all(
     posts.map(async (post) => {
       const likes = await post?.getLikes();
+      const hasVideo = Object.values(await post?.getVideos()).length !== 0;
+      const hasLive = Object.values(await post?.getLives()).length !== 0;
       const hasLike = likes?.some((like) => like.UserId == req.user.userId);
-      await post?.update({ isLike: hasLike });
+      await post?.update({ isLike: hasLike, hasVideo, hasLive });
     })
   );
 
@@ -233,6 +244,7 @@ const getSinglePosts = async (req, res) => {
       { model: Image },
       { model: Video },
       { model: Like },
+      { model: Live },
       {
         model: Comment,
         include: [
@@ -270,8 +282,10 @@ const getSinglePosts = async (req, res) => {
   });
 
   const likes = await post?.getLikes();
+  const hasVideo = Object.values(await post?.getVideos()).length !== 0;
+  const hasLive = Object.values(await post?.getLives()).length !== 0;
   const hasLike = likes?.some((like) => like.SellerId == req.user.userId);
-  await post?.update({ isLike: hasLike });
+  await post?.update({ isLike: hasLike, hasVideo, hasLive });
 
   res.send({
     status: 200,
@@ -385,8 +399,19 @@ const addComment = async (req, res) => {
 
   await newComment.save();
 
+  const result = await Comment.findOne({
+    where: { id: newComment.id },
+    include: {
+      model: User,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
   res.send({
     status: 201,
+    data: result,
     msg: "successful add comment to Post",
   });
 };
@@ -403,6 +428,12 @@ const editComment = async (req, res) => {
 
   const comment = await Comment.findOne({
     where: { id: CommentId },
+    include: {
+      model: User,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
   });
 
   if (comment.UserId !== user.id)
@@ -412,6 +443,7 @@ const editComment = async (req, res) => {
 
   res.send({
     status: 201,
+    data: comment,
     msg: "successful edit comment",
   });
 };
@@ -500,7 +532,7 @@ const getHighRateSellers = async (req, res) => {
 const nearestSellers = async (req, res) => {
   await validateNearestSellers.validate(req.body);
 
-  const { CategoryId, SubCategoryId, LocationId } = req.body;
+  const { CategoryId, SubCategoryId } = req.body;
 
   // const { distance } = req.body;
 
@@ -519,7 +551,7 @@ const nearestSellers = async (req, res) => {
   //   });
 
   const userLocation = await UserLocation.findOne({
-    where: { LocationId, UserId: req.user.userId },
+    where: { isDefault: true, UserId: req.user.userId },
     include: { model: Location },
   });
 
@@ -591,11 +623,16 @@ const nearestSellers = async (req, res) => {
   });
 };
 const getServiceSellers = async (req, res) => {
+  await validateAllServiceSellers.validate(req.body);
+
+  const { CategoryId } = req.body;
+
   const sellers = await Seller.findAll({
-    where: { role: "serviceSeller" },
+    where: { role: "serviceSeller", CategoryId },
     attributes: {
       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
     },
+    include: { model: Service, include: { model: Image } },
   });
 
   res.send({
@@ -619,6 +656,21 @@ const getSingleServiceSeller = async (req, res) => {
     status: 200,
     seller,
     msg: "get single service seller successfully",
+  });
+};
+
+// Deliveries
+const deliveriesBySubCategoryName = async (req, res) => {
+  await validateDeliveriesBySubCategoryName.validate(req.body);
+
+  const { nameEN } = req.body;
+
+  const deliveries = await Delivery.findAll({ where: { type: nameEN } });
+
+  res.send({
+    status: 200,
+    deliveries,
+    msg: "get all deliveries of this sub category successfully",
   });
 };
 
@@ -707,7 +759,7 @@ const addToCart = async (req, res) => {
   });
 };
 const showCart = async (req, res) => {
-  const { LocationId } = req.body;
+  // const { LocationId } = req.body;
 
   const cart = await Cart.findOne({ where: { UserId: req.user.userId } });
 
@@ -725,9 +777,13 @@ const showCart = async (req, res) => {
     throw serverErrs.BAD_REQUEST("There are no products in cart to show");
 
   const userLocation = await UserLocation.findOne({
-    where: { LocationId, UserId: req.user.userId },
+    where: { isDefault: true, UserId: req.user.userId },
     include: { model: Location },
   });
+  // const userLocation = await UserLocation.findOne({
+  //   where: { LocationId, UserId: req.user.userId },
+  //   include: { model: Location },
+  // });
   const userCoordinates = {
     lat: userLocation.Location.lat,
     long: userLocation.Location.long,
@@ -869,6 +925,7 @@ const deleteCartProduct = async (req, res) => {
 };
 
 // Order
+//// Product orders
 const addProductsOrder = async (req, res) => {
   // TODO: handle discount code case
   const { discountCode } = req.body;
@@ -951,7 +1008,15 @@ const addProductsOrder = async (req, res) => {
 const getProductsOrders = async (req, res) => {
   const orders = await Order.findAll({
     where: { UserId: req.user.userId },
-    include: { model: OrderProduct, required: true },
+    include: [
+      { model: OrderProduct, required: true },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
   });
 
   const formattedOrders = orders.map((order, index) => ({
@@ -970,7 +1035,15 @@ const getSingleProductsOrder = async (req, res) => {
 
   const orders = await OrderProduct.findAll({
     where: { OrderId },
-    include: { model: Product },
+    include: [
+      { model: Product },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
   });
 
   res.send({
@@ -979,6 +1052,7 @@ const getSingleProductsOrder = async (req, res) => {
     msg: "successful get single products order",
   });
 };
+//// Service orders
 const addServiceOrder = async (req, res) => {
   await validateAddServiceOrder.validate(req.body);
 
@@ -1032,7 +1106,15 @@ const getServicesOrders = async (req, res) => {
     where: {
       UserId: req.user.userId,
     },
-    include: { model: ServiceOrder, required: true },
+    include: [
+      { model: ServiceOrder, required: true },
+      {
+        model: Seller,
+        attributes: {
+          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+        },
+      },
+    ],
   });
 
   const formattedOrders = orders.map((order, index) => ({
@@ -1044,6 +1126,76 @@ const getServicesOrders = async (req, res) => {
     status: 200,
     orders: formattedOrders,
     msg: "successful get all Service orders",
+  });
+};
+//// Package Orders
+const addOrderPackage = async (req, res) => {
+  await validateAddOrderPackage.validate(req.body);
+
+  const {
+    senderName,
+    senderAddress,
+    senderMobile,
+    receiverName,
+    receiverAddress,
+    receiverMobile,
+    packageDescription,
+    startLong,
+    startLat,
+    endLong,
+    endLat,
+  } = req.body;
+
+  const newPackageOrder = await OrderPackage.create({
+    senderName,
+    senderAddress,
+    senderMobile,
+    receiverName,
+    receiverAddress,
+    receiverMobile,
+    packageDescription,
+    UserId: req.user.userId,
+  });
+
+  const distance = calculateDistance(startLat, startLong, endLat, endLong);
+
+  await OrderDelivery.create({
+    type: "Freight",
+    distance,
+    price: distance * 10, // 10$ per kilometer
+    startLong,
+    startLat,
+    endLong,
+    endLat,
+    OrderPackageId: newPackageOrder.id,
+    UserId: req.user.userId,
+  });
+
+  res.send({
+    status: 201,
+    msg: "successful create new package order",
+  });
+};
+//// Delivery Orders
+const addOrderDelivery = async (req, res) => {
+  await validateAddOrderDelivery.validate(req.body);
+
+  const { distance, price, startLong, startLat, endLong, endLat } = req.body;
+
+  await OrderDelivery.create({
+    type: "Transport buses",
+    distance,
+    price,
+    startLong,
+    startLat,
+    endLong,
+    endLat,
+    UserId: req.user.userId,
+  });
+
+  res.send({
+    status: 201,
+    msg: "successful create new delivery order",
   });
 };
 
@@ -1081,7 +1233,8 @@ const createLocation = async (req, res) => {
 
   const { name, city, street, buildNumber, long, lat } = req.body;
 
-  if (!req.file) throw serverErrs.BAD_REQUEST("image not found");
+  if (Object.keys(req.files).length === 0)
+    throw serverErrs.BAD_REQUEST("image not found");
 
   const newLocation = await Location.create(
     {
@@ -1091,17 +1244,23 @@ const createLocation = async (req, res) => {
       buildNumber,
       long,
       lat,
-      image: req.file.filename,
+      image: req.files.image[0].filename,
     },
     {
       returning: true,
     }
   );
 
-  await UserLocation.create({
+  const newUserLocation = await UserLocation.create({
     LocationId: newLocation.id,
     UserId: req.user.userId,
   });
+
+  const count = await UserLocation.count({
+    where: { UserId: req.user.userId },
+  });
+
+  if (count === 1) await newUserLocation.update({ isDefault: true });
 
   const userLocation = await UserLocation.findOne({
     where: {
@@ -1127,14 +1286,14 @@ const createLocation = async (req, res) => {
 };
 const editLocation = async (req, res) => {
   await validateEditLocation.validate(req.body);
-  const { LocationId, ...others } = req.body;
+  const { LocationId, isDefault, ...others } = req.body;
   const location = await Location.findOne({
     where: { id: LocationId },
   });
   if (!Location) throw serverErrs.BAD_REQUEST("Location not found");
 
-  if (req.file) {
-    await location.update({ ...others, image: req.file.filename });
+  if (req.files.image !== undefined) {
+    await location.update({ ...others, image: req.files.image[0].filename });
   } else {
     await location.update({ ...others });
   }
@@ -1154,6 +1313,18 @@ const editLocation = async (req, res) => {
       },
     ],
   });
+
+  if (isDefault == true) {
+    const userLocationDefault = await UserLocation.findOne({
+      LocationId,
+      UserId: req.user.userId,
+      isDefault: true,
+    });
+
+    await userLocationDefault.update({ isDefault: false });
+
+    await userLocation.update({ isDefault: true });
+  }
 
   res.send({
     status: 201,
@@ -1343,7 +1514,7 @@ const addFeedbackComment = async (req, res) => {
 
   if (!feedBack) throw serverErrs.BAD_REQUEST("FeedBack not found");
 
-  await Comment.create(
+  const newComment = await Comment.create(
     {
       text,
       FeedbackId,
@@ -1354,9 +1525,20 @@ const addFeedbackComment = async (req, res) => {
     }
   );
 
+  const result = await Comment.findOne({
+    where: { id: newComment.id },
+    include: {
+      model: User,
+      attributes: {
+        exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
+      },
+    },
+  });
+
   res.send({
     status: 201,
-    msg: "successful add comment to Post",
+    data: result,
+    msg: "successful add comment to Feedback",
   });
 };
 const deleteFeedbackComment = async (req, res) => {
@@ -1421,4 +1603,7 @@ module.exports = {
   getSingleServiceSeller,
   addServiceOrder,
   getServicesOrders,
+  deliveriesBySubCategoryName,
+  addOrderPackage,
+  addOrderDelivery,
 };

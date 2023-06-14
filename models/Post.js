@@ -9,13 +9,21 @@ const Post = sequelize.define("Post", {
   },
   text: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "",
   },
   count: {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
   isLike: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  hasVideo: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  hasLive: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },

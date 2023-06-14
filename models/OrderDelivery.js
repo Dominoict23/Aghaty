@@ -9,7 +9,7 @@ const OrderDelivery = sequelize.define("OrderDelivery", {
   },
   status: {
     type: DataTypes.STRING,
-    allowNull: false,
+    defaultValue: "PENDING",
   },
   type: {
     type: DataTypes.STRING,
@@ -19,7 +19,26 @@ const OrderDelivery = sequelize.define("OrderDelivery", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  // NOTE: GET price from orderId ?
+  price: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
+  startLat: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
+  startLong: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
+  endLat: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
+  endLong: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
 });
 
 module.exports = OrderDelivery;

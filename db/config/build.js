@@ -10,7 +10,7 @@ const {
   // services,
   admin,
   messages,
-  // deliveries,
+  deliveries,
   users,
   banners,
   feedBacks,
@@ -28,13 +28,14 @@ const {
   // Service,
   Admin,
   Message,
-  // Delivery,
+  Delivery,
   User,
   Image,
   Feedback,
   Location,
   UserLocation,
 } = require("../../models");
+const { deliveryRef } = require("../../firebaseConfig");
 
 const insertDB = async () => {
   await sequelize.sync({ force: true });
@@ -68,9 +69,14 @@ const insertDB = async () => {
   await UserLocation.bulkCreate(userLocations).then(() =>
     console.log("User Locations data have been saved")
   );
-  // await Delivery.bulkCreate(deliveries).then(() =>
-  //   console.log("Delivery data have been saved")
-  // );
+  await Delivery.bulkCreate(deliveries).then(() =>
+    console.log("Delivery data have been saved")
+  );
+  deliveries.forEach(async (delivery, ind) => {
+    const { long, lat } = delivery;
+    await deliveryRef.child(ind + 1).set({ long, lat });
+  });
+  process.exit();
   // await Story.bulkCreate(stories).then(() =>
   //   console.log("Story data have been saved")
   // );

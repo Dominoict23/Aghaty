@@ -75,6 +75,7 @@ const deliveries = [
     type: "Taxi cars",
     lat: 31.451056,
     long: 34.436067,
+    CategoryId: 5,
     // verificationCode: ,
   },
   {
@@ -87,6 +88,7 @@ const deliveries = [
     type: "Taxi cars",
     lat: 31.441056,
     long: 34.436067,
+    CategoryId: 5,
     // verificationCode: ,
   },
   {
@@ -99,6 +101,7 @@ const deliveries = [
     type: "Taxi cars",
     lat: 31.456056,
     long: 34.436067,
+    CategoryId: 5,
     // verificationCode: ,
   },
 ];
@@ -306,6 +309,11 @@ const userLocations = [
   {
     UserId: 1,
     LocationId: 1,
+    isDefault: true,
+  },
+  {
+    UserId: 1,
+    LocationId: 2,
   },
   {
     SellerId: 1,

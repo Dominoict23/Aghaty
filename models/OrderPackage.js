@@ -1,32 +1,44 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db/config/connection");
 
-const OrderFromTo = sequelize.define("OrderFromTo", {
+const OrderPackage = sequelize.define("OrderPackage", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  status: {
+  // status: {
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  // },
+  senderName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  type: {
+  senderAddress: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  distance: {
+  senderMobile: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  locationFrom: {
+  receiverName: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  locationTo: {
+  receiverAddress: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  receiverMobile: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  packageDescription: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 });
 
-module.exports = OrderFromTo;
+module.exports = OrderPackage;

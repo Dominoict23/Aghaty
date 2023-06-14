@@ -36,8 +36,34 @@ const validateEditProduct = yup.object().shape({
 const validateDeleteProduct = yup.object().shape({
   ProductId: yup.number().required(),
 });
+
+// Orders validation
 const validateOrders = yup.object().shape({
   status: yup.string().required(),
+});
+const validateAddOrderPackage = yup.object().shape({
+  senderName: yup.string().required(),
+  senderAddress: yup.string().required(),
+  senderMobile: yup.string().required(),
+  receiverName: yup.string().required(),
+  receiverAddress: yup.string().required(),
+  receiverMobile: yup.string().required(),
+  packageDescription: yup.string().required(),
+  startLong: yup.number().required(),
+  startLat: yup.number().required(),
+  endLong: yup.number().required(),
+  endLat: yup.number().required(),
+});
+const validateAddOrderDelivery = yup.object().shape({
+  distance: yup.number().required(),
+  price: yup.number().required(),
+  startLong: yup.number().required(),
+  startLat: yup.number().required(),
+  endLong: yup.number().required(),
+  endLat: yup.number().required(),
+});
+const validateAcceptRejectOrder = yup.object().shape({
+  OrderId: yup.number().required(),
 });
 
 const validateEditStory = yup.object().shape({
@@ -149,11 +175,13 @@ const validateDeleteSeller = yup.object().shape({
 const validateNearestSellers = yup.object().shape({
   CategoryId: yup.number().required(),
   SubCategoryId: yup.number().required(),
-  LocationId: yup.number().required(),
 });
 const validateHighRateSellers = yup.object().shape({
   CategoryId: yup.number().required(),
   SubCategoryId: yup.number().required(),
+});
+const validateAllServiceSellers = yup.object().shape({
+  CategoryId: yup.number().required(),
 });
 
 // Category validation
@@ -234,6 +262,10 @@ const validateDeleteDelivery = yup.object().shape({
   DeliveryId: yup.number().required(),
 });
 
+const validateDeliveriesBySubCategoryName = yup.object().shape({
+  nameEN: yup.string().required(),
+});
+
 // Banner validations
 const validateEditBanner = yup.object().shape({
   BannerId: yup.number().required(),
@@ -258,6 +290,7 @@ const validateEditLocation = yup.object().shape({
   buildNumber: yup.string().optional(),
   long: yup.number().optional(),
   lat: yup.number().optional(),
+  isDefault: yup.number().optional(),
   LocationId: yup.number().required(),
 });
 const validateDeleteLocation = yup.object().shape({
@@ -341,4 +374,9 @@ module.exports = {
   validateAddServiceOrder,
   validateOrders,
   validateHighRateSellers,
+  validateDeliveriesBySubCategoryName,
+  validateAddOrderPackage,
+  validateAddOrderDelivery,
+  validateAcceptRejectOrder,
+  validateAllServiceSellers,
 };
