@@ -684,6 +684,7 @@ const deletePost = async (req, res) => {
 const getAllPosts = async (req, res) => {
   const { SellerId } = req.params;
   const posts = await Post.findAll({
+    order: [["id", "DESC"]],
     include: [
       { model: Image },
       { model: Video },

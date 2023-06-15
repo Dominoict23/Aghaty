@@ -179,6 +179,7 @@ const getAllBanners = async (req, res) => {
 // Posts
 const getAllPosts = async (req, res) => {
   const posts = await Post.findAll({
+    order: [["id", "DESC"]],
     include: [
       { model: Image },
       { model: Video },

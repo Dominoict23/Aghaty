@@ -489,6 +489,7 @@ const deletePost = async (req, res) => {
 const getAllPosts = async (req, res) => {
   const { SellerId } = req.params;
   const posts = await Post.findAll({
+    order: [["id", "DESC"]],
     include: [
       { model: Image },
       { model: Video },
@@ -1111,9 +1112,14 @@ const acceptProductOrder = async (req, res) => {
 
   const { OrderId } = req.body;
 
-  const orderFound = await Order.findOne({ where: { id: OrderId } });
+  const orderFound = await Order.findOne({
+    where: { id: OrderId, status: "PENDING" },
+  });
 
-  if (!orderFound) throw serverErrs.BAD_REQUEST("Order not found");
+  if (!orderFound)
+    throw serverErrs.BAD_REQUEST(
+      "Order not found or it's either accepted or rejected"
+    );
 
   const userLocation = await UserLocation.findOne({
     where: { isDefault: true, UserId: orderFound.UserId },
@@ -1151,6 +1157,7 @@ const acceptProductOrder = async (req, res) => {
     endLong: sellerCoordinates.long,
     endLat: sellerCoordinates.lat,
     UserId: orderFound.UserId,
+    OrderId: orderFound.id,
   });
 
   await orderFound.update({ status: "IN_PROGRESS" });
@@ -1166,9 +1173,14 @@ const rejectProductOrder = async (req, res) => {
 
   const { OrderId } = req.body;
 
-  const orderFound = await Order.findOne({ where: { id: OrderId } });
+  const orderFound = await Order.findOne({
+    where: { id: OrderId, status: "PENDING" },
+  });
 
-  if (!orderFound) throw serverErrs.BAD_REQUEST("Order not found");
+  if (!orderFound)
+    throw serverErrs.BAD_REQUEST(
+      "Order not found or it's either accepted or rejected"
+    );
 
   await orderFound.update({ status: "REJECTED" });
 
