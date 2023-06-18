@@ -25,6 +25,8 @@ const {
   getSellerStories,
   getSinglePosts,
   getServiceOrders,
+  acceptServiceOrder,
+  rejectServiceOrder,
 } = require("../controllers/serviceSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -185,6 +187,20 @@ sellerRouter.post(
   verifyToken,
   checkUserAuth("serviceSeller"),
   errorCatcher(getServiceOrders)
+);
+
+sellerRouter.post(
+  "/Order/service/accept",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(acceptServiceOrder)
+);
+
+sellerRouter.post(
+  "/Order/service/reject",
+  verifyToken,
+  checkUserAuth("serviceSeller"),
+  errorCatcher(rejectServiceOrder)
 );
 
 module.exports = sellerRouter;

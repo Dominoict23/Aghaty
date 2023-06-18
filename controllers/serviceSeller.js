@@ -1056,6 +1056,7 @@ const acceptServiceOrder = async (req, res) => {
     msg: "successful accept service order",
   });
 };
+
 const rejectServiceOrder = async (req, res) => {
   await validateAcceptRejectOrder.validate(req.body);
 
