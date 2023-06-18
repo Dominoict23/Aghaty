@@ -449,7 +449,7 @@ const addPost = async (req, res) => {
     //NOTE: The id of the seller provided not the one that has permission
     throw serverErrs.BAD_REQUEST("No Auth");
 
-  const { text } = req.body;
+  const { text, roomID } = req.body;
 
   let newPost;
   if (text) {
@@ -473,6 +473,19 @@ const addPost = async (req, res) => {
     );
   }
   await newPost.save();
+
+  if (roomID) {
+    const newLive = await Live.create(
+      {
+        roomID,
+        PostId: newPost.id,
+      },
+      {
+        returning: true,
+      }
+    );
+    await newLive.save();
+  }
 
   if (Object.keys(req.files).length !== 0) {
     if (req.files.image !== undefined) {
