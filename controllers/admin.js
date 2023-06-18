@@ -82,9 +82,12 @@ const addSeller = async (req, res) => {
     CategoryId,
   } = req.body;
 
+  const userFound = await User.findOne({ where: { mobile } });
   const sellerFound = await Seller.findOne({ where: { mobile } });
+  const deliveryFound = await Delivery.findOne({ where: { mobile } });
 
-  if (sellerFound) throw serverErrs.BAD_REQUEST("mobile is already used");
+  if (sellerFound || userFound || deliveryFound)
+    throw serverErrs.BAD_REQUEST("mobile is already used");
 
   const hashedPassword = await hash(password, 12);
   // TODO: generate random code and then send it sms message
@@ -183,8 +186,11 @@ const addDelivery = async (req, res) => {
   const { mobile, firstName, lastName, password, type } = req.body;
 
   const deliveryFound = await Delivery.findOne({ where: { mobile } });
+  const userFound = await User.findOne({ where: { mobile } });
+  const sellerFound = await Seller.findOne({ where: { mobile } });
 
-  if (deliveryFound) throw serverErrs.BAD_REQUEST("mobile is already used");
+  if (sellerFound || userFound || deliveryFound)
+    throw serverErrs.BAD_REQUEST("mobile is already used");
 
   const hashedPassword = await hash(password, 12);
 
@@ -201,7 +207,9 @@ const addDelivery = async (req, res) => {
     cover: "cover.jpg",
   });
 
-  await deliveryRef.child(newDelivery.id).set({ long: "", lat: "" });
+  await deliveryRef
+    .child(newDelivery.id)
+    .set({ long: "", lat: "", type, status: newDelivery.status });
 
   const dataWithoutPassword = newDelivery.toJSON();
   delete dataWithoutPassword.password;

@@ -62,8 +62,11 @@ const signup = async (req, res) => {
   const { mobile, password, firstName, lastName } = req.body;
 
   const user = await User.findOne({ where: { mobile } });
+  const seller = await Seller.findOne({ where: { mobile } });
+  const delivery = await Delivery.findOne({ where: { mobile } });
 
-  if (user) throw serverErrs.BAD_REQUEST("user already exist");
+  if (user || seller || delivery)
+    throw serverErrs.BAD_REQUEST("mobile already used");
 
   const hashedPassword = await hash(password, 12);
 
