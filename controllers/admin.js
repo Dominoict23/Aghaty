@@ -172,8 +172,8 @@ const getAllSellers = async (req, res) => {
     attributes: {
       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
     },
-    limit: +limit,
-    offset: +offset,
+    limit: +limit || count,
+    offset: +offset || 0,
   });
 
   res.send({
