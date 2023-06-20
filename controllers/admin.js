@@ -165,16 +165,21 @@ const deleteSeller = async (req, res) => {
   });
 };
 const getAllSellers = async (req, res) => {
+  const { limit, offset } = req.query;
+  const count = await Seller.count();
   const sellers = await Seller.findAll({
     include: { model: Category },
     attributes: {
       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
     },
+    limit: +limit,
+    offset: +offset,
   });
 
   res.send({
     status: 200,
     sellers,
+    count,
     msg: "get all sellers successfully",
   });
 };
