@@ -36,8 +36,7 @@ const {
 } = require("../validation");
 const { calculateDistance } = require("../utils/calculateDistance");
 const ffmpeg = require("fluent-ffmpeg");
-const path = require("path");
-ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
+ffmpeg.setFfmpegPath("../ffmpeg/bin/ffmpeg.exe");
 
 // Story requests
 const addStory = async (req, res) => {
@@ -525,7 +524,6 @@ const deletePost = async (req, res) => {
 
   await post.destroy();
 
-  //TODO: Image or Video may found
   if (imageFound) await imageFound.destroy();
   if (videoFound) await videoFound.destroy();
   if (liveFound) await liveFound.destroy();

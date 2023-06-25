@@ -31,8 +31,9 @@ const {
   validateAcceptRejectOrder,
 } = require("../validation");
 const ffmpeg = require("fluent-ffmpeg");
-const path = require("path");
-ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
+// const path = require("path");
+// ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
+ffmpeg.setFfmpegPath("../ffmpeg/bin/ffmpeg.exe");
 
 // Service requests
 const addService = async (req, res) => {
@@ -732,7 +733,6 @@ const deletePost = async (req, res) => {
 
   await post.destroy();
 
-  //TODO: Image or Video may found
   if (imageFound) await imageFound.destroy();
   if (videoFound) await videoFound.destroy();
   if (liveFound) await liveFound.destroy();
