@@ -37,6 +37,7 @@ const {
 const { calculateDistance } = require("../utils/calculateDistance");
 const ffmpeg = require("fluent-ffmpeg");
 ffmpeg.setFfmpegPath("../ffmpeg/bin/ffmpeg.exe");
+ffmpeg.setFfprobePath("../ffmpeg/bin/ffprobe.exe");
 
 // Story requests
 const addStory = async (req, res) => {

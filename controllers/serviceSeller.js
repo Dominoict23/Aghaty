@@ -34,6 +34,7 @@ const ffmpeg = require("fluent-ffmpeg");
 // const path = require("path");
 // ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
 ffmpeg.setFfmpegPath("../ffmpeg/bin/ffmpeg.exe");
+ffmpeg.setFfprobePath("../ffmpeg/bin/ffprobe.exe");
 
 // Service requests
 const addService = async (req, res) => {
