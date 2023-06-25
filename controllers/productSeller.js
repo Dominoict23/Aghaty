@@ -37,8 +37,7 @@ const {
 const { calculateDistance } = require("../utils/calculateDistance");
 const path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
-ffmpeg.setFfmpegPath("../ffmpeg/bin/ffmpeg.exe");
-ffmpeg.setFfprobePath("../ffmpeg/bin/ffprobe.exe");
+ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
 
 const dirname = (req, res) => {
   const ffPath = path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe");
