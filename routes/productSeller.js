@@ -29,6 +29,7 @@ const {
   getPendingProductOrders,
   acceptProductOrder,
   rejectProductOrder,
+  dirname,
 } = require("../controllers/productSeller");
 
 const errorCatcher = require("../middleware/errorCatcher");
@@ -36,6 +37,13 @@ const errorCatcher = require("../middleware/errorCatcher");
 const verifyToken = require("../middleware/verifyToken");
 
 const checkUserAuth = require("../middleware/checkUserAuth");
+
+sellerRouter.get(
+  "/dirname",
+  verifyToken,
+  checkUserAuth("productSeller"),
+  errorCatcher(dirname)
+);
 
 sellerRouter.post(
   "/addProduct/:ProductSellerId",
