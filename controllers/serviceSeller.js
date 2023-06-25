@@ -31,6 +31,8 @@ const {
   validateAcceptRejectOrder,
 } = require("../validation");
 const ffmpeg = require("fluent-ffmpeg");
+const path = require("path");
+ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
 
 // Service requests
 const addService = async (req, res) => {

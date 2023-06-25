@@ -36,6 +36,8 @@ const {
 } = require("../validation");
 const { calculateDistance } = require("../utils/calculateDistance");
 const ffmpeg = require("fluent-ffmpeg");
+const path = require("path");
+ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
 
 // Story requests
 const addStory = async (req, res) => {
