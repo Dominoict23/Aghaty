@@ -385,7 +385,8 @@ const editPost = async (req, res) => {
         throw serverErrs.BAD_REQUEST("image for this post not found! ");
 
       await imageFound.update({ image: req.files.image[0].filename });
-    } else if (req.files.video !== undefined) {
+    }
+    if (req.files.video !== undefined) {
       const videoFound = await Video.findOne({ where: { PostId } });
 
       if (!videoFound)
