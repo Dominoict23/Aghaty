@@ -180,6 +180,10 @@ const validateHighRateSellers = yup.object().shape({
   CategoryId: yup.number().required(),
   SubCategoryId: yup.number().required(),
 });
+const validateHighOrderSellers = yup.object().shape({
+  CategoryId: yup.number().required(),
+  SubCategoryId: yup.number().required(),
+});
 const validateAllServiceSellers = yup.object().shape({
   CategoryId: yup.number().required(),
 });
@@ -379,4 +383,5 @@ module.exports = {
   validateAddOrderDelivery,
   validateAcceptRejectOrder,
   validateAllServiceSellers,
+  validateHighOrderSellers,
 };

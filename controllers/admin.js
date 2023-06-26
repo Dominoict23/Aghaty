@@ -184,7 +184,6 @@ const getAllSellers = async (req, res) => {
   });
 };
 
-// TODO: add delivery "taxi, fizba, and other types"
 const addDelivery = async (req, res) => {
   await validateAddDelivery.validate(req.body);
 

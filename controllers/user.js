@@ -503,6 +503,80 @@ const getSellerSubCategories = async (req, res) => {
 };
 
 // Seller
+const getHighOrderSellers = async (req, res) => {
+  await validateHighRateSellers.validate(req.body);
+
+  const { CategoryId, SubCategoryId } = req.body;
+
+  let sellers;
+
+  if (SubCategoryId == 0) {
+    sellers = await Seller.findAll({
+      where: { CategoryId },
+      attributes: {
+        include: [
+          "id",
+          "mobile",
+          "firstName",
+          "lastName",
+          "avatar",
+          "cover",
+          "status",
+          "role",
+          "serviceType",
+          "address",
+          "rate",
+          "subCategories",
+          "fcmToken",
+          [
+            sequelize.literal(
+              "(SELECT COUNT(*) FROM `Orders` WHERE `Orders`.`SellerId` = `Seller`.`id`)"
+            ),
+            "orderCount",
+          ],
+        ],
+      },
+      order: [[sequelize.literal("orderCount"), "DESC"]],
+    });
+  } else {
+    sellers = await Seller.findAll({
+      where: sequelize.literal(
+        `FIND_IN_SET('${SubCategoryId}', subCategories)`
+      ),
+      attributes: {
+        include: [
+          "id",
+          "mobile",
+          "firstName",
+          "lastName",
+          "avatar",
+          "cover",
+          "status",
+          "role",
+          "serviceType",
+          "address",
+          "rate",
+          "subCategories",
+          "fcmToken",
+          [
+            sequelize.literal(
+              "(SELECT COUNT(*) FROM `Orders` WHERE `Orders`.`SellerId` = `Seller`.`id`)"
+            ),
+            "orderCount",
+          ],
+        ],
+      },
+      order: [[sequelize.literal("orderCount"), "DESC"]],
+    });
+  }
+
+  res.send({
+    status: 200,
+    sellers,
+    msg: "get highest order sellers successfully",
+  });
+};
+
 const getHighRateSellers = async (req, res) => {
   await validateHighRateSellers.validate(req.body);
 
@@ -533,6 +607,7 @@ const getHighRateSellers = async (req, res) => {
     msg: "get highest rate sellers successfully",
   });
 };
+
 const nearestSellers = async (req, res) => {
   await validateNearestSellers.validate(req.body);
 
@@ -1580,6 +1655,7 @@ module.exports = {
   getAllCategory,
   getAllSubCategories,
   getSellerSubCategories,
+  getHighOrderSellers,
   getHighRateSellers,
   nearestSellers,
   getProductsBySubId,

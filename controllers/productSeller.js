@@ -35,14 +35,6 @@ const {
   validateAcceptRejectOrder,
 } = require("../validation");
 const { calculateDistance } = require("../utils/calculateDistance");
-const path = require("path");
-const ffmpeg = require("fluent-ffmpeg");
-ffmpeg.setFfmpegPath(path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe"));
-
-const dirname = (req, res) => {
-  const ffPath = path.join(__dirname, "..", "ffmpeg", "bin", "ffmpeg.exe");
-  res.send({ __dirname, ffPath });
-};
 
 // Story requests
 const addStory = async (req, res) => {
@@ -306,31 +298,6 @@ const addPost = async (req, res) => {
         PostId: newPost.id,
       });
       await newVideo.save();
-
-      // take screenshot from the video
-      const videoPath = `uploads/${req.files.video[0].filename}`;
-      const timestamp = "00:00:05";
-      const outputImagePath = `uploads`;
-      ffmpeg(videoPath)
-        .screenshots({
-          timestamps: [timestamp],
-          folder: outputImagePath,
-          filename: `screenshot_${newVideo.id}.jpg`,
-        })
-        .on("end", async () => {
-          await Image.create(
-            {
-              image: `screenshot_${newVideo.id}.jpg`,
-              PostId: newPost.id,
-            },
-            {
-              returning: true,
-            }
-          );
-        })
-        .on("error", (err) => {
-          console.error("Error capturing screenshot:", err);
-        });
     }
   }
 
@@ -425,27 +392,6 @@ const editPost = async (req, res) => {
         throw serverErrs.BAD_REQUEST("video for this post not found! ");
 
       await videoFound.update({ video: req.files.video[0].filename });
-
-      const videoImageFound = await Image.findOne({ where: { PostId } });
-
-      // take screenshot from the video
-      const videoPath = `uploads/${videoFound.video}`;
-      const timestamp = "00:00:05";
-      const outputImagePath = `uploads`;
-      ffmpeg(videoPath)
-        .screenshots({
-          timestamps: [timestamp],
-          folder: outputImagePath,
-          filename: `screenshot_${videoFound.id}.jpg`,
-        })
-        .on("end", async () => {
-          await videoImageFound.update({
-            image: `screenshot_${videoFound.id}.jpg`,
-          });
-        })
-        .on("error", (err) => {
-          console.error("Error capturing screenshot:", err);
-        });
     }
   }
   const result = await Post.findOne({

@@ -39,6 +39,21 @@ const OrderDelivery = sequelize.define("OrderDelivery", {
     type: DataTypes.DOUBLE,
     allowNull: false,
   },
+  rejectedDeliveries: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "",
+    get() {
+      const rawValue = this.getDataValue("rejectedDeliveries");
+      return rawValue ? rawValue.split(",") : [];
+    },
+    set(value) {
+      if (Array.isArray(value)) {
+        const stringValue = value.join(",");
+        this.setDataValue("rejectedDeliveries", stringValue);
+      }
+    },
+  },
 });
 
 module.exports = OrderDelivery;

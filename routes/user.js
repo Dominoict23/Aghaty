@@ -53,6 +53,7 @@ const {
   deliveriesBySubCategoryName,
   addOrderPackage,
   addOrderDelivery,
+  getHighOrderSellers,
 } = require("../controllers/user");
 
 // Auth routers
@@ -154,6 +155,12 @@ userRouter.get(
 );
 
 // Sellers router
+userRouter.post(
+  "/sellers/highestOrder",
+  verifyToken,
+  checkUserAuth("user"),
+  errorCatcher(getHighOrderSellers)
+);
 userRouter.post(
   "/sellers/highestRate",
   verifyToken,

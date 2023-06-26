@@ -164,6 +164,9 @@ Like.belongsTo(Feedback);
 Feedback.hasMany(Comment);
 Comment.belongsTo(Feedback);
 
+Delivery.hasMany(OrderDelivery);
+OrderDelivery.belongsTo(Delivery);
+
 module.exports = {
   User,
   Admin,
