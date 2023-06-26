@@ -1216,5 +1216,4 @@ module.exports = {
   getPendingProductOrders,
   acceptProductOrder,
   rejectProductOrder,
-  dirname,
 };
