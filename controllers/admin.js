@@ -213,7 +213,7 @@ const addDelivery = async (req, res) => {
 
   await deliveryRef
     .child(newDelivery.id)
-    .set({ long: "", lat: "", type, status: newDelivery.status });
+    .set({ long: "", lat: "", fcmToken: "" });
 
   const dataWithoutPassword = newDelivery.toJSON();
   delete dataWithoutPassword.password;

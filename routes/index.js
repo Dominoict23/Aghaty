@@ -4,10 +4,9 @@ const adminRouter = require("./admin");
 const userRouter = require("./user");
 const productSellerRouter = require("./productSeller");
 const serviceSellerRouter = require("./serviceSeller");
+const deliveryRouter = require("./delivery");
 
 const login = require("../middleware/login");
-
-// const logout = require("../middleware/logout"); //TODO: later
 
 const errorCatcher = require("../middleware/errorCatcher");
 
@@ -18,6 +17,7 @@ router.use("/admin", adminRouter);
 router.use("/user", userRouter);
 router.use("/productSeller", productSellerRouter);
 router.use("/serviceSeller", serviceSellerRouter);
+router.use("/delivery", deliveryRouter);
 
 router.post("/login", errorCatcher(login));
 

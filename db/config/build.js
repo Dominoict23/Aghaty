@@ -74,9 +74,9 @@ const insertDB = async () => {
   );
   deliveries.forEach(async (delivery, ind) => {
     const { long, lat } = delivery;
-    await deliveryRef.child(ind + 1).set({ long, lat });
+    await deliveryRef.child(ind + 1).set({ long, lat, fcmToken: "" });
   });
-  process.exit();
+  // process.exit();
   // await Story.bulkCreate(stories).then(() =>
   //   console.log("Story data have been saved")
   // );

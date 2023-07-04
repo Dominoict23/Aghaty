@@ -1,6 +1,7 @@
 const firebase = require("firebase-admin");
 const { initializeApp } = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
+const { getMessaging } = require("firebase-admin/messaging");
 const serviceAccount = require("./aghaty-3eaff-firebase-adminsdk-97qvu-9629f98004.json");
 
 initializeApp({
@@ -12,5 +13,6 @@ initializeApp({
 const db = getDatabase();
 const ref = db.ref("Aghaty");
 const deliveryRef = ref.child("deliveries");
+const notifications = getMessaging();
 
-module.exports = { db, deliveryRef };
+module.exports = { db, deliveryRef, notifications };
