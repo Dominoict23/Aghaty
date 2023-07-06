@@ -3,6 +3,7 @@ const { deliveryRef, notifications } = require("../firebaseConfig");
 const { OrderDelivery, Delivery, Order } = require("../models");
 const { calculateDistance } = require("../utils/calculateDistance");
 const { Op } = require("sequelize");
+// const testFCM = require("../utils/testFCM");
 
 const refreshDeliveryOrders = async () => {
   const delivers = await Delivery.findAll({ order: [["id", "ASC"]] });
@@ -87,6 +88,9 @@ const sendNotification = async (DeliveryId, order) => {
     const { distance, price, startLong, startLat, endLong, endLat } = order;
 
     const message = {
+      notification: {
+        title: "New Order",
+      },
       data: {
         distance,
         price: `${price}`,
@@ -98,9 +102,10 @@ const sendNotification = async (DeliveryId, order) => {
       token: fcmToken,
     };
 
-    // await dbDelivery.update({ status: "busy" });
+    console.log({ message });
+
+    // await testFCM(message);
     const notificationSuccess = await notifications.send(message);
-    // console.log({ DeliveryId });
     console.log({ notificationSuccess });
   } catch (error) {
     throw serverErrs.BAD_REQUEST("Failed to send notification", error);

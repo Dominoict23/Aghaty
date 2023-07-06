@@ -16,7 +16,7 @@ const {
 
 setInterval(async () => {
   await refreshDeliveryOrders();
-}, 60000);
+}, 10000);
 
 deliveryRouter.post(
   "/Order/accept",
