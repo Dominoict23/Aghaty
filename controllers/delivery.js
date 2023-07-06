@@ -146,9 +146,9 @@ const sendNotification = async (DeliveryId, order) => {
 // };
 
 const acceptDeliveryOrder = async (req, res) => {
-  const { id } = req.body;
+  const { OrderId } = req.body;
 
-  const orderDelivery = await OrderDelivery.findOne({ where: { id } });
+  const orderDelivery = await OrderDelivery.findOne({ where: { id: OrderId } });
 
   const delivery = await Delivery.findOne({ where: { id: req.user.userId } });
 
@@ -171,9 +171,9 @@ const acceptDeliveryOrder = async (req, res) => {
 };
 
 const rejectDeliveryOrder = async (req, res) => {
-  const { id } = req.body;
+  const { OrderId } = req.body;
 
-  const orderDelivery = await OrderDelivery.findOne({ where: { id } });
+  const orderDelivery = await OrderDelivery.findOne({ where: { id: OrderId } });
 
   const delivery = await Delivery.findOne({ where: { id: req.user.userId } });
 
