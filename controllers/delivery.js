@@ -146,11 +146,11 @@ const sendNotification = async (DeliveryId, order) => {
 // };
 
 const acceptDeliveryOrder = async (req, res) => {
-  const { id, DeliveryId } = req.body;
+  const { id } = req.body;
 
   const orderDelivery = await OrderDelivery.findOne({ where: { id } });
 
-  const delivery = await Delivery.findOne({ where: { id: DeliveryId } });
+  const delivery = await Delivery.findOne({ where: { id: req.user.userId } });
 
   if (!orderDelivery || !delivery)
     throw serverErrs.BAD_REQUEST("order or delivery not exist");
@@ -171,11 +171,11 @@ const acceptDeliveryOrder = async (req, res) => {
 };
 
 const rejectDeliveryOrder = async (req, res) => {
-  const { id, DeliveryId } = req.body;
+  const { id } = req.body;
 
   const orderDelivery = await OrderDelivery.findOne({ where: { id } });
 
-  const delivery = await Delivery.findOne({ where: { id: DeliveryId } });
+  const delivery = await Delivery.findOne({ where: { id: req.user.userId } });
 
   if (!orderDelivery || !delivery)
     throw serverErrs.BAD_REQUEST("order or delivery not exist");
@@ -193,8 +193,20 @@ const rejectDeliveryOrder = async (req, res) => {
   });
 };
 
+const getAllDeliveredOrders = async (req, res) => {
+  const orders = await OrderDelivery.findAll({
+    where: { DeliveryId: req.user.userId, status: "DELIVERED" },
+  });
+
+  res.send({
+    status: 200,
+    data: orders,
+  });
+};
+
 module.exports = {
   refreshDeliveryOrders,
   acceptDeliveryOrder,
   rejectDeliveryOrder,
+  getAllDeliveredOrders,
 };

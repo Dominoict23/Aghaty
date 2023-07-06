@@ -12,11 +12,12 @@ const {
   refreshDeliveryOrders,
   acceptDeliveryOrder,
   rejectDeliveryOrder,
+  getAllDeliveredOrders,
 } = require("../controllers/delivery");
 
 setInterval(async () => {
   await refreshDeliveryOrders();
-}, 10000);
+}, 60000);
 
 deliveryRouter.post(
   "/Order/accept",
@@ -30,6 +31,13 @@ deliveryRouter.post(
   verifyToken,
   checkUserAuth("delivery"),
   errorCatcher(rejectDeliveryOrder)
+);
+
+deliveryRouter.get(
+  "/Order/delivered/all",
+  verifyToken,
+  checkUserAuth("delivery"),
+  errorCatcher(getAllDeliveredOrders)
 );
 
 module.exports = deliveryRouter;
