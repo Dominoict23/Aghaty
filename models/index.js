@@ -143,6 +143,9 @@ FinancialRecord.belongsTo(Delivery);
 Order.hasOne(FinancialRecord);
 FinancialRecord.belongsTo(Order);
 
+OrderDelivery.hasOne(FinancialRecord);
+FinancialRecord.belongsTo(OrderDelivery);
+
 User.hasMany(Message);
 Message.belongsTo(User);
 

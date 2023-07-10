@@ -13,6 +13,7 @@ const {
   acceptDeliveryOrder,
   rejectDeliveryOrder,
   getAllDeliveredOrders,
+  confirmDeliveryOrder,
 } = require("../controllers/delivery");
 
 setInterval(async () => {
@@ -31,6 +32,13 @@ deliveryRouter.post(
   verifyToken,
   checkUserAuth("delivery"),
   errorCatcher(rejectDeliveryOrder)
+);
+
+deliveryRouter.post(
+  "/Order/confirm",
+  verifyToken,
+  checkUserAuth("delivery"),
+  errorCatcher(confirmDeliveryOrder)
 );
 
 deliveryRouter.get(

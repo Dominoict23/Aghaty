@@ -11,6 +11,9 @@ const {
   User,
   SocialMedia,
   Feedback,
+  FinancialRecord,
+  Order,
+  OrderDelivery,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -424,12 +427,26 @@ const deleteSubCategory = async (req, res) => {
 const getAllSubCategory = async (req, res) => {
   const subCategories = await SubCategory.findAll({
     include: { model: Category },
+    attributes: {
+      exclude: ["deliveryPrice"],
+    },
   });
 
   res.send({
     status: 200,
     subCategories,
     msg: "get all subCategories successfully",
+  });
+};
+const getDeliverySubCategory = async (req, res) => {
+  const subCategories = await SubCategory.findAll({
+    where: { CategoryId: 5 },
+  });
+
+  res.send({
+    status: 200,
+    subCategories,
+    msg: "get delivery subCategories successfully",
   });
 };
 
@@ -668,6 +685,99 @@ const getSocialMedia = async (req, res) => {
   });
 };
 
+// Financial records requests
+const getSellerFinancialRecords = async (req, res) => {
+  const { SellerId } = req.params;
+
+  const frs = await FinancialRecord.findAll({
+    where: { SellerId },
+    include: { model: Order },
+  });
+
+  const orders = [];
+
+  let totalOrdersPrice = 0;
+
+  frs.forEach((fr) => {
+    orders.push(fr.Order);
+    totalOrdersPrice += fr.Order.orderPrice;
+  });
+
+  res.send({
+    status: 200,
+    data: { orders, totalOrdersPrice },
+    msg: "successful get orders financial recorder for this seller",
+  });
+};
+
+const getDeliveryFinancialRecords = async (req, res) => {
+  const { DeliveryId } = req.params;
+
+  const frs = await FinancialRecord.findAll({
+    where: { DeliveryId },
+    include: [{ model: Order }, { model: OrderDelivery }],
+  });
+
+  const sellerOrders = [];
+  const deliveryOrders = [];
+
+  let totalOrdersPrice = 0;
+
+  frs.forEach((fr) => {
+    deliveryOrders.push(fr.OrderDelivery);
+    if (fr.Order) {
+      sellerOrders.push(fr.Order);
+    }
+    totalOrdersPrice += fr.OrderDelivery.price;
+  });
+
+  res.send({
+    status: 200,
+    data: { sellerOrders, deliveryOrders, totalOrdersPrice },
+    msg: "successful get orders financial recorder for this Delivery",
+  });
+};
+
+const deleteSellerFinancialRecords = async (req, res) => {
+  const { SellerId } = req.params;
+
+  const frs = await FinancialRecord.findAll({ where: { SellerId } });
+
+  if (frs.length === 0) {
+    throw serverErrs.BAD_REQUEST(
+      "There are no financial records for this seller"
+    );
+  }
+  frs.forEach(async (fr) => {
+    await fr.destroy();
+  });
+
+  res.send({
+    status: 201,
+    msg: "Seller financial records deleted successfully",
+  });
+};
+
+const deleteDeliveryFinancialRecords = async (req, res) => {
+  const { DeliveryId } = req.params;
+
+  const frs = await FinancialRecord.findAll({ where: { DeliveryId } });
+
+  if (frs.length === 0) {
+    throw serverErrs.BAD_REQUEST(
+      "There are no financial records for this delivery"
+    );
+  }
+  frs.forEach(async (fr) => {
+    await fr.destroy();
+  });
+
+  res.send({
+    status: 201,
+    msg: "Delivery financial records deleted successfully",
+  });
+};
+
 module.exports = {
   login,
   addSeller,
@@ -699,4 +809,9 @@ module.exports = {
   editSocialMedia,
   deleteSocialMedia,
   getSocialMedia,
+  getDeliverySubCategory,
+  getSellerFinancialRecords,
+  getDeliveryFinancialRecords,
+  deleteSellerFinancialRecords,
+  deleteDeliveryFinancialRecords,
 };

@@ -61,6 +61,7 @@ const validateAddOrderDelivery = yup.object().shape({
   startLat: yup.number().required(),
   endLong: yup.number().required(),
   endLat: yup.number().required(),
+  type: yup.string().required(),
 });
 const validateAcceptRejectOrder = yup.object().shape({
   OrderId: yup.number().required(),
@@ -220,6 +221,7 @@ const validateEditSubCategory = yup.object().shape({
   nameAR: yup.string().optional(),
   nameEN: yup.string().optional(),
   nameKUR: yup.string().optional(),
+  deliveryPrice: yup.number().optional(),
   CategoryId: yup.number().required(),
   SubCategoryId: yup.number().required(),
 });

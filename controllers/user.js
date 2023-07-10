@@ -473,6 +473,10 @@ const getAllSubCategories = async (req, res) => {
   const subCategories = await SubCategory.findAll({
     where: { CategoryId },
     include: { model: Category },
+    // TODO: return deliveryPrice for delivery subcategories
+    attributes: {
+      exclude: ["deliveryPrice"],
+    },
   });
 
   res.send({
@@ -492,6 +496,9 @@ const getSellerSubCategories = async (req, res) => {
       id: {
         [Op.in]: productSeller.subCategories,
       },
+    },
+    attributes: {
+      exclude: ["deliveryPrice"],
     },
   });
 
@@ -844,6 +851,13 @@ const showCart = async (req, res) => {
 
   if (!cart) throw serverErrs.BAD_REQUEST("Cart for this user not exist");
 
+  const subCategory = await SubCategory.findOne({
+    where: { nameEN: "Delivery Man" },
+  });
+
+  if (!subCategory)
+    throw serverErrs.BAD_REQUEST("Sub Category for Delivery man not found");
+
   const products = await CartProduct.findAll({
     where: { CartId: cart.id },
     include: {
@@ -884,7 +898,7 @@ const showCart = async (req, res) => {
     sellerCoordinates.long
   );
 
-  const deliveryPrice = distance * 10; // 10$ per kilometer
+  const deliveryPrice = distance * subCategory.deliveryPrice;
 
   await cart.update({ deliveryPrice });
 
@@ -1029,11 +1043,15 @@ const addProductsOrder = async (req, res) => {
     where: { code: discountCode, isEnable: true },
   });
 
-  let totalPrice = cart.totalProductsPrice + cart.deliveryPrice;
+  let priceAfterDiscount = cart.totalProductsPrice;
 
   if (discountCodeFound) {
-    totalPrice = totalPrice - (totalPrice * discountCodeFound.discount) / 100;
+    priceAfterDiscount =
+      priceAfterDiscount -
+      (priceAfterDiscount * discountCodeFound.discount) / 100;
   }
+
+  let totalPrice = priceAfterDiscount + cart.deliveryPrice;
 
   const orderNum = await Order.count({
     where: { SellerId: cartProducts[0].Product.SellerId },
@@ -1043,6 +1061,8 @@ const addProductsOrder = async (req, res) => {
     {
       name: `Order no #${orderNum + 1}`,
       totalPrice,
+      orderPrice: priceAfterDiscount,
+      deliveryPrice: cart.deliveryPrice,
       UserId: req.user.userId,
       SellerId: cartProducts[0].Product.SellerId,
     },
@@ -1087,6 +1107,7 @@ const addProductsOrder = async (req, res) => {
 const getProductsOrders = async (req, res) => {
   const orders = await Order.findAll({
     where: { UserId: req.user.userId },
+    attributes: { exclude: ["deliveryPrice", "orderPrice"] },
     include: [
       { model: OrderProduct, required: true },
       {
@@ -1114,15 +1135,7 @@ const getSingleProductsOrder = async (req, res) => {
 
   const orders = await OrderProduct.findAll({
     where: { OrderId },
-    include: [
-      { model: Product },
-      {
-        model: Seller,
-        attributes: {
-          exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
-        },
-      },
-    ],
+    include: [{ model: Product, include: { model: Image } }],
   });
 
   res.send({
@@ -1211,6 +1224,13 @@ const getServicesOrders = async (req, res) => {
 const addOrderPackage = async (req, res) => {
   await validateAddOrderPackage.validate(req.body);
 
+  const subCategory = await SubCategory.findOne({
+    where: { nameEN: "Freight" },
+  });
+
+  if (!subCategory)
+    throw serverErrs.BAD_REQUEST("Sub Category for Freight not found");
+
   const {
     senderName,
     senderAddress,
@@ -1241,7 +1261,7 @@ const addOrderPackage = async (req, res) => {
   await OrderDelivery.create({
     type: "Freight",
     distance,
-    price: distance * 10, // 10$ per kilometer
+    price: distance * subCategory.deliveryPrice,
     startLong,
     startLat,
     endLong,
@@ -1259,10 +1279,11 @@ const addOrderPackage = async (req, res) => {
 const addOrderDelivery = async (req, res) => {
   await validateAddOrderDelivery.validate(req.body);
 
-  const { distance, price, startLong, startLat, endLong, endLat } = req.body;
+  const { distance, price, startLong, startLat, endLong, endLat, type } =
+    req.body;
 
   await OrderDelivery.create({
-    type: "Transport buses",
+    type,
     distance,
     price,
     startLong,

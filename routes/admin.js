@@ -39,6 +39,11 @@ const {
   editSocialMedia,
   createSocialMedia,
   getSocialMedia,
+  getDeliverySubCategory,
+  getSellerFinancialRecords,
+  getDeliveryFinancialRecords,
+  deleteSellerFinancialRecords,
+  deleteDeliveryFinancialRecords,
 } = require("../controllers/admin");
 
 adminRouter.post("/login", errorCatcher(login));
@@ -119,6 +124,12 @@ adminRouter.get(
   verifyToken,
   checkUserAuth("admin"),
   errorCatcher(getAllSubCategory)
+);
+adminRouter.get(
+  "/deliverySubCategory",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(getDeliverySubCategory)
 );
 
 // DiscountCode requests
@@ -231,6 +242,34 @@ adminRouter.get(
   verifyToken,
   checkUserAuth("admin"),
   errorCatcher(getSocialMedia)
+);
+
+// Financial records routers
+adminRouter.get(
+  "/FinancialRecords/seller/:SellerId",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(getSellerFinancialRecords)
+);
+
+adminRouter.delete(
+  "/FinancialRecords/seller/:SellerId",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(deleteSellerFinancialRecords)
+);
+
+adminRouter.get(
+  "/FinancialRecords/delivery/:DeliveryId",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(getDeliveryFinancialRecords)
+);
+adminRouter.delete(
+  "/FinancialRecords/delivery/:DeliveryId",
+  verifyToken,
+  checkUserAuth("admin"),
+  errorCatcher(deleteDeliveryFinancialRecords)
 );
 
 module.exports = adminRouter;

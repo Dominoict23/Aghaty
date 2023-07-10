@@ -18,6 +18,7 @@ const {
   UserLocation,
   OrderDelivery,
   Location,
+  FinancialRecord,
 } = require("../models");
 const {
   validateCreateProduct,
@@ -1087,7 +1088,7 @@ const getProductsOrder = async (req, res) => {
 
   const orders = await OrderProduct.findAll({
     where: { OrderId },
-    include: { model: Product },
+    include: { model: Product, include: { model: Image } },
   });
 
   res.send({
@@ -1113,7 +1114,7 @@ const acceptProductOrder = async (req, res) => {
   const { OrderId } = req.body;
 
   const orderFound = await Order.findOne({
-    where: { id: OrderId, status: "PENDING" },
+    where: { id: OrderId, status: "PENDING", SellerId: req.user.userId },
   });
 
   if (!orderFound)
@@ -1149,9 +1150,9 @@ const acceptProductOrder = async (req, res) => {
   );
 
   await OrderDelivery.create({
-    type: "Taxi cars",
+    type: "Delivery Man",
     distance,
-    price: distance * 10,
+    price: orderFound.totalPrice,
     startLong: userCoordinates.long,
     startLat: userCoordinates.lat,
     endLong: sellerCoordinates.long,
@@ -1161,6 +1162,11 @@ const acceptProductOrder = async (req, res) => {
   });
 
   await orderFound.update({ status: "IN_PROGRESS" });
+
+  await FinancialRecord.create({
+    SellerId: req.user.userId,
+    OrderId: orderFound.id,
+  });
 
   res.send({
     status: 201,
@@ -1174,7 +1180,7 @@ const rejectProductOrder = async (req, res) => {
   const { OrderId } = req.body;
 
   const orderFound = await Order.findOne({
-    where: { id: OrderId, status: "PENDING" },
+    where: { id: OrderId, status: "PENDING", SellerId: req.user.userId },
   });
 
   if (!orderFound)

@@ -7,18 +7,6 @@ const FinancialRecord = sequelize.define("FinancialRecord", {
     autoIncrement: true,
     primaryKey: true,
   },
-  orderPrice: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
-  deliveryPrice: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
-  totalPrice: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
-  },
 });
 
 module.exports = FinancialRecord;

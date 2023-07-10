@@ -269,6 +269,7 @@ const subCategory = [
     nameAR: "سيارات تاكسي",
     nameKUR: "cars taxi",
     image: "subTaxi1.jpg",
+    deliveryPrice: 10,
     CategoryId: 5,
   },
   {
@@ -276,6 +277,7 @@ const subCategory = [
     nameAR: "باصات نقل",
     nameKUR: "Otobusên veguhestinê",
     image: "subTaxi2.jpg",
+    deliveryPrice: 10,
     CategoryId: 5,
   },
   {
@@ -283,6 +285,15 @@ const subCategory = [
     nameAR: "نقل بضائع",
     nameKUR: "Bar",
     image: "subTaxi3.jpg",
+    deliveryPrice: 10,
+    CategoryId: 5,
+  },
+  {
+    nameEN: "Delivery Man",
+    nameAR: "رجل التوصيل",
+    nameKUR: "Delivery Man",
+    image: "subTaxi4.jpg",
+    deliveryPrice: 10,
     CategoryId: 5,
   },
 ];

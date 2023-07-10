@@ -23,6 +23,9 @@ const SubCategory = sequelize.define("SubCategory", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  deliveryPrice: {
+    type: DataTypes.DOUBLE,
+  },
 });
 
 module.exports = SubCategory;
