@@ -470,14 +470,27 @@ const getAllCategory = async (req, res) => {
 // SubCategories
 const getAllSubCategories = async (req, res) => {
   const { CategoryId } = req.params;
-  const subCategories = await SubCategory.findAll({
-    where: { CategoryId },
-    include: { model: Category },
-    // TODO: return deliveryPrice for delivery subcategories
-    attributes: {
-      exclude: ["deliveryPrice"],
-    },
-  });
+  let subCategories;
+  if (CategoryId != 5) {
+    subCategories = await SubCategory.findAll({
+      where: { CategoryId },
+      include: { model: Category },
+      // TODO: return deliveryPrice for delivery subcategories
+      attributes: {
+        exclude: ["deliveryPrice"],
+      },
+    });
+  } else {
+    subCategories = await SubCategory.findAll({
+      where: {
+        CategoryId,
+        nameEN: {
+          [Op.not]: "Delivery Man",
+        },
+      },
+      include: { model: Category },
+    });
+  }
 
   res.send({
     status: 200,
