@@ -90,13 +90,14 @@ const sendNotification = async (DeliveryId, order) => {
 
     const { fcmToken } = delivery.val();
 
-    const { distance, price, startLong, startLat, endLong, endLat } = order;
+    const { distance, price, startLong, startLat, endLong, endLat, id } = order;
 
     const message = {
       notification: {
         title: "New Order",
       },
       data: {
+        id: `${id}`,
         distance,
         price: `${price}`,
         startLong: `${startLong}`,
