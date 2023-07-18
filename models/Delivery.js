@@ -24,14 +24,6 @@ const Delivery = sequelize.define("Delivery", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  avatar: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  cover: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   status: {
     type: DataTypes.STRING,
     defaultValue: "free",
@@ -39,15 +31,6 @@ const Delivery = sequelize.define("Delivery", {
   type: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
-  // NOTE:long, lat change based on firebase
-  long: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
-  },
-  lat: {
-    type: DataTypes.DOUBLE,
-    defaultValue: 0,
   },
   verificationCode: {
     type: DataTypes.INTEGER,
