@@ -8,6 +8,7 @@ const {
 } = require("../models");
 const { calculateDistance } = require("../utils/calculateDistance");
 const { Op } = require("sequelize");
+const { validateDeliveryChangeStatus } = require("../validation");
 // const testFCM = require("../utils/testFCM");
 
 const refreshDeliveryOrders = async () => {
@@ -254,10 +255,28 @@ const getAllDeliveredOrders = async (req, res) => {
   });
 };
 
+const changeDeliveryStatus = async (req, res) => {
+  await validateDeliveryChangeStatus.validate(req.body);
+
+  const { status } = req.body;
+
+  const delivery = await Delivery.findOne({
+    where: { id: req.user.userId },
+  });
+
+  await delivery.update({ status });
+
+  res.send({
+    status: 201,
+    msg: "Delivery status changed successfully",
+  });
+};
+
 module.exports = {
   refreshDeliveryOrders,
   acceptDeliveryOrder,
   rejectDeliveryOrder,
   confirmDeliveryOrder,
   getAllDeliveredOrders,
+  changeDeliveryStatus,
 };

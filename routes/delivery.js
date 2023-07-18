@@ -14,6 +14,7 @@ const {
   rejectDeliveryOrder,
   getAllDeliveredOrders,
   confirmDeliveryOrder,
+  changeDeliveryStatus,
 } = require("../controllers/delivery");
 
 setInterval(async () => {
@@ -46,6 +47,13 @@ deliveryRouter.get(
   verifyToken,
   checkUserAuth("delivery"),
   errorCatcher(getAllDeliveredOrders)
+);
+
+deliveryRouter.patch(
+  "/status/change",
+  verifyToken,
+  checkUserAuth("delivery"),
+  errorCatcher(changeDeliveryStatus)
 );
 
 module.exports = deliveryRouter;
