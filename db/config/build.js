@@ -72,11 +72,11 @@ const insertDB = async () => {
   await Delivery.bulkCreate(deliveries).then(() =>
     console.log("Delivery data have been saved")
   );
-  deliveries.forEach(async (delivery, ind) => {
-    const { long, lat } = delivery;
-    await deliveryRef.child(ind + 1).set({ long, lat, fcmToken: "" });
-  });
-  // process.exit();
+  // deliveries.forEach(async (delivery, ind) => {
+  //   const { long, lat } = delivery;
+  //   await deliveryRef.child(ind + 1).set({ long, lat, fcmToken: "" });
+  // });
+  process.exit();
   // await Story.bulkCreate(stories).then(() =>
   //   console.log("Story data have been saved")
   // );
