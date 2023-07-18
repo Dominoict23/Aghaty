@@ -272,6 +272,10 @@ const validateDeliveriesBySubCategoryName = yup.object().shape({
   nameEN: yup.string().required(),
 });
 
+const validateDeliveryChangeStatus = yup.object().shape({
+  status: yup.string().required(),
+});
+
 // Banner validations
 const validateEditBanner = yup.object().shape({
   BannerId: yup.number().required(),
@@ -386,4 +390,5 @@ module.exports = {
   validateAcceptRejectOrder,
   validateAllServiceSellers,
   validateHighOrderSellers,
+  validateDeliveryChangeStatus,
 };
