@@ -247,6 +247,9 @@ const confirmDeliveryOrder = async (req, res) => {
 const getAllDeliveredOrders = async (req, res) => {
   const orders = await OrderDelivery.findAll({
     where: { DeliveryId: req.user.userId, status: "DELIVERED" },
+    attributes: {
+      exclude: ["rejectedDeliveries"],
+    },
   });
 
   res.send({
