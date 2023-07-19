@@ -203,7 +203,6 @@ const rejectDeliveryOrder = async (req, res) => {
   });
 };
 
-//TODO: save delivery financial report
 const confirmDeliveryOrder = async (req, res) => {
   const { OrderId } = req.body;
 

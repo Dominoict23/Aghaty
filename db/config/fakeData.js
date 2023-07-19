@@ -183,37 +183,64 @@ const deliveries = [
     CategoryId: 5,
     // verificationCode: ,
   },
+  {
+    mobile: "097592200000",
+    firstName: "del1",
+    lastName: "del1",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
+    type: "Delivery Man",
+    CategoryId: 5,
+    // verificationCode: ,
+  },
+  {
+    mobile: "097592300000",
+    firstName: "del2",
+    lastName: "del2",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
+    type: "Delivery Man",
+    CategoryId: 5,
+    // verificationCode: ,
+  },
+  {
+    mobile: "097592400000",
+    firstName: "del3",
+    lastName: "del3",
+    password: "$2a$12$dIuKAuDzD.KhJ0FRDhaOse8aOcDm3XY4IbKRrz6bFTGHHskPwojfS",
+    type: "Delivery Man",
+    CategoryId: 5,
+    // verificationCode: ,
+  },
 ];
 
 const category = [
-  {
-    nameEN: "Restaurants",
-    nameAR: "مطاعم",
-    nameKUR: "Restaurants",
-    image: "productCategory1.png",
-    role: "productSeller",
-  },
-  {
-    nameEN: "grocery",
-    nameAR: "بقالة",
-    nameKUR: "grocery",
-    image: "productCategory2.png",
-    role: "productSeller",
-  },
-  {
-    nameEN: "Carpenter",
-    nameAR: "نجار",
-    nameKUR: "Necar",
-    image: "serviceCategory1.jpeg",
-    role: "serviceSeller",
-  },
-  {
-    nameEN: "tailor",
-    nameAR: "خياط",
-    nameKUR: "lebaskar",
-    image: "serviceCategory2.jpg",
-    role: "serviceSeller",
-  },
+  // {
+  //   nameEN: "Restaurants",
+  //   nameAR: "مطاعم",
+  //   nameKUR: "Restaurants",
+  //   image: "productCategory1.png",
+  //   role: "productSeller",
+  // },
+  // {
+  //   nameEN: "grocery",
+  //   nameAR: "بقالة",
+  //   nameKUR: "grocery",
+  //   image: "productCategory2.png",
+  //   role: "productSeller",
+  // },
+  // {
+  //   nameEN: "Carpenter",
+  //   nameAR: "نجار",
+  //   nameKUR: "Necar",
+  //   image: "serviceCategory1.jpeg",
+  //   role: "serviceSeller",
+  // },
+  // {
+  //   nameEN: "tailor",
+  //   nameAR: "خياط",
+  //   nameKUR: "lebaskar",
+  //   image: "serviceCategory2.jpg",
+  //   role: "serviceSeller",
+  // },
   {
     nameEN: "taxi",
     nameAR: "سيارة اجره",
@@ -224,20 +251,20 @@ const category = [
 ];
 
 const subCategory = [
-  {
-    nameEN: "desserts",
-    nameAR: "الحلويات",
-    nameKUR: "desserts",
-    image: "subcategory1.png",
-    CategoryId: 1,
-  },
-  {
-    nameEN: "Cafes",
-    nameAR: "كافيهات",
-    nameKUR: "Cafes",
-    image: "subcategory2.png",
-    CategoryId: 1,
-  },
+  // {
+  //   nameEN: "desserts",
+  //   nameAR: "الحلويات",
+  //   nameKUR: "desserts",
+  //   image: "subcategory1.png",
+  //   CategoryId: 1,
+  // },
+  // {
+  //   nameEN: "Cafes",
+  //   nameAR: "كافيهات",
+  //   nameKUR: "Cafes",
+  //   image: "subcategory2.png",
+  //   CategoryId: 1,
+  // },
   // {
   //   nameEN: "table",
   //   nameAR: "طاولة",
@@ -258,7 +285,7 @@ const subCategory = [
     nameKUR: "cars taxi",
     image: "subTaxi1.jpg",
     deliveryPrice: 10,
-    CategoryId: 5,
+    CategoryId: 1,
   },
   {
     nameEN: "Transport buses",
@@ -266,7 +293,7 @@ const subCategory = [
     nameKUR: "Otobusên veguhestinê",
     image: "subTaxi2.jpg",
     deliveryPrice: 10,
-    CategoryId: 5,
+    CategoryId: 1,
   },
   {
     nameEN: "Freight",
@@ -274,7 +301,7 @@ const subCategory = [
     nameKUR: "Bar",
     image: "subTaxi3.jpg",
     deliveryPrice: 10,
-    CategoryId: 5,
+    CategoryId: 1,
   },
   {
     nameEN: "Delivery Man",
@@ -282,7 +309,7 @@ const subCategory = [
     nameKUR: "Delivery Man",
     image: "subTaxi4.jpg",
     deliveryPrice: 10,
-    CategoryId: 5,
+    CategoryId: 1,
   },
 ];
 
@@ -377,21 +404,30 @@ const banners = [{ image: "banner1.jpg", AdminId: 1 }];
 const locations = [
   {
     name: "Palestine",
-    city: "Gaze",
-    street: "Omar Almokhtar",
+    city: "Domino ICT",
+    street: "Domino ICT",
     buildNumber: "123456",
     image: "location1.jpg",
-    long: 34.450873,
-    lat: 31.514425,
+    long: 34.4457216,
+    lat: 31.5162624,
   },
   {
     name: "Palestine",
-    city: "jerusalem ",
-    street: "jerusalem ",
+    city: "Palmera",
+    street: "Palmera",
     buildNumber: "123456",
     image: "location1.jpg",
-    long: 35.2137,
-    lat: 31.7683,
+    long: 34.4445936,
+    lat: 31.5216026,
+  },
+  {
+    name: "Palestine",
+    city: "Families bakeries",
+    street: "Families bakeries",
+    buildNumber: "123456",
+    image: "location1.jpg",
+    long: 34.4265688,
+    lat: 31.5216421,
   },
 ];
 
@@ -402,16 +438,12 @@ const userLocations = [
     isDefault: true,
   },
   {
-    UserId: 1,
-    LocationId: 2,
-  },
-  {
     SellerId: 1,
     LocationId: 2,
   },
   {
     SellerId: 2,
-    LocationId: 2,
+    LocationId: 3,
   },
 ];
 

@@ -16,9 +16,16 @@ module.exports.calculateDistance = (lat1, lon1, lat2, lon2) => {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   const distance = R * c;
-  return Math.round(distance);
+  return formatNumberWithTwoDecimals(distance);
 };
 
 function toRadians(degrees) {
   return (degrees * Math.PI) / 180;
+}
+
+function formatNumberWithTwoDecimals(number) {
+  const formattedNumber = Number(number.toFixed(2));
+  return Number.isInteger(formattedNumber)
+    ? parseFloat(formattedNumber.toFixed(2))
+    : formattedNumber;
 }

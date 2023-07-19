@@ -1,7 +1,7 @@
 const sequelize = require("./connection");
 
 const {
-  seller,
+  // seller,
   category,
   subCategory,
   // products,
@@ -9,17 +9,17 @@ const {
   // stories,
   // services,
   admin,
-  messages,
-  deliveries,
-  users,
+  // messages,
+  // deliveries,
+  // users,
   banners,
-  feedBacks,
-  locations,
-  userLocations,
+  // feedBacks,
+  // locations,
+  // userLocations,
 } = require("./fakeData");
 
 const {
-  Seller,
+  // Seller,
   Category,
   SubCategory,
   // Product,
@@ -27,15 +27,15 @@ const {
   // Story,
   // Service,
   Admin,
-  Message,
-  Delivery,
-  User,
+  // Message,
+  // Delivery,
+  // User,
   Image,
-  Feedback,
-  Location,
-  UserLocation,
+  // Feedback,
+  // Location,
+  // UserLocation,
 } = require("../../models");
-const { deliveryRef } = require("../../firebaseConfig");
+// const { deliveryRef } = require("../../firebaseConfig");
 
 const insertDB = async () => {
   await sequelize.sync({ force: true });
@@ -51,32 +51,32 @@ const insertDB = async () => {
   await Image.bulkCreate(banners).then(() =>
     console.log("Image data have been saved")
   );
-  await Seller.bulkCreate(seller).then(() =>
-    console.log("Seller data have been saved")
-  );
-  await Feedback.bulkCreate(feedBacks).then(() =>
-    console.log("Feedback data have been saved")
-  );
-  await User.bulkCreate(users).then(() =>
-    console.log("User data have been saved")
-  );
-  await Message.bulkCreate(messages).then(() =>
-    console.log("Messages data have been saved")
-  );
-  await Location.bulkCreate(locations).then(() =>
-    console.log("Locations data have been saved")
-  );
-  await UserLocation.bulkCreate(userLocations).then(() =>
-    console.log("User Locations data have been saved")
-  );
-  await Delivery.bulkCreate(deliveries).then(() =>
-    console.log("Delivery data have been saved")
-  );
+  process.exit();
+  // await Seller.bulkCreate(seller).then(() =>
+  //   console.log("Seller data have been saved")
+  // );
+  // await Feedback.bulkCreate(feedBacks).then(() =>
+  //   console.log("Feedback data have been saved")
+  // );
+  // await User.bulkCreate(users).then(() =>
+  //   console.log("User data have been saved")
+  // );
+  // await Message.bulkCreate(messages).then(() =>
+  //   console.log("Messages data have been saved")
+  // );
+  // await Location.bulkCreate(locations).then(() =>
+  //   console.log("Locations data have been saved")
+  // );
+  // await UserLocation.bulkCreate(userLocations).then(() =>
+  //   console.log("User Locations data have been saved")
+  // );
+  // await Delivery.bulkCreate(deliveries).then(() =>
+  //   console.log("Delivery data have been saved")
+  // );
   // deliveries.forEach(async (delivery, ind) => {
   //   const { long, lat } = delivery;
   //   await deliveryRef.child(ind + 1).set({ long, lat, fcmToken: "" });
   // });
-  process.exit();
   // await Story.bulkCreate(stories).then(() =>
   //   console.log("Story data have been saved")
   // );

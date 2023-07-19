@@ -471,11 +471,10 @@ const getAllCategory = async (req, res) => {
 const getAllSubCategories = async (req, res) => {
   const { CategoryId } = req.params;
   let subCategories;
-  if (CategoryId != 5) {
+  if (CategoryId != 1) {
     subCategories = await SubCategory.findAll({
       where: { CategoryId },
       include: { model: Category },
-      // TODO: return deliveryPrice for delivery subcategories
       attributes: {
         exclude: ["deliveryPrice"],
       },
@@ -709,7 +708,7 @@ const nearestSellers = async (req, res) => {
       );
 
       // TODO: change the number of kilometers
-      if (distance < 98) {
+      if (distance < 10) {
         result.push(seller);
       }
     })
