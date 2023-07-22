@@ -222,7 +222,7 @@ const validateEditSubCategory = yup.object().shape({
   nameEN: yup.string().optional(),
   nameKUR: yup.string().optional(),
   deliveryPrice: yup.number().optional(),
-  CategoryId: yup.number().required(),
+  CategoryId: yup.number().optional(),
   SubCategoryId: yup.number().required(),
 });
 const validateDeleteSubCategory = yup.object().shape({
