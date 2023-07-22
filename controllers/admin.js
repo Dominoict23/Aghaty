@@ -14,6 +14,8 @@ const {
   FinancialRecord,
   Order,
   OrderDelivery,
+  Location,
+  UserLocation,
 } = require("../models");
 const { serverErrs } = require("../middleware/customError");
 const generateToken = require("../middleware/generateToken");
@@ -83,7 +85,16 @@ const addSeller = async (req, res) => {
     serviceType,
     address,
     CategoryId,
+    city,
+    street,
+    buildNumber,
+    long,
+    lat,
   } = req.body;
+
+  const category = await Category.findOne({ where: { id: CategoryId } });
+
+  if (!category) throw serverErrs.BAD_REQUEST("Category not exist");
 
   const userFound = await User.findOne({ where: { mobile } });
   const sellerFound = await Seller.findOne({ where: { mobile } });
@@ -112,6 +123,27 @@ const addSeller = async (req, res) => {
 
   await Feedback.create({ SellerId: newSeller.id });
 
+  const newLocation = await Location.create(
+    {
+      name: address,
+      city,
+      street,
+      buildNumber,
+      long,
+      lat,
+      image: category.image,
+    },
+    {
+      returning: true,
+    }
+  );
+
+  await UserLocation.create({
+    LocationId: newLocation.id,
+    SellerId: newSeller.id,
+    isDefault: true,
+  });
+
   const dataWithoutPassword = newSeller.toJSON();
   delete dataWithoutPassword.password;
   delete dataWithoutPassword.verificationCode;
@@ -127,7 +159,21 @@ const addSeller = async (req, res) => {
 const editSeller = async (req, res) => {
   await validateEditSeller.validate(req.body);
 
-  const { SellerId, password, ...others } = req.body;
+  let {
+    SellerId,
+    password,
+    firstName,
+    lastName,
+    role,
+    serviceType,
+    address,
+    CategoryId,
+    city,
+    street,
+    buildNumber,
+    long,
+    lat,
+  } = req.body;
 
   const sellerFound = await Seller.findOne({
     where: { id: SellerId },
@@ -138,16 +184,50 @@ const editSeller = async (req, res) => {
 
   if (!sellerFound) throw serverErrs.BAD_REQUEST("seller not found");
 
+  const sellerLocation = await UserLocation.findOne({ SellerId });
+
+  const location = await Location.findOne({
+    where: { id: sellerLocation.LocationId },
+  });
+  if (!sellerLocation || !location)
+    throw serverErrs.BAD_REQUEST("location for this seller not found");
+
   if (password) {
     password = await hash(password, 12);
-    await sellerFound.update({ password, ...others });
+
+    await sellerFound.update({
+      password,
+      firstName,
+      lastName,
+      role,
+      serviceType,
+      address,
+      CategoryId,
+    });
+
+    await location.update({ city, street, buildNumber, long, lat });
   } else {
-    await sellerFound.update({ ...others });
+    await sellerFound.update({
+      firstName,
+      lastName,
+      role,
+      serviceType,
+      address,
+      CategoryId,
+    });
+
+    await location.update({ city, street, buildNumber, long, lat });
   }
+
+  const dataWithoutPassword = sellerFound.toJSON();
+  delete dataWithoutPassword.password;
+  delete dataWithoutPassword.verificationCode;
+  delete dataWithoutPassword.createdAt;
+  delete dataWithoutPassword.updatedAt;
 
   res.send({
     status: 201,
-    sellerFound,
+    dataWithoutPassword,
     msg: "seller updated successfully",
   });
 };
@@ -160,6 +240,16 @@ const deleteSeller = async (req, res) => {
 
   if (!sellerFound) throw serverErrs.BAD_REQUEST("seller not found");
 
+  const sellerLocation = await UserLocation.findOne({ SellerId });
+
+  const location = await Location.findOne({
+    where: { id: sellerLocation.LocationId },
+  });
+  if (!sellerLocation || !location)
+    throw serverErrs.BAD_REQUEST("location for this seller not found");
+
+  await sellerLocation.destroy();
+  await location.destroy();
   await sellerFound.destroy();
 
   res.send({
@@ -171,7 +261,13 @@ const getAllSellers = async (req, res) => {
   const { limit, offset } = req.query;
   const count = await Seller.count();
   const sellers = await Seller.findAll({
-    include: { model: Category },
+    include: [
+      { model: Category },
+      {
+        model: UserLocation,
+        include: { model: Location },
+      },
+    ],
     attributes: {
       exclude: ["verificationCode", "password", "createdAt", "updatedAt"],
     },
@@ -179,9 +275,30 @@ const getAllSellers = async (req, res) => {
     offset: +offset || 0,
   });
 
+  const data = [];
+
+  sellers.forEach((seller) => {
+    data.push({
+      id: seller.id,
+      mobile: seller.mobile,
+      firstName: seller.firstName,
+      lastName: seller.lastName,
+      avatar: seller.avatar,
+      cover: seller.cover,
+      status: seller.status,
+      role: seller.role,
+      serviceType: seller.serviceType,
+      address: seller.address,
+      rate: seller.rate,
+      CategoryId: seller.CategoryId,
+      lat: seller.UserLocations[0].Location.lat,
+      long: seller.UserLocations[0].Location.long,
+    });
+  });
+
   res.send({
     status: 200,
-    sellers,
+    sellers: data,
     count,
     msg: "get all sellers successfully",
   });

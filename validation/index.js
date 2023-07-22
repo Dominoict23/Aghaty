@@ -156,8 +156,14 @@ const validateAddSeller = yup.object().shape({
   password: yup.string().required().min(8).max(16),
   role: yup.string().required(),
   serviceType: yup.string().optional(),
-  address: yup.string().required(),
   CategoryId: yup.number().required(),
+  // location data
+  address: yup.string().required(),
+  city: yup.string().required(),
+  street: yup.string().required(),
+  buildNumber: yup.string().required(),
+  long: yup.number().required(),
+  lat: yup.number().required(),
 });
 const validateEditSeller = yup.object().shape({
   mobile: yup.string().optional().min(12).max(15),
