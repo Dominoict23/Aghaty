@@ -1018,7 +1018,9 @@ const editCover = async (req, res) => {
   });
 };
 const getAllSubCategory = async (req, res) => {
+  const seller = await Seller.findOne({ where: { id: req.user.userId } });
   const subCategories = await SubCategory.findAll({
+    where: { CategoryId: seller.CategoryId },
     attributes: ["id", "nameEN", "nameAR", "nameKUR"],
   });
 
