@@ -441,7 +441,7 @@ const getAllSubCategory = async (req, res) => {
 };
 const getDeliverySubCategory = async (req, res) => {
   const subCategories = await SubCategory.findAll({
-    where: { CategoryId: 5 },
+    where: { CategoryId: 1 },
   });
 
   res.send({
