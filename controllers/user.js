@@ -1404,7 +1404,7 @@ const editLocation = async (req, res) => {
   });
   if (!Location) throw serverErrs.BAD_REQUEST("Location not found");
 
-  if (req.files.image !== undefined) {
+  if (req.files?.image !== undefined) {
     await location.update({ ...others, image: req.files.image[0].filename });
   } else {
     await location.update({ ...others });

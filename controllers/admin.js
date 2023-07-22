@@ -321,7 +321,7 @@ const editCategory = async (req, res) => {
 
   if (!category) throw serverErrs.BAD_REQUEST("category not found");
 
-  if (req.files.image !== undefined) {
+  if (req.files?.image !== undefined) {
     await category.update({ ...others, image: req.files.image[0].filename });
   } else {
     await category.update({ ...others });
@@ -395,7 +395,7 @@ const editSubCategory = async (req, res) => {
 
   if (!subCategory) throw serverErrs.BAD_REQUEST("subCategory not found");
 
-  if (req.files.image !== undefined) {
+  if (req.files?.image !== undefined) {
     await subCategory.update({ ...others, image: req.files.image[0].filename });
   } else {
     await subCategory.update({ ...others });
@@ -650,7 +650,7 @@ const editSocialMedia = async (req, res) => {
 
   if (!socialMedia) throw serverErrs.BAD_REQUEST("socialMedia not found");
 
-  if (req.files.image !== undefined) {
+  if (req.files?.image !== undefined) {
     await socialMedia.update({ icon: req.files.image[0].filename, ...others });
   } else {
     await socialMedia.update({ ...others });

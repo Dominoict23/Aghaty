@@ -281,7 +281,7 @@ const addPost = async (req, res) => {
     await newLive.save();
   }
   if (Object.keys(req.files).length !== 0) {
-    if (req.files.image !== undefined) {
+    if (req.files?.image !== undefined) {
       const newImage = await Image.create(
         {
           image: req.files.image[0].filename,
@@ -293,7 +293,7 @@ const addPost = async (req, res) => {
       );
       await newImage.save();
     }
-    if (req.files.video !== undefined) {
+    if (req.files?.video !== undefined) {
       const newVideo = await Video.create({
         video: req.files.video[0].filename,
         PostId: newPost.id,
@@ -379,7 +379,7 @@ const editPost = async (req, res) => {
   await post.update({ ...others });
 
   if (Object.keys(req.files).length !== 0) {
-    if (req.files.image !== undefined) {
+    if (req.files?.image !== undefined) {
       const imageFound = await Image.findOne({ where: { PostId } });
 
       if (!imageFound)
@@ -387,7 +387,7 @@ const editPost = async (req, res) => {
 
       await imageFound.update({ image: req.files.image[0].filename });
     }
-    if (req.files.video !== undefined) {
+    if (req.files?.video !== undefined) {
       const videoFound = await Video.findOne({ where: { PostId } });
 
       if (!videoFound)
@@ -955,7 +955,7 @@ const editProduct = async (req, res) => {
     await product.update({ ...others });
   }
 
-  if (req.files.image !== undefined) {
+  if (req.files?.image !== undefined) {
     const imageFound = await Image.findOne({ where: { ProductId } });
 
     if (!imageFound)
