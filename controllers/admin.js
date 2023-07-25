@@ -836,22 +836,22 @@ const getDeliveryFinancialRecords = async (req, res) => {
     include: [{ model: Order }, { model: OrderDelivery }],
   });
 
-  const sellerOrders = [];
-  const deliveryOrders = [];
+  // const sellerOrders = [];
+  // const deliveryOrders = [];
 
   let totalOrdersPrice = 0;
 
-  frs.forEach((fr) => {
-    deliveryOrders.push(fr.OrderDelivery);
-    if (fr.Order) {
-      sellerOrders.push(fr.Order);
-    }
-    totalOrdersPrice += fr.OrderDelivery.price;
-  });
+  // frs.forEach((fr) => {
+  //   deliveryOrders.push(fr.OrderDelivery);
+  //   if (fr.Order) {
+  //     sellerOrders.push(fr.Order);
+  //   }
+  //   totalOrdersPrice += fr.OrderDelivery.price;
+  // });
 
   res.send({
     status: 200,
-    data: { sellerOrders, deliveryOrders, totalOrdersPrice },
+    data: { frs },
     msg: "successful get orders financial recorder for this Delivery",
   });
 };
