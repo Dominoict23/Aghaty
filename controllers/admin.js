@@ -851,7 +851,7 @@ const getDeliveryFinancialRecords = async (req, res) => {
 
   res.send({
     status: 200,
-    data: { frs },
+    data: frs,
     msg: "successful get orders financial recorder for this Delivery",
   });
 };
