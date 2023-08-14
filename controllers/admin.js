@@ -42,6 +42,7 @@ const {
   validateDeleteSocialMedia,
 } = require("../validation");
 const { deliveryRef } = require("../firebaseConfig");
+const { Op } = require("sequelize");
 
 // Auth requests
 const login = async (req, res) => {
@@ -544,6 +545,7 @@ const deleteSubCategory = async (req, res) => {
 };
 const getAllSubCategory = async (req, res) => {
   const subCategories = await SubCategory.findAll({
+    where: { id: { [Op.notIn]: [1, 2, 3, 4] } },
     include: { model: Category },
     attributes: {
       exclude: ["deliveryPrice"],
