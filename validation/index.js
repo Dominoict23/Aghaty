@@ -261,7 +261,7 @@ const validateAddDelivery = yup.object().shape({
   lastName: yup.string().required(),
   type: yup.string().required(),
   password: yup.string().required().min(8).max(16),
-  CategoryId: yup.number().required(),
+  // CategoryId: yup.number().required(),
 });
 
 const validateEditDelivery = yup.object().shape({
