@@ -308,7 +308,8 @@ const getAllSellers = async (req, res) => {
 const addDelivery = async (req, res) => {
   await validateAddDelivery.validate(req.body);
 
-  const { mobile, firstName, lastName, password, type, CategoryId } = req.body;
+  // const { mobile, firstName, lastName, password, type, CategoryId } = req.body;
+  const { mobile, firstName, lastName, password, type } = req.body;
 
   const deliveryFound = await Delivery.findOne({ where: { mobile } });
   const userFound = await User.findOne({ where: { mobile } });
@@ -330,7 +331,7 @@ const addDelivery = async (req, res) => {
     type,
     avatar: "avatar.png",
     cover: "cover.jpg",
-    CategoryId,
+    CategoryId: 1,
   });
 
   await deliveryRef
