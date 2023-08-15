@@ -259,7 +259,10 @@ const validateAddDelivery = yup.object().shape({
   mobile: yup.string().required().min(12).max(15),
   firstName: yup.string().required(),
   lastName: yup.string().required(),
-  type: yup.string().required(),
+  type: yup
+    .string()
+    .required()
+    .oneOf(["Taxi cars", "Transport buses", "Freight", "Delivery Man"]),
   password: yup.string().required().min(8).max(16),
   // CategoryId: yup.number().required(),
 });
