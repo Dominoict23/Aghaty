@@ -353,7 +353,7 @@ const addDelivery = async (req, res) => {
 const editDelivery = async (req, res) => {
   await validateEditDelivery.validate(req.body);
 
-  const { DeliveryId, password, ...others } = req.body;
+  let { DeliveryId, password, ...others } = req.body;
 
   const deliveryFound = await Delivery.findOne({
     where: { id: DeliveryId },
