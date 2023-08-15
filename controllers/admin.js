@@ -472,7 +472,7 @@ const getAllCategory = async (req, res) => {
   const categories = await Category.findAll({
     where: {
       id: {
-        [Op.eq]: 1,
+        [Op.ne]: 1,
       },
     },
   });
