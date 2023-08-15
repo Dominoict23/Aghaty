@@ -583,8 +583,8 @@ const addDiscountCode = async (req, res) => {
   const newDiscountCode = await DiscountCode.create({
     code,
     discount,
-    startDate: new Date(+startDate[2], +startDate[1] - 1, +startDate[0] + 1),
-    endDate: new Date(+endDate[2], +endDate[1] - 1, +endDate[0] + 1),
+    startDate: new Date(+startDate[2], +startDate[1] - 1, +startDate[0]),
+    endDate: new Date(+endDate[2], +endDate[1] - 1, +endDate[0]),
   });
 
   res.send({
