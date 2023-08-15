@@ -469,7 +469,13 @@ const deleteCategory = async (req, res) => {
   });
 };
 const getAllCategory = async (req, res) => {
-  const categories = await Category.findAll({});
+  const categories = await Category.findAll({
+    where: {
+      id: {
+        [Op.eq]: 1,
+      },
+    },
+  });
 
   res.send({
     status: 200,
