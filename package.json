@@ -1,11 +1,11 @@
 {
   "name": "aghaty",
   "version": "1.0.0",
-  "description": "",
+  "description": "Multi-role e-commerce & multi-service marketplace RESTful API built with Node.js, Express, Sequelize ORM, and MySQL.",
   "main": "index.js",
   "scripts": {
     "start": "node ./index.js",
-    "dev": "nodemon ./index.ts",
+    "dev": "nodemon ./index.js",
     "db:seed": "cross-env SEED=true NODE_ENV=development node db/config/build.js"
   },
   "repository": {
